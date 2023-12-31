@@ -69,13 +69,14 @@ class KnexPostgres implements PostgresSql {
       .where("table_name", name)
       .then((r) =>
         r.map((x) => {
+          console.log(x)
           return {
-            name: x.column_name,
-            type: x.data_type,
-            nullable: x.is_nullable == "YES",
-            maxLength: x.character_maximum_length,
-            datetime_precision: x.datetime_precision,
-            column_default: x.column_default,
+            name: x.column_name || x.COLUMN_NAME,
+            type: x.data_type || x.DATA_TYPE,
+            nullable: (x.is_nullable || x.IS_NULLABLE) == "YES",
+            maxLength: x.character_maximum_length || x.CHARACTER_MAXIMUM_LENGTH,
+            datetime_precision: x.datetime_precision || x.DATETIME_PRECISION,
+            column_default: x.column_default || x.COLUMN_DEFAULT,
           }
         })
       )
@@ -85,12 +86,18 @@ class KnexPostgres implements PostgresSql {
     return db
       .select("*")
       .from("information_schema.tables")
-      .whereNotIn("table_schema", ["pg_catalog", "information_schema"])
+      .whereNotIn("table_schema", [
+        "pg_catalog",
+        "information_schema",
+        "mysql",
+        "sys",
+        "performance_schema",
+      ])
       .then((r) =>
         r.map((x) => {
           return {
-            schema: x.table_schema,
-            name: x.table_name,
+            schema: x.table_schema || x.TABLE_SCHEMA,
+            name: x.table_name || x.TABLE_NAME,
           }
         })
       )
