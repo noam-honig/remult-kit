@@ -1,7 +1,13 @@
 {
-  "name": "react-vite-express-starter",
-  "private": true,
+  "name": "remult-kit",
   "version": "0.0.0",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Noam Honig",
+      "email": "noam.honig@gmail.com"
+    }
+  ],
   "scripts": {
     "dev": "vite",
     "dev-node": "tsx watch src/server",
