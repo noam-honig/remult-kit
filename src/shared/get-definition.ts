@@ -44,7 +44,7 @@ export interface ColumnInfo {
   name: string
   type: string
   nullable: boolean
-  maxLength: number
-  datetime_precision: number
+  maxLength: number | null
+  datetime_precision: number | null
   column_default: string
 }
