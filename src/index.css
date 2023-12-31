@@ -26,8 +26,8 @@ main {
   box-shadow: 0 2px 4px #0003, 0 25px 50px #0000001a;
 }
 
-main>div,
-main>form {
+main > div,
+main > form {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid lightgray;
   display: flex;
@@ -36,7 +36,7 @@ main>form {
   justify-content: space-between;
 }
 
-main>div:has(input[type='checkbox']) {
+main > div:has(input[type="checkbox"]) {
   justify-content: inherit;
 }
 
@@ -47,7 +47,7 @@ input {
   border: 0;
 }
 
-input:checked+input {
+input:checked + input {
   text-decoration: line-through;
 }
 
@@ -55,7 +55,7 @@ input:placeholder-shown {
   font-style: italic;
 }
 
-input[type='checkbox'] {
+input[type="checkbox"] {
   width: 36px;
   height: 36px;
   height: 1.5rem;

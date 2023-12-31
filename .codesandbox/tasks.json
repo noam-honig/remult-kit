@@ -16,11 +16,6 @@
       "preview": {
         "port": 5173
       }
-    },
-    "dev-node": {
-      "name": "dev-node",
-      "command": "yarn dev-node",
-      "runAtStart": true
     }
   }
 }
