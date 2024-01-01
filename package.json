@@ -8,16 +8,21 @@
       "email": "noam.honig@gmail.com"
     }
   ],
+  "main": "index.mjs",
+  "bin": {
+    "remult-kit": "index.mjs"
+  },
   "scripts": {
     "dev": "vite",
     "dev-node": "tsx watch src/server",
     "start": "node dist/server/",
-    "build": "tsc && vite build && tsc -p tsconfig.server.json",
+    "build": "tsc && vite build ",
     "preview": "vite preview",
     "test": "vitest"
   },
   "dependencies": {
     "@types/pg": "^8.10.9",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "knex": "^3.1.0",
     "mysql2": "^3.6.5",

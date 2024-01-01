@@ -1,23 +1,16 @@
-import { BackendMethod, SqlDatabase, remult } from "remult"
-import { KnexDataProvider } from "remult/remult-knex"
+import { DataProvider, SqlDatabase, remult } from "remult"
+import type { KnexDataProvider } from "remult/remult-knex"
 
-export class GetDefinition {
-  @BackendMethod({ allowed: true })
-  static async getTableInfo(schema: string, name: string) {
-    return getStrategy().getTableInfo(schema, name)
-  }
-  @BackendMethod({ allowed: true })
-  static async getTables(): Promise<TableInfo[]> {
-    return getStrategy().getTables()
-  }
+export function getStrategy(dataProvider?: DataProvider) {
+  if (!dataProvider) dataProvider = remult.dataProvider
+  if ((dataProvider as SqlDatabase).createCommand)
+    return new TheServer(dataProvider)
+  else return new ServerWithKnex(dataProvider)
 }
-function getStrategy() {
-  if (remult.dataProvider instanceof SqlDatabase) return new PostgresSql()
-  else return new KnexPostgres()
-}
-class PostgresSql {
+export class TheServer {
+  constructor(public db: DataProvider) {}
   async getTableInfo(schema: string, name: string) {
-    let c = await SqlDatabase.getDb().createCommand()
+    let c = await (this.db as SqlDatabase).createCommand()
     let r = await c.execute(
       `select * from information_schema.columns where table_schema=${c.addParameterAndReturnSqlToken(
         schema
@@ -35,7 +28,7 @@ class PostgresSql {
     })
   }
   async getTables(): Promise<TableInfo[]> {
-    return SqlDatabase.getDb()
+    return (this.db as SqlDatabase)
       .execute(
         "select * from information_schema.tables where table_schema not in ('pg_catalog','information_schema')"
       )
@@ -47,7 +40,7 @@ class PostgresSql {
       )
   }
 }
-class KnexPostgres implements PostgresSql {
+class ServerWithKnex extends TheServer {
   getTableInfo(
     schema: string,
     name: string
@@ -61,7 +54,7 @@ class KnexPostgres implements PostgresSql {
       column_default: any
     }[]
   > {
-    const db = KnexDataProvider.getDb()
+    const db = (this.db as KnexDataProvider).knex
     return db
       .select("*")
       .from("information_schema.columns")
@@ -82,7 +75,7 @@ class KnexPostgres implements PostgresSql {
       )
   }
   getTables(): Promise<TableInfo[]> {
-    const db = KnexDataProvider.getDb()
+    const db = (this.db as KnexDataProvider).knex
     return db
       .select("*")
       .from("information_schema.tables")

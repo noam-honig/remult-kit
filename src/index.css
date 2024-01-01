@@ -81,3 +81,9 @@ header {
   min-width: 300px;
   margin: auto;
 }
+
+pre {
+  border: 1px solid darkgray;
+  padding: 4px;
+  border-radius: 8px;
+}

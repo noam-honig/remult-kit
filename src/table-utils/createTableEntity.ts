@@ -18,7 +18,6 @@ export function createTableEntity(
   ).map((info) => ({ ...processColumn(info), info }))) {
     if (!first) first = memberName
     if (fieldType == null) {
-      console.log(`/* ${JSON.stringify(info, undefined, 2)} */`)
       fieldType = "string"
     }
     cols += "\n\n  @Fields." + fieldType + `()\n  ` + memberName
