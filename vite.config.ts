@@ -6,7 +6,7 @@ import express from "vite3-plugin-express"
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: { "/api": { target: "http://localhost:3002", changeOrigin: true } },
+    proxy: { "/api": { target: "http://localhost:3003", changeOrigin: true } },
   },
   build: {
     rollupOptions: {
