@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiCheckboxBlankOutline, mdiCheckboxMarkedOutline } from '@mdi/js'
+  import { dev } from '$app/environment'
   import { remult, repo } from 'remult'
   import { onMount } from 'svelte'
   import { Button, Card, Collapse, Icon, TextField } from 'svelte-ux'
@@ -16,7 +17,7 @@
 
   let settings: Setting[] = []
 
-  onMount(async () => {
+  const readEnv = async () => {
     const envLines = await ActionsController.readFile('.env')
     for (let i = 0; i < envLines.length; i++) {
       if (envLines[i].includes('DATABASE_URL')) {
@@ -24,6 +25,10 @@
         steps.con = true
       }
     }
+  }
+
+  onMount(async () => {
+    await readEnv()
 
     settings = await remult.repo(Setting).find()
   })
@@ -34,13 +39,13 @@
 
   <Collapse
     popout
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}></Icon> .env
     </div>
-    <div class="p-3 bg-gray-100 border-t">
-      <p>First thing first, we need to conect to a Database 🛢️</p>
+    <div class="p-3 border-t">
+      <p>First thing first, we need to conect to a Database</p>
 
       <TextField
         label="connection string"
@@ -57,7 +62,7 @@
         <div slot="actions" class="p-2">
           <Button
             variant="fill"
-            color="green"
+            color="primary"
             disabled={!DATABASE_URL}
             {loading}
             on:click={async () => {
@@ -65,12 +70,15 @@
               needReboot = await ActionsController.writeFile('.env', [
                 `DATABASE_URL = ${DATABASE_URL}`,
               ])
+              if (!dev) {
+                await readEnv()
+              }
               loading = false
             }}
             >Write File
           </Button>
-          {#if needReboot}
-            <i>Reboot Needed...</i>
+          {#if needReboot && dev}
+            <i>Reboot is happening in dev mode as vite is looknig at .env</i>
           {/if}
         </div>
       </Card>
@@ -79,13 +87,13 @@
 
   <Collapse
     popout
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con && steps.dep ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}
       ></Icon> dependencies
     </div>
-    <div class="p-3 bg-gray-100 border-t">
+    <div class="p-3 border-t">
       <Card title="node" subheading="commands">
         <div slot="contents" class="border">
           <pre>npm i xxx (Noam's code)</pre>
@@ -93,7 +101,7 @@
         <div slot="actions" class="p-2">
           <Button
             variant="fill"
-            color="green"
+            color="primary"
             disabled={!DATABASE_URL}
             {loading}
             on:click={async () => {
@@ -107,7 +115,7 @@
             >Install
           </Button>
           {#if needReboot}
-            <i>Reboot Needed...</i>
+            <i>Reboot Needed... in dev mode.</i>
           {/if}
         </div>
       </Card>
@@ -117,13 +125,13 @@
   <Collapse
     popout
     open={steps.con}
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con && steps.dep ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}
       ></Icon> settings
     </div>
-    <div class="p-3 bg-gray-100 border-t">
+    <div class="p-3 bg-surface-300 border-t">
       <Card title="remult-kit" subheading="settings">
         <div slot="contents" class="mb-2 grid gap-2">
           {#each settings as setting}

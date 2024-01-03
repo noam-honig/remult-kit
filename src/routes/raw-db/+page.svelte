@@ -1,7 +1,9 @@
 <script>
   import { Button, Card, Field } from 'svelte-ux'
 
-  let rawDb = '--CREATE SCHEMA IF NOT EXISTS "public";'
+  // TODO: add favorites saved in .remult-kit 🧡
+
+  let rawDb = 'CREATE SCHEMA IF NOT EXISTS "public";'
 </script>
 
 <main class="p-2">
@@ -14,7 +16,7 @@
     <div slot="actions" class="m-2">
       <Button
         variant="fill"
-        color="green"
+        color="primary"
         on:click={async () => {
           console.log(`Run Raw SQL...`)
         }}>Run</Button
