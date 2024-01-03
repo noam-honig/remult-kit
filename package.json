@@ -1,7 +1,27 @@
 {
   "name": "remult-kit",
+  "description": "Remult-Kit is your companion for building apps with Remult.",
+  "keywords": [
+    "remutl",
+    "cli"
+  ],
   "version": "0.0.1",
-  "private": true,
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Noam Honig",
+      "email": "noam.honig@gmail.com"
+    },
+    {
+      "name": "Jean-Yves Couët",
+      "email": "jycouet@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noam-honig/remult-kit",
+    "homepage": "https://remult.dev"
+  },
   "type": "module",
   "bin": {
     "remult-kit": "node -r dotenv/config remult-kit-app",
