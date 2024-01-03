@@ -39,12 +39,12 @@
 
   <Collapse
     popout
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}></Icon> .env
     </div>
-    <div class="p-3 bg-gray-100 border-t">
+    <div class="p-3 border-t">
       <p>First thing first, we need to conect to a Database</p>
 
       <TextField
@@ -62,7 +62,7 @@
         <div slot="actions" class="p-2">
           <Button
             variant="fill"
-            color="green"
+            color="primary"
             disabled={!DATABASE_URL}
             {loading}
             on:click={async () => {
@@ -87,13 +87,13 @@
 
   <Collapse
     popout
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con && steps.dep ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}
       ></Icon> dependencies
     </div>
-    <div class="p-3 bg-gray-100 border-t">
+    <div class="p-3 border-t">
       <Card title="node" subheading="commands">
         <div slot="contents" class="border">
           <pre>npm i xxx (Noam's code)</pre>
@@ -101,7 +101,7 @@
         <div slot="actions" class="p-2">
           <Button
             variant="fill"
-            color="green"
+            color="primary"
             disabled={!DATABASE_URL}
             {loading}
             on:click={async () => {
@@ -125,13 +125,13 @@
   <Collapse
     popout
     open={steps.con}
-    class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+    class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
       <Icon data={steps.con && steps.dep ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}
       ></Icon> settings
     </div>
-    <div class="p-3 bg-gray-100 border-t">
+    <div class="p-3 bg-surface-300 border-t">
       <Card title="remult-kit" subheading="settings">
         <div slot="contents" class="mb-2 grid gap-2">
           {#each settings as setting}

@@ -42,42 +42,47 @@
   ></TextField>
 
   <br />
-  {#each $remultInfos.entities.filter(c => c.meta.table.className
-      .toLowerCase()
-      .includes((search ?? '').toLowerCase())) as { fileContent, meta }}
-    <Collapse
-      popout
-      class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
-    >
-      <div slot="trigger" class="flex-1 px-3 py-3">{meta.table.className}</div>
+  <div class="divide-y">
+    {#each $remultInfos.entities.filter(c => c.meta.table.className
+        .toLowerCase()
+        .includes((search ?? '').toLowerCase())) as { fileContent, meta }}
+      <Collapse
+        popout
+        class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
+      >
+        <div slot="trigger" class="flex-1 px-3 py-3">{meta.table.className}</div>
 
-      <div class="text-xs">
-        <Highlight language={typescript} code={fileContent} />
-      </div>
+        <div>
+          <div class="text-xs">
+            <Highlight language={typescript} code={fileContent} />
+          </div>
 
-      <div class="p-2">
-        <Button
-          variant="fill"
-          color="green"
-          {loading}
-          on:click={async () => {
-            loading = true
-            const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
-            await ActionsController.writeFile(`${outputDir}/entities/${meta.table.className}.ts`, [
-              fileContent,
-            ])
-            loading = false
-            open = true
-            setTimeout(() => {
-              open = false
-            }, 1500)
-          }}
-        >
-          Write files
-        </Button>
-      </div></Collapse
-    >
-  {/each}
+          <div class="p-2">
+            <Button
+              variant="fill"
+              color="primary"
+              {loading}
+              on:click={async () => {
+                loading = true
+                const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
+                await ActionsController.writeFile(
+                  `${outputDir}/entities/${meta.table.className}.ts`,
+                  [fileContent],
+                )
+                loading = false
+                open = true
+                setTimeout(() => {
+                  open = false
+                }, 1500)
+              }}
+            >
+              Write files
+            </Button>
+          </div>
+        </div>
+      </Collapse>
+    {/each}
+  </div>
   <p class="text-red-500">
     {msg}
   </p>

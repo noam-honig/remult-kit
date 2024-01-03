@@ -16,7 +16,7 @@
     <div slot="actions" class="m-2">
       <Button
         variant="fill"
-        color="green"
+        color="primary"
         on:click={async () => {
           console.log(`Run Raw SQL...`)
         }}>Run</Button
