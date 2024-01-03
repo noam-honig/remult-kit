@@ -14,6 +14,9 @@ dependencies:
   dotenv:
     specifier: 16.3.1
     version: 16.3.1
+  highlight.js:
+    specifier: ^11.9.0
+    version: 11.9.0
   kleur:
     specifier: ^4.1.5
     version: 4.1.5
@@ -29,6 +32,9 @@ dependencies:
   remult:
     specifier: ^0.24.1
     version: 0.24.1
+  svelte-highlight:
+    specifier: ^7.4.7
+    version: 7.4.7
   svelte-ux:
     specifier: 0.57.2
     version: 0.57.2(@fortawesome/free-regular-svg-icons@6.5.1)(@fortawesome/free-solid-svg-icons@6.5.1)(@mdi/js@7.4.47)(prism-svelte@0.5.0)(prism-themes@1.9.0)(prismjs@1.29.0)(sveld@0.18.1)(svelte@4.2.8)
@@ -4323,6 +4329,11 @@ packages:
       '@types/hast': 3.0.3
     dev: false
 
+  /highlight.js@11.9.0:
+    resolution: {integrity: sha512-fJ7cW7fQGCYAkgv4CPfwFHrfd/cLS4Hau96JuJ+ZTOWhjnhoeN1ub1tFmALm/+lW5z4WCAuAV9bm05AP0mS6Gw==}
+    engines: {node: '>=12.0.0'}
+    dev: false
+
   /hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: false
@@ -7079,6 +7090,12 @@ packages:
       postcss: 8.4.32
       postcss-scss: 4.0.9(postcss@8.4.32)
       svelte: 4.2.0
+    dev: false
+
+  /svelte-highlight@7.4.7:
+    resolution: {integrity: sha512-4PUIyfhhLkAe+iitARHLcRhWfFJJaFaszLxj9SA4Ob8CAZvM2mCuhUs04XKd44pBHYq2HK7WCNmddb5D3BuQsg==}
+    dependencies:
+      highlight.js: 11.9.0
     dev: false
 
   /svelte-hmr@0.15.3(svelte@4.2.8):

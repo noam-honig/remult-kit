@@ -3,6 +3,9 @@
   import { remultInfos } from '$lib/stores/remultInfos'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
+  import Highlight from 'svelte-highlight'
+  import typescript from 'svelte-highlight/languages/typescript'
+  import atomOneDark from 'svelte-highlight/styles/atom-one-dark'
   import { Button, Collapse, Icon, Notification, table, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
@@ -11,6 +14,7 @@
   let msg = ''
   let loading = false
   let open = false
+  let language = 'ts'
 
   onMount(async () => {
     try {
@@ -22,6 +26,10 @@
     }
   })
 </script>
+
+<svelte:head>
+  {@html atomOneDark}
+</svelte:head>
 
 <main class="p-2">
   <h1 class="text-lg font-semibold">Entities</h1>
@@ -37,21 +45,16 @@
   {#each $remultInfos.entities.filter(c => c.meta.table.className
       .toLowerCase()
       .includes((search ?? '').toLowerCase())) as { fileContent, meta }}
-    <!-- <div class="my-4">
-      <Card title={key} subheading="Entity">
-        <div slot="contents">
-          <pre class="text-xs mb-4">{value}</pre>
-        </div>
-      </Card>
-    </div> -->
     <Collapse
       popout
       class="bg-white elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
     >
       <div slot="trigger" class="flex-1 px-3 py-3">{meta.table.className}</div>
-      <div class="p-3 bg-gray-100 border-t">
-        <pre class="text-xs">{fileContent}</pre>
+
+      <div class="text-xs">
+        <Highlight language={typescript} code={fileContent} />
       </div>
+
       <div class="p-2">
         <Button
           variant="fill"
