@@ -1,5 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
-
+// import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
 import type { IDatabase } from './db/types.js'
@@ -246,12 +245,12 @@ export async function getEntitiesTypescriptPostgres(
 
     toRet.entities.push({ fileContent: entityString, meta: ent })
 
-    writeFileSync(`${entities_path}${ent.table.className}.ts`, entityString)
+    // writeFileSync(`${entities_path}${ent.table.className}.ts`, entityString)
 
     if (withEnums) {
       enumsStrings.forEach(({ enumName, enumString }) => {
         enums.push(enumName)
-        writeFileSync(`${enums_path}${enumName}.ts`, enumString)
+        // writeFileSync(`${enums_path}${enumName}.ts`, enumString)
       })
     }
   })
@@ -262,39 +261,39 @@ export async function getEntitiesTypescriptPostgres(
     .sort((a, b) => a.className.localeCompare(b.className))
 
   // write entities "index.ts"
-  writeFileSync(
-    `${entities_path}index.ts`,
-    `${sortedTables
-      .map(e => {
-        return `import { ${e.className} } from './${e.className}'`
-      })
-      .join('\n')}
+  //   writeFileSync(
+  //     `${entities_path}index.ts`,
+  //     `${sortedTables
+  //       .map(e => {
+  //         return `import { ${e.className} } from './${e.className}'`
+  //       })
+  //       .join('\n')}
 
-export const entities = [
-	${sortedTables.map(c => c.className).join(',\n  ')}
-]
+  // export const entities = [
+  // 	${sortedTables.map(c => c.className).join(',\n  ')}
+  // ]
 
-export {
-	${sortedTables.map(c => c.className).join(',\n  ')}
-}`,
-  )
+  // export {
+  // 	${sortedTables.map(c => c.className).join(',\n  ')}
+  // }`,
+  //   )
 
-  if (enums.length > 0) {
-    const sortedEnums = [...new Set(enums.slice().sort((a, b) => a.localeCompare(b)))]
-    // write enums "index.ts"
-    writeFileSync(
-      `${enums_path}index.ts`,
-      `${sortedEnums
-        .map(e => {
-          return `import { ${e} } from './${e}'`
-        })
-        .join('\n')}
-		
-export {
-  ${sortedEnums.map(c => c).join(',\n  ')}
-}`,
-    )
-  }
+  //   if (enums.length > 0) {
+  //     const sortedEnums = [...new Set(enums.slice().sort((a, b) => a.localeCompare(b)))]
+  //     // write enums "index.ts"
+  //     writeFileSync(
+  //       `${enums_path}index.ts`,
+  //       `${sortedEnums
+  //         .map(e => {
+  //           return `import { ${e} } from './${e}'`
+  //         })
+  //         .join('\n')}
+
+  // export {
+  //   ${sortedEnums.map(c => c).join(',\n  ')}
+  // }`,
+  //     )
+  //   }
 
   return toRet
 }
