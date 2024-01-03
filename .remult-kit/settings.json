@@ -1,0 +1,10 @@
+[
+  {
+    "id": "outputDir",
+    "value": "src/shared"
+  },
+  {
+    "id": "tableProps",
+    "value": "allowApiCrud: true"
+  }
+]
