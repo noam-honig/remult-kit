@@ -226,7 +226,7 @@ export async function getEntitiesTypescriptPostgres(
 
     const cols = ent.cols
     if (toManys.length > 0) {
-      cols.push('  // Relations toMany', ...toManys)
+      cols.push('    // Relations toMany', ...toManys)
     }
     additionnalImports.push(...ent.additionnalImports)
 

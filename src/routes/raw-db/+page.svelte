@@ -1,7 +1,9 @@
 <script>
   import { Button, Card, Field } from 'svelte-ux'
 
-  let rawDb = '--CREATE SCHEMA IF NOT EXISTS "public";'
+  // TODO: add favorites saved in .remult-kit 🧡
+
+  let rawDb = 'CREATE SCHEMA IF NOT EXISTS "public";'
 </script>
 
 <main class="p-2">

@@ -2,7 +2,13 @@
   import { page } from '$app/stores'
   import { AppBar, AppLayout, Button, NavItem, settings, Tooltip } from 'svelte-ux'
   import '../app.postcss'
-  import { mdiCog, mdiDatabaseEditOutline, mdiHome, mdiVectorLink } from '@mdi/js'
+  import {
+    mdiCog,
+    mdiDatabaseEditOutline,
+    mdiHome,
+    mdiLayersTripleOutline,
+    mdiVectorLink,
+  } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
 
   settings({
@@ -26,7 +32,12 @@
   <nav slot="nav" class="nav overflow-hidden grid gap-2 py-2">
     <NavItem path="/" text="Home" icon={mdiHome} currentUrl={$page.url} />
     <NavItem path="/setup" text="Setup" icon={mdiCog} currentUrl={$page.url} />
-    <NavItem path="/entities" text="Entities" icon={mdiVectorLink} currentUrl={$page.url} />
+    <NavItem
+      path="/entities"
+      text="Entities"
+      icon={mdiLayersTripleOutline}
+      currentUrl={$page.url}
+    />
     <NavItem path="/schemas" text="Schemas" icon={mdiVectorLink} currentUrl={$page.url} />
     <NavItem path="/raw-db" text="Raw DB" icon={mdiDatabaseEditOutline} currentUrl={$page.url} />
   </nav>

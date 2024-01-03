@@ -1,16 +1,24 @@
 <script lang="ts">
+  import { mdiCheckCircleOutline } from '@mdi/js'
   import { remultInfos } from '$lib/stores/remultInfos'
+  import { remult } from 'remult'
   import { onMount } from 'svelte'
-  import { Button, Collapse, table, TextField } from 'svelte-ux'
+  import { Button, Collapse, Icon, Notification, table, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
+  import { Setting, SettingKey } from '../../hooks/entities/Setting'
 
   $: search = ''
   let msg = ''
+  let loading = false
+  let open = false
+
   onMount(async () => {
     try {
       $remultInfos = await ActionsController.check()
     } catch (error) {
-      msg = error.message
+      if (error instanceof Error) {
+        msg = error.message
+      }
     }
   })
 </script>
@@ -48,8 +56,18 @@
         <Button
           variant="fill"
           color="green"
+          {loading}
           on:click={async () => {
-            console.log('Write...')
+            loading = true
+            const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
+            await ActionsController.writeFile(`${outputDir}/entities/${meta.table.className}.ts`, [
+              fileContent,
+            ])
+            loading = false
+            open = true
+            setTimeout(() => {
+              open = false
+            }, 1500)
           }}
         >
           Write files
@@ -61,3 +79,13 @@
     {msg}
   </p>
 </main>
+
+<div class="w-[300px] absolute top-5 right-5 z-50">
+  <Notification {open} closeIcon>
+    <div slot="icon">
+      <Icon path={mdiCheckCircleOutline} class="text-green-500" />
+    </div>
+    <div slot="title">Successfully wrote!</div>
+    <div slot="description">The file is on your disk 🎉</div>
+  </Notification>
+</div>
