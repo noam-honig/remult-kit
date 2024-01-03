@@ -10,8 +10,8 @@
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
-
-  // import { darkThemes, lightThemes } from 'svelte-ux/styles/daisy'
+  import Env from '$lib/components/Env.svelte'
+  import { darkThemes, lightThemes } from 'svelte-ux/styles/daisy'
 
   settings({
     theme: {
@@ -35,7 +35,6 @@
 <AppLayout>
   <nav slot="nav" class="nav overflow-hidden grid gap-2 py-2">
     <NavItem path="/" text="Home" icon={mdiHome} currentUrl={$page.url} />
-    <NavItem path="/setup" text="Setup" icon={mdiCog} currentUrl={$page.url} />
     <NavItem
       path="/entities"
       text="Entities"
@@ -44,11 +43,15 @@
     />
     <NavItem path="/schemas" text="Schemas" icon={mdiVectorLink} currentUrl={$page.url} />
     <NavItem path="/raw-db" text="Raw DB" icon={mdiDatabaseEditOutline} currentUrl={$page.url} />
+    <div></div>
+    <NavItem path="/settings" text="Settings" icon={mdiCog} currentUrl={$page.url} />
   </nav>
+
+  <Env></Env>
 
   <AppBar title="Remult Kit">
     <div slot="actions" class="flex gap-3">
-      <!-- <ThemeButton {lightThemes} {darkThemes} /> -->
+      <ThemeButton {lightThemes} {darkThemes} />
 
       <Tooltip title="Discord" placement="left" offset={2}>
         <Button

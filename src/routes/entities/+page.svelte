@@ -20,9 +20,8 @@
     try {
       $remultInfos = await ActionsController.check()
     } catch (error) {
-      if (error instanceof Error) {
-        msg = error.message
-      }
+      // @ts-ignore
+      msg = error.message
     }
   })
 </script>
