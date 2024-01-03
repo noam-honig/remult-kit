@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiCheckboxBlankOutline, mdiCheckboxMarkedOutline } from '@mdi/js'
+  import { dev } from '$app/environment'
   import { remult, repo } from 'remult'
   import { onMount } from 'svelte'
   import { Button, Card, Collapse, Icon, TextField } from 'svelte-ux'
@@ -16,7 +17,7 @@
 
   let settings: Setting[] = []
 
-  onMount(async () => {
+  const readEnv = async () => {
     const envLines = await ActionsController.readFile('.env')
     for (let i = 0; i < envLines.length; i++) {
       if (envLines[i].includes('DATABASE_URL')) {
@@ -24,6 +25,10 @@
         steps.con = true
       }
     }
+  }
+
+  onMount(async () => {
+    await readEnv()
 
     settings = await remult.repo(Setting).find()
   })
@@ -40,7 +45,7 @@
       <Icon data={steps.con ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}></Icon> .env
     </div>
     <div class="p-3 bg-gray-100 border-t">
-      <p>First thing first, we need to conect to a Database 🛢️</p>
+      <p>First thing first, we need to conect to a Database</p>
 
       <TextField
         label="connection string"
@@ -65,12 +70,15 @@
               needReboot = await ActionsController.writeFile('.env', [
                 `DATABASE_URL = ${DATABASE_URL}`,
               ])
+              if (!dev) {
+                await readEnv()
+              }
               loading = false
             }}
             >Write File
           </Button>
-          {#if needReboot}
-            <i>Reboot Needed...</i>
+          {#if needReboot && dev}
+            <i>Reboot is happening in dev mode as vite is looknig at .env</i>
           {/if}
         </div>
       </Card>
@@ -107,7 +115,7 @@
             >Install
           </Button>
           {#if needReboot}
-            <i>Reboot Needed...</i>
+            <i>Reboot Needed... in dev mode.</i>
           {/if}
         </div>
       </Card>

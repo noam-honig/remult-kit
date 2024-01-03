@@ -1,15 +1,18 @@
-# create-svelte-ux-demo
+# RemultKit
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or
-`yarn`), start a development server:
+## Usage
+
+In your project, do:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npx remult-kit
 ```
 
-You will learn the rest on the Home page of the demo app.
+And open `http://127.0.0.1:4321` in your browser.
 
-More info on: https://svelte-ux.techniq.dev/
+## Development
+
+```bash
+pnpm i
+pnpm dev
+```
