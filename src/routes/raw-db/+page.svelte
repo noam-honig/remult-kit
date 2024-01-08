@@ -1,5 +1,5 @@
 <script>
-  import { Button, Card, Field } from 'svelte-ux'
+  import { Button, Card } from 'svelte-ux'
 
   // TODO: add favorites saved in .remult-kit 🧡
 
@@ -18,7 +18,7 @@
         variant="fill"
         color="primary"
         on:click={async () => {
-          console.log(`Run Raw SQL...`)
+          console.info(`Run Raw SQL...`)
         }}>Run</Button
       >
     </div>

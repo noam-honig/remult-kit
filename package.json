@@ -78,7 +78,7 @@
     "svelte-ux": "0.58.0-next.8",
     "svelvet": "^9.0.0",
     "tedious": "^16.6.1",
-    "vite-plugin-striper": "^0.2.0",
+    "vite-plugin-striper": "^0.3.0",
     "yargs": "^17.7.2"
   }
 }

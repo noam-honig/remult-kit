@@ -1,8 +1,7 @@
 <script lang="ts">
-  import type { EntityMetaData } from '$lib/cli/getEntity'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { onMount } from 'svelte'
-  import { Anchor, Node, Svelvet, ThemeToggle } from 'svelvet'
+  import { Node, Svelvet, ThemeToggle } from 'svelvet'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { load } from '../../lib/cli/db/databases'
 
@@ -103,22 +102,23 @@
     gap: 10px;
   }
 
-  .p_1 {
+  /* .p_1 {
     position: absolute;
     display: flex;
     flex-direction: column;
     gap: 10px;
     top: 83px;
     left: -16px;
-  }
-  .p_2 {
+  } */
+
+  /* .p_2 {
     position: absolute;
     display: flex;
     flex-direction: column;
     gap: 10px;
     top: 123px;
     left: -16px;
-  }
+  } */
 
   #heading {
     display: flex;
