@@ -1,7 +1,5 @@
 <script lang="ts">
   import { mdiRocketLaunchOutline } from '@mdi/js'
-  import { dev } from '$app/environment'
-  import { onMount } from 'svelte'
   import { Button, Dialog, SelectField, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { databases } from '../cli/db/databases'
@@ -43,7 +41,7 @@
       label="Data Provider"
       bind:value={db}
       {options}
-      on:change={e => console.log('on:change', e.detail)}
+      on:change={e => console.info('on:change', e.detail)}
     />
     {#each Object.keys(db.args) as arg}
       <TextField label={arg} bind:value={args[arg]}></TextField>

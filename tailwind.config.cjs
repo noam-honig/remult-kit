@@ -1,6 +1,6 @@
 // const colors = require('tailwindcss/colors')
 const svelte_ux = require('svelte-ux/plugins/tailwind.cjs')
-const { themes } = require('svelte-ux/styles/daisy')
+const { themes } = require('svelte-ux/styles/daisy.cjs')
 
 /** @type {import('tailwindcss').Config}*/
 const config = {

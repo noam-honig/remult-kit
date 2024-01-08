@@ -6,7 +6,7 @@
   import Highlight from 'svelte-highlight'
   import typescript from 'svelte-highlight/languages/typescript'
   import atomOneDark from 'svelte-highlight/styles/atom-one-dark'
-  import { Button, Collapse, Icon, Notification, table, TextField } from 'svelte-ux'
+  import { Button, Collapse, Icon, Notification, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
   import { load } from '../../lib/cli/db/databases'
@@ -15,7 +15,6 @@
   let msg = ''
   let loading = false
   let open = false
-  let language = 'ts'
 
   onMount(async () => {
     try {
@@ -28,6 +27,7 @@
 </script>
 
 <svelte:head>
+  <!-- eslint-disable-next-line -->
   {@html atomOneDark}
 </svelte:head>
 

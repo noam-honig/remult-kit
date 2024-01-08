@@ -12,15 +12,10 @@ export default defineConfig(({ mode }) => {
     },
 
     plugins: [
-      // TODO JYC... as it's not working !
+      // First
       striper({ decorators: ['BackendMethod'], debug: false }),
       sveltekit(),
     ],
-    build: {
-      rollupOptions: {
-        external: ['fs'],
-      },
-    },
     test: {
       include: ['src/**/*.{test,spec}.{js,ts}'],
     },

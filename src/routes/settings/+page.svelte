@@ -4,8 +4,7 @@
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
-  import { dev } from '$app/environment'
-  import { remult, repo } from 'remult'
+  import { remult } from 'remult'
   import { onMount } from 'svelte'
   import { Button, Card, Collapse, Icon, SelectField, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
@@ -69,7 +68,7 @@
         label="Data Provider"
         bind:value={db}
         {options}
-        on:change={e => console.log('on:change', e.detail)}
+        on:change={e => console.info('on:change', e.detail)}
       />
       {#each Object.keys(db.args) as arg}
         <TextField label={arg} bind:value={args[arg]} placeholder={placeHolder(arg)}></TextField>
@@ -144,7 +143,7 @@
               ></TextField>
               {#if setting.id === SettingKey.tableProps}
                 <i class="text-xs">Presets:</i>
-                {#each ['allowApiCrud: false', 'allowApiCrud: true', 'allowApiCrud: Allow.authenticated', 'allowApiCrud: remult.isAllowed("admin")'] as preset}
+                {#each ['allowApiCrud: false', 'allowApiCrud: true', 'allowApiCrud: Allow.authenticated', 'allowApiCrud: "admin"'] as preset}
                   <Button
                     on:click={() => {
                       setting.value = preset
