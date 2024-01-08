@@ -24,8 +24,7 @@
   },
   "type": "module",
   "bin": {
-    "remult-kit": "node -r dotenv/config remult-kit-app",
-    "remult-kitTMP": "./src/bin/index.mjs"
+    "remult-kit": "./src/bin/index.mjs"
   },
   "scripts": {
     "dev": "vite dev",
@@ -41,7 +40,6 @@
   },
   "devDependencies": {
     "@kitql/eslint-config": "^0.1.0",
-    "@kitql/helpers": "^0.8.8",
     "@mdi/js": "^7.4.47",
     "@playwright/test": "^1.40.1",
     "@sveltejs/adapter-node": "^2.0.2",
@@ -63,10 +61,10 @@
   "dependencies": {
     "@fortawesome/free-regular-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@kitql/helpers": "^0.8.8",
     "@kitql/internals": "^0.9.4",
     "culori": "^3.3.0",
     "daisyui": "^4.5.0",
-    "dotenv": "16.3.1",
     "highlight.js": "^11.9.0",
     "kleur": "^4.1.5",
     "knex": "^3.1.0",
@@ -78,7 +76,6 @@
     "svelte-ux": "0.58.0-next.8",
     "svelvet": "^9.0.0",
     "tedious": "^16.6.1",
-    "vite-plugin-striper": "^0.3.0",
-    "yargs": "^17.7.2"
+    "vite-plugin-striper": "^0.3.0"
   }
 }
