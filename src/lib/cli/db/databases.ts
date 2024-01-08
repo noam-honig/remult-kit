@@ -76,9 +76,8 @@ createKnexDataProvider({
           port: args.port ? parseInt(args.port) : undefined,
         },
       })
-      const schema = await db.knex.raw('DATABASE()')
-
-      return new DbMySQL(db, schema)
+      const schema = await db.knex.raw('select DATABASE()')
+      return new DbMySQL(db, schema[0][0]['DATABASE()' as any])
     },
   }),
   mssql: build({
@@ -157,6 +156,7 @@ export function load() {
   if (x) return JSON.parse(x) as ConnectionInfo
   return {
     db: 'auto',
+    args: {},
   } as ConnectionInfo
 }
 export function save(x: ConnectionInfo) {

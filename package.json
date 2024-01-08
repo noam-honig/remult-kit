@@ -31,13 +31,13 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "PORT=4321 HOST=127.0.0.1 node remult-kit-app",
-    "test": "npm run test:integration && npm run test:unit",
+    "test:all": "npm run test:integration && npm run test",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "kitql-lint",
     "format": "kitql-lint --format",
     "test:integration": "playwright test",
-    "test:unit": "vitest"
+    "test": "vitest"
   },
   "devDependencies": {
     "@kitql/helpers": "^0.8.8",
