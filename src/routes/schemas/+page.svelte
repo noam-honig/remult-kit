@@ -4,9 +4,10 @@
   import { onMount } from 'svelte'
   import { Anchor, Node, Svelvet, ThemeToggle } from 'svelvet'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
+  import { load } from '../../lib/cli/db/databases'
 
   onMount(async () => {
-    $remultInfos = await ActionsController.check()
+    $remultInfos = await ActionsController.check(load())
   })
 </script>
 

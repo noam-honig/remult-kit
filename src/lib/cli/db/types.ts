@@ -1,7 +1,8 @@
 import type { DbTable } from './DbTable'
 
 export interface IDatabase {
-  init(connectionString: string): Promise<void>
+  schema: string
+  test(): Promise<void>
   getTablesInfo(): Promise<TableInfo[]>
   getTableColumnInfo(schema: string, tableName: string): Promise<TableColumnInfo[]>
   getUniqueInfo(schema: string): Promise<

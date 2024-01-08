@@ -2,7 +2,7 @@
   "name": "remult-kit",
   "description": "Remult-Kit is your companion for building apps with Remult.",
   "keywords": [
-    "remutl",
+    "remult",
     "cli"
   ],
   "version": "0.0.1",
@@ -66,12 +66,14 @@
     "highlight.js": "^11.9.0",
     "kleur": "^4.1.5",
     "knex": "^3.1.0",
+    "mysql2": "^3.7.0",
     "pg": "^8.11.3",
     "pluralize": "^8.0.0",
     "remult": "^0.24.1",
     "svelte-highlight": "^7.4.7",
     "svelte-ux": "0.58.0-next.7",
     "svelvet": "^9.0.0",
+    "tedious": "^16.6.1",
     "vite-plugin-striper": "^0.2.0",
     "yargs": "^17.7.2"
   }

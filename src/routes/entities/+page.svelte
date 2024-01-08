@@ -9,6 +9,7 @@
   import { Button, Collapse, Icon, Notification, table, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
+  import { load } from '../../lib/cli/db/databases'
 
   $: search = ''
   let msg = ''
@@ -18,7 +19,7 @@
 
   onMount(async () => {
     try {
-      $remultInfos = await ActionsController.check()
+      $remultInfos = await ActionsController.check(load())
     } catch (error) {
       // @ts-ignore
       msg = error.message

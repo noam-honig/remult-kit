@@ -1,26 +1,35 @@
-import { KnexDataProvider, createKnexDataProvider } from 'remult/remult-knex'
+import type { KnexDataProvider } from 'remult/remult-knex'
 
 import type { IDatabase, TableColumnInfo } from './types.js'
 
 export class DbMySQL implements IDatabase {
-  private knex: KnexDataProvider | null = null
-
-  constructor() {}
-
-  async init(connectionString: string) {
-    this.knex = await createKnexDataProvider({
-      // Knex client configuration for MySQL
-      client: 'mysql2',
-      connection: connectionString,
-    })
+  constructor(
+    private knex: KnexDataProvider,
+    public schema: string,
+  ) {}
+  async test() {
+    await this.knex.knex.raw('select 1')
   }
 
   async getTablesInfo() {
-    const result = await this.knex!.knex.raw('SHOW TABLES')
-    // eslint-disable-next-line
-    return result[0].map((row: any) => {
-      return { table_schema: 'public', table_name: Object.values(row)[0] }
-    })
+    return this.knex.knex
+      .select('TABLE_SCHEMA', 'TABLE_NAME')
+      .from('information_schema.tables')
+      .whereNotIn('table_schema', [
+        'pg_catalog',
+        'information_schema',
+        'mysql',
+        'sys',
+        'performance_schema',
+      ])
+      .then(r =>
+        r.map(x => {
+          return {
+            table_schema: x.table_schema || x.TABLE_SCHEMA,
+            table_name: x.table_name || x.TABLE_NAME,
+          }
+        }),
+      )
   }
 
   async getTableColumnInfo(schema: string, tableName: string) {

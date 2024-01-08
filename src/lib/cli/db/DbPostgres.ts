@@ -1,18 +1,13 @@
 import type { SqlDatabase } from 'remult'
-import { createPostgresDataProvider } from 'remult/postgres'
 
 import type { IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
-  private sqlDatabase: SqlDatabase | null = null
-
-  constructor() {}
-
-  async init(connectionString: string) {
-    this.sqlDatabase = await createPostgresDataProvider({
-      connectionString,
-    })
+  constructor(private sqlDatabase: SqlDatabase) {}
+  async test() {
+    this.sqlDatabase!.execute('select 1')
   }
+  schema = 'public'
 
   async getTablesInfo() {
     const command = this.sqlDatabase!.createCommand()

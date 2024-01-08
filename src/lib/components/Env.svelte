@@ -2,29 +2,32 @@
   import { mdiRocketLaunchOutline } from '@mdi/js'
   import { dev } from '$app/environment'
   import { onMount } from 'svelte'
-  import { Button, Dialog, TextField } from 'svelte-ux'
+  import { Button, Dialog, SelectField, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
+  import { databases } from '../cli/db/databases'
   import WelcomeRemult from './WelcomeRemult.svelte'
 
   let open = false
-  let DATABASE_URL = ''
-  let loading = false
 
-  const readEnv = async () => {
-    const envLines = await ActionsController.readFile('.env')
-    for (let i = 0; i < envLines.length; i++) {
-      if (envLines[i].includes('DATABASE_URL')) {
-        DATABASE_URL = envLines[i].split('=')[1].trim().replace(/"/g, '')
+  let loading = false
+  let options = Object.keys(databases).map(key => ({ label: key, value: (databases as any)[key] }))
+  let db = databases.auto
+  let args: Record<string, string> = {}
+
+  async function checkConnection() {
+    try {
+      if (
+        await ActionsController.checkConnection({
+          db: options.find(({ value }) => value == db)!.label as keyof typeof databases,
+          args,
+        })
+      ) {
       }
-    }
-    if (!DATABASE_URL) {
+    } catch (err: any) {
+      alert(err.message)
       open = true
     }
   }
-
-  onMount(async () => {
-    await readEnv()
-  })
 </script>
 
 <Dialog bind:open>
@@ -34,28 +37,29 @@
     </div>
 
     <p class="text-center font-bold mb-4 text-secondary">
-      First things first, we need to connect to your Database
+      First things first, we need to connect to your Database 1
     </p>
-
-    <TextField
-      label="connection string (postgres, mySQL, ...)"
-      bind:value={DATABASE_URL}
-      placeholder="postgres://postgres:example@127.0.0.1:5432/MY_DB_NAME"
-    ></TextField>
+    <SelectField
+      label="Data Provider"
+      bind:value={db}
+      {options}
+      on:change={e => console.log('on:change', e.detail)}
+    />
+    {#each Object.keys(db.args) as arg}
+      <TextField label={arg} bind:value={args[arg]}></TextField>
+    {/each}
   </div>
   <div slot="actions">
+    <Button>stam</Button>
     <Button
       variant="fill"
       color="primary"
       icon={mdiRocketLaunchOutline}
-      disabled={!DATABASE_URL}
       {loading}
-      on:click={async () => {
+      on:click={async e => {
         loading = true
-        await ActionsController.writeFile('.env', [`DATABASE_URL = ${DATABASE_URL}`])
-        if (!dev) {
-          await readEnv()
-        }
+        await checkConnection()
+
         loading = false
       }}>Let's start!</Button
     >

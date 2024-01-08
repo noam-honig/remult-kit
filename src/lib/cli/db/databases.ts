@@ -1,3 +1,5 @@
+import type { IDatabase } from './types'
+
 export type ConnectionInfo = {
   db: keyof typeof databases
   args: any
@@ -14,7 +16,11 @@ export const databases = {
   }),
   postgres: build({
     args: {
-      'database url': { envName: 'DATABASE_URL' },
+      'database url': {
+        envName: 'DATABASE_URL',
+        label: 'Connection string',
+        placeholder: 'postgres://user:password@host:port/database',
+      },
     },
     npm: ['pg'],
     getCode: args => `
@@ -26,9 +32,12 @@ createPostgresDataProvider({
   `,
     connect: async args => {
       const { createPostgresDataProvider } = await import('remult/postgres')
-      return await createPostgresDataProvider({
-        connectionString: args['database url'],
-      })
+      const { DbPostgres } = await import('./DbPostgres')
+      return new DbPostgres(
+        await createPostgresDataProvider({
+          connectionString: args['database url'],
+        }),
+      )
     },
   }),
   mysql: build({
@@ -55,7 +64,8 @@ createKnexDataProvider({
     `,
     connect: async args => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
-      return await createKnexDataProvider({
+      const { DbMySQL } = await import('./DbMySQL')
+      const db = await createKnexDataProvider({
         // Knex client configuration for MySQL
         client: 'mysql2',
         connection: {
@@ -66,6 +76,9 @@ createKnexDataProvider({
           port: args.port ? parseInt(args.port) : undefined,
         },
       })
+      const schema = await db.knex.raw('DATABASE()')
+
+      return new DbMySQL(db, schema)
     },
   }),
   mssql: build({
@@ -76,7 +89,7 @@ createKnexDataProvider({
       password: { envName: 'MSSQL_PASSWORD' },
       instanceName: { envName: 'MSSQL_INSTANCE' },
     },
-    npm: ['tedios', 'knex'],
+    npm: ['tedious', 'knex'],
     getCode: args => `
 import { createKnexDataProvider } from "remult/remult-knex"
 createKnexDataProvider({
@@ -95,21 +108,25 @@ createKnexDataProvider({
   `,
     connect: async args => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
-      return await createKnexDataProvider({
-        // Knex client configuration for MSSQL
-        client: 'mssql',
-        connection: {
-          server: args.server,
-          database: args.database,
-          user: args.user,
-          password: args.password,
-          options: {
-            enableArithAbort: true,
-            encrypt: false,
-            instanceName: args.instanceName,
+      const { DbMySQL } = await import('./DbMySQL')
+      return new DbMySQL(
+        await createKnexDataProvider({
+          // Knex client configuration for MSSQL
+          client: 'mssql',
+          connection: {
+            server: args.server,
+            database: args.database,
+            user: args.user,
+            password: args.password,
+            options: {
+              enableArithAbort: true,
+              encrypt: false,
+              instanceName: args.instanceName,
+            },
           },
-        },
-      })
+        }),
+        'dbo',
+      )
     },
   }),
 }
@@ -120,7 +137,7 @@ function build<argsType>(options: {
   getCode: (args: { [K in keyof argsType]: string }) => string
   connect: (args: {
     [K in keyof argsType]: string
-  }) => Promise<any>
+  }) => Promise<IDatabase>
 }) {
   return {
     ...options,
@@ -133,4 +150,15 @@ function build<argsType>(options: {
       return options.getCode(reducedArgs as any)
     },
   }
+}
+
+export function load() {
+  const x = sessionStorage.getItem('connectionInfo')
+  if (x) return JSON.parse(x) as ConnectionInfo
+  return {
+    db: 'auto',
+  } as ConnectionInfo
+}
+export function save(x: ConnectionInfo) {
+  sessionStorage.setItem('connectionInfo', JSON.stringify(x))
 }
