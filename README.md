@@ -13,6 +13,6 @@ And open `http://127.0.0.1:4321` in your browser.
 ## Development
 
 ```bash
-pnpm i
-pnpm dev
+npm i
+npm run dev
 ```
