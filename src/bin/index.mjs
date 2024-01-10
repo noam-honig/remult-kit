@@ -1,42 +1,53 @@
 #!/usr/bin/env node
+import { Log, green } from '@kitql/helpers'
 import { spawn } from 'child_process'
+import { readFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'path'
 
-const currentDirectory = process.cwd()
+const isWindows = ['win32', 'win64'].includes(os.platform())
+const metaUrl = isWindows
+  ? import.meta.url.replace('file:///', '')
+  : import.meta.url.replace('file://', '')
 
-console.log(import.meta.url)
+const rootPath = path.join(metaUrl, '../../..')
 
-console.log(currentDirectory)
-const runMe = path.join(import.meta.url.replace('file:///', ''), 'remult-kit-app')
+const log = new Log('remult-kit')
 
-console.log(runMe)
+const { version } = JSON.parse(
+  readFileSync(new URL(path.join(rootPath, 'package.json'), import.meta.url), 'utf-8'),
+)
+console.log()
+log.info(`v${green(`${version}`)} - Starting`)
 
-//if (false)
+const runMe = path.join(rootPath, 'remult-kit-app')
+
 try {
-  const npx = spawn(process.platform === 'win32' ? 'node' : 'node', [runMe], {
+  const npx = spawn(isWindows ? 'node.cmd' : 'node', [runMe], {
     env: {
+      PORT: 4321,
+      HOST: '127.0.0.1',
       ...process.env,
-      // API_PATH: 'src/server/api.ts'
     },
   })
 
   // Capture standard output and error
   npx.stdout.on('data', data => {
-    console.log(`stdout: ${data}`)
+    log.info(`${data}`)
   })
 
   npx.stderr.on('data', data => {
-    console.error(`stderr: ${data}`)
+    log.error(`${data}`)
   })
 
   // Listen for errors and exit event
   npx.on('error', error => {
-    console.error(`Error: ${error.message}`)
+    log.error(`${error.message}`)
   })
 
   npx.on('close', code => {
-    console.log(`Child process exited with code ${code}`)
+    log.info(`Child process exited with code ${code}`)
   })
 } catch (err) {
-  console.error('something went wrong', err)
+  log.error('something went wrong', err)
 }
