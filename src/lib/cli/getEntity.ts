@@ -1,4 +1,6 @@
 // import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import prettier from 'prettier'
+
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
 import type { IDatabase } from './db/types.js'
@@ -151,7 +153,11 @@ export async function getEntitiesTypescriptPostgres(
   await Promise.all(
     allTables
       // let's generate schema by schema
-      .filter(c => (schemas.length === 1 && schemas[0] === '*' ? true : schemas.includes(c.schema)))
+      .filter(c =>
+        (schemas.length === 1 && schemas[0] === '*') || schemas.length == 0
+          ? true
+          : schemas.includes(c.schema),
+      )
       .map(async table => {
         try {
           if (
@@ -254,6 +260,16 @@ export async function getEntitiesTypescriptPostgres(
       })
     }
   })
+  for (const r of toRet.entities) {
+    try {
+      r.fileContent = await prettier.format(r.fileContent, {
+        parser: 'typescript',
+        semi: false,
+      })
+    } catch (err) {
+      r.fileContent = `/* prettier failed to format this file\n${err} */\n\n` + r.fileContent
+    }
+  }
 
   const sortedTables = getEntities
     .map(e => e.table)
@@ -314,12 +330,12 @@ async function getEntityTypescript(
   const colsMeta: ColMetaData[] = []
   const props = []
   const toManys = []
-  props.push(tableProps)
+  if (tableProps) props.push(tableProps)
   if (table.dbName !== table.className) {
     if (table.schema === 'public' && table.dbName === 'user') {
       // user is a reserved keyword, we need to speak about public.user
       props.push(`dbName: 'public.${table.dbName}'`)
-    } else if (table.schema === 'public') {
+    } else if (table.schema === 'public' || table.schema === 'dbo') {
       if (table.dbName !== table.key) {
         props.push(`dbName: '${table.dbName}'`)
       }

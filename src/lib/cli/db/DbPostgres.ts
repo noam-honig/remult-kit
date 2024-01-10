@@ -5,7 +5,7 @@ import type { IDatabase } from './types.js'
 export class DbPostgres implements IDatabase {
   constructor(private sqlDatabase: SqlDatabase) {}
   async test() {
-    this.sqlDatabase!.execute('select 1')
+    await this.sqlDatabase!.execute('select 1')
   }
   schema = 'public'
 

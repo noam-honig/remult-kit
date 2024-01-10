@@ -2,17 +2,24 @@ import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
 import type { ColumnInfo, DataTypeProcessorFunction, IDatabase } from './types'
 
-const stringProcessor: DataTypeProcessorFunction = ({ columnName }) => {
+const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault }) => {
+  let defaultVal = columnDefault !== null ? columnDefault : undefined
+  if (defaultVal) {
+    const index = defaultVal?.indexOf("'::")
+    if (index > 0) defaultVal = defaultVal?.substring(0, index + 1)
+  }
   if (columnName === 'id') {
     return {
       type: 'string',
       decorator: '@Fields.cuid',
+      defaultVal,
     }
   }
 
   return {
     decorator: '@Fields.string',
     type: 'string',
+    defaultVal,
   }
 }
 
@@ -108,6 +115,11 @@ const intOrAutoIncrementProcessor: DataTypeProcessorFunction = ({ columnDefault 
   return {
     type: 'number',
     decorator: columnDefault?.startsWith('nextval') ? '@Fields.autoIncrement' : '@Fields.integer',
+    defaultVal: columnDefault?.startsWith('nextval')
+      ? '0'
+      : columnDefault != null
+        ? columnDefault
+        : undefined,
   }
 }
 

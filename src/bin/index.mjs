@@ -1,29 +1,28 @@
 #!/usr/bin/env node
 import { Log, green } from '@kitql/helpers'
 import { spawn } from 'child_process'
-import { readFileSync } from 'node:fs'
+import { config } from 'dotenv'
+import { readFileSync, existsSync } from 'node:fs'
 import os from 'node:os'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-const isWindows = ['win32', 'win64'].includes(os.platform())
-const metaUrl = isWindows
-  ? import.meta.url.replace('file:///', '')
-  : import.meta.url.replace('file://', '')
+const metaUrl = fileURLToPath(import.meta.url)
+const cwd = process.cwd()
+if (existsSync(path.join(cwd, '.env'))) config({ path: path.join(cwd, '.env') })
 
 const rootPath = path.join(metaUrl, '../../..')
 
 const log = new Log('remult-kit')
 
-const { version } = JSON.parse(
-  readFileSync(new URL(path.join(rootPath, 'package.json'), import.meta.url), 'utf-8'),
-)
-console.log()
+const { version } = JSON.parse(readFileSync(path.join(rootPath, 'package.json'), 'utf-8'))
+
 log.info(`v${green(`${version}`)} - Starting`)
 
-const runMe = path.join(rootPath, 'remult-kit-app')
+const runMe = path.join(rootPath, 'remult-kit-app', 'index.js')
 
 try {
-  const npx = spawn(isWindows ? 'node.cmd' : 'node', [runMe], {
+  const npx = spawn('node', [runMe], {
     env: {
       PORT: 4321,
       HOST: '127.0.0.1',
@@ -33,7 +32,9 @@ try {
 
   // Capture standard output and error
   npx.stdout.on('data', data => {
-    log.info(`${data}`)
+    if (data.includes('Listening on')) {
+      log.info('Listening on http://127.0.0.1:4321')
+    } else log.info(`${data}`)
   })
 
   npx.stderr.on('data', data => {
