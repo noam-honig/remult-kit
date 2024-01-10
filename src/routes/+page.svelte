@@ -1,7 +1,8 @@
 <script>
-  import WelcomeRemult from '$lib/components/WelcomeRemult.svelte'
+  import Env from '$lib/components/Env.svelte'
 </script>
 
-<div class="grid place-items-center content-center h-full">
-  <WelcomeRemult></WelcomeRemult>
-</div>
+<main class="p-2 grid gap-2">
+  <h1 class="text-lg font-semibold">Home</h1>
+  <Env></Env>
+</main>

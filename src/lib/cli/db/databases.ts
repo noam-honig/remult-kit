@@ -3,7 +3,7 @@ import type { IDatabase } from './types'
 export type ConnectionInfo = {
   db: keyof typeof databases
   args: any
-  status: 'good' | 'bad' | '???'
+  status: 'good' | 'bad' | '???' | 'checking'
   error?: string
 }
 

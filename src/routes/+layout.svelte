@@ -6,6 +6,7 @@
     mdiCog,
     mdiDatabaseEditOutline,
     mdiHome,
+    mdiInformationOutline,
     mdiLayersTripleOutline,
     mdiVectorLink,
   } from '@mdi/js'
@@ -45,6 +46,7 @@
     <NavItem path="/raw-db" text="Raw DB" icon={mdiDatabaseEditOutline} currentUrl={$page.url} />
     <div></div>
     <NavItem path="/settings" text="Settings" icon={mdiCog} currentUrl={$page.url} />
+    <NavItem path="/about" text="About" icon={mdiInformationOutline} currentUrl={$page.url} />
   </nav>
 
   <AppBar title="Remult Kit">
