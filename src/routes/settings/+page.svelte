@@ -1,117 +1,129 @@
 <script lang="ts">
   import {
+    mdiCheckboxBlankBadgeOutline,
     mdiCheckboxBlankOutline,
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
+  import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
+  import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
+  import { Highlight } from 'svelte-highlight'
+  import typescript from 'svelte-highlight/languages/typescript'
   import { Button, Card, Collapse, Icon, SelectField, TextField } from 'svelte-ux'
-  import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
-  import { databases, load, save } from '../../lib/cli/db/databases'
 
   let steps = {
     con: false,
     dep: true,
   }
 
-  let loading = false
-
   let settings: Setting[] = []
-  let error = ''
 
-  let options = Object.keys(databases).map(key => ({ label: key, value: (databases as any)[key] }))
-  let db = databases.auto
-  let args: Record<string, string> = {}
+  let options = Object.keys(databases).map(key => ({ label: key, value: key }))
 
   function placeHolder(arg: string) {
-    return 'process.env["' + (db.args as any)[arg].envName + '"]'
+    return 'process.env["' + envName(arg) + '"]'
   }
-  async function checkConnection() {
-    try {
-      error = ''
-      let info = {
-        db: options.find(({ value }) => value == db)!.label as keyof typeof databases,
-        args,
-      }
-      if (await ActionsController.checkConnection(info)) {
-        save(info)
-      }
-    } catch (err: any) {
-      error = err.message
-    }
+
+  function envName(arg: string) {
+    // @ts-expect-error
+    return databases[$connectionInfo.db].args[arg]?.envName ?? ''
+  }
+
+  const getIcon = (status: ConnectionInfo['status']) => {
+    return status === '???'
+      ? mdiCheckboxBlankBadgeOutline
+      : status === 'good'
+        ? mdiCheckboxMarkedOutline
+        : mdiCheckboxBlankOutline
   }
 
   onMount(async () => {
     settings = await remult.repo(Setting).find()
-    let loaded = load()
-    if (loaded) {
-      db = databases[loaded.db] as any
-      args = loaded.args
-    }
   })
 </script>
 
 <main class="p-2">
   <h1 class="text-lg font-semibold mb-5">Setup</h1>
 
+  <!-- open -->
   <Collapse
     popout
     class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
     <div slot="trigger" class="flex-1 px-3 py-3">
-      <Icon data={steps.con ? mdiCheckboxMarkedOutline : mdiCheckboxBlankOutline}></Icon> connection
+      <Icon data={getIcon($connectionInfo.status)}></Icon> connection
     </div>
-    <div class="p-3 border-t">
+    <div class="p-3 grid gap-4">
       <SelectField
         label="Data Provider"
-        bind:value={db}
+        bind:value={$connectionInfo.db}
+        on:change={() => {
+          connectionInfo.reset($connectionInfo.db)
+        }}
         {options}
-        on:change={e => console.info('on:change', e.detail)}
       />
-      {#each Object.keys(db.args) as arg}
-        <TextField label={arg} bind:value={args[arg]} placeholder={placeHolder(arg)}></TextField>
+
+      {#each Object.keys(databases[$connectionInfo.db].args) as arg}
+        <TextField label={arg} bind:value={$connectionInfo.args[arg]} placeholder={placeHolder(arg)}
+        ></TextField>
       {/each}
-      {#if error}
-        <Card title="Error" class="text-red-500">
-          <div slot="contents" class="border">
-            <pre>{error}</pre>
-          </div>
-        </Card>
-      {/if}
+
       <Button
         variant="fill"
         color="primary"
         icon={mdiRocketLaunchOutline}
-        {loading}
-        on:click={async e => {
-          loading = true
-          await checkConnection()
-
-          loading = false
-        }}>Let's start!</Button
+        loading={$connectionInfo.status === '???'}
+        on:click={() => connectionInfo.check($connectionInfo)}
       >
-      <div class="p-3 border-t">
-        {#if db != databases.auto}
-          <Card title=".ENV">
-            <div slot="contents" class="border">
-              {#each Object.keys(db.args).filter(k => args[k]) as arg}
-                <pre>{db.args[arg]?.envName}={args[arg]}</pre>
-              {/each}
-            </div>
-            <div slot="actions" class="p-2"></div>
-          </Card>
-          <Card title="node" subheading="commands">
-            <div slot="contents" class="border">
-              <pre>npm i {db.npm.join(' ')}</pre>
+        Check Connection!</Button
+      >
+      {#if $connectionInfo.error}
+        <Card title="Error" class="text-danger border-danger">
+          <div>
+            <pre>{$connectionInfo.error}</pre>
+          </div>
+        </Card>
+      {/if}
+
+      <div class="p-3 text-sm grid gap-2">
+        {#if $connectionInfo.db !== 'auto'}
+          <h2 class="text-lg font-medium">You can setup this now:</h2>
+
+          <Card title=".env" subheading="env file">
+            <div slot="contents">
+              <div class="border">
+                {#each Object.entries($connectionInfo.args).filter(([arg, value]) => value) as [arg, value]}
+                  <Highlight
+                    language={typescript}
+                    code={`${envName(arg)}=${$connectionInfo.args[arg]}`}
+                  />
+                {:else}
+                  <i class="text-secondary">No environement variables yet!</i>
+                {/each}
+              </div>
             </div>
             <div slot="actions" class="p-2"></div>
           </Card>
 
-          <Card title="Data Provider Code">
+          <Card title="Add dependencies" subheading="commands">
             <div slot="contents" class="border">
-              <pre>{db.getCode(args)}</pre>
+              <Highlight
+                language={typescript}
+                code={`npm i ${databases[$connectionInfo.db].npm.join(' ')} -D`}
+              />
+            </div>
+            <div slot="actions" class="p-2"></div>
+          </Card>
+
+          <Card title="Data Provider" subheading="Code">
+            <div slot="contents" class="border">
+              <Highlight
+                language={typescript}
+                code={databases[$connectionInfo.db].getCode($connectionInfo.args)}
+              />
             </div>
             <div slot="actions" class="p-2"></div>
           </Card>

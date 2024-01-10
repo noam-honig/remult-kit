@@ -10,6 +10,7 @@
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
+  // @ts-ignore (will be remove in the next svelte-ux bump)
   import { darkThemes, lightThemes } from 'svelte-ux/styles/daisy'
 
   settings({
@@ -45,8 +46,6 @@
     <div></div>
     <NavItem path="/settings" text="Settings" icon={mdiCog} currentUrl={$page.url} />
   </nav>
-
-  <!-- <Env></Env> -->
 
   <AppBar title="Remult Kit">
     <div slot="actions" class="flex gap-3">

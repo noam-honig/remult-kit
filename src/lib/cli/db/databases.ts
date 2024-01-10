@@ -3,6 +3,8 @@ import type { IDatabase } from './types'
 export type ConnectionInfo = {
   db: keyof typeof databases
   args: any
+  status: 'good' | 'bad' | '???'
+  error?: string
 }
 
 export const databases = {
@@ -23,13 +25,11 @@ export const databases = {
       },
     },
     npm: ['pg'],
-    getCode: args => `
-import { createPostgresDataProvider } from "remult/postgres"
+    getCode: args => `import { createPostgresDataProvider } from "remult/postgres"
 
 createPostgresDataProvider({
   connectionString: ${args['database url']}
-})
-  `,
+})`,
     connect: async args => {
       const { createPostgresDataProvider } = await import('remult/postgres')
       const { DbPostgres } = await import('./DbPostgres')
@@ -49,8 +49,8 @@ createPostgresDataProvider({
       database: { envName: 'MYSQL_DATABASE' },
     },
     npm: ['mysql2', 'knex'],
-    getCode: args => `
-import { createKnexDataProvider } from "remult/remult-knex"
+    getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
+
 createKnexDataProvider({
   client: "mysql2",
   connection: {
@@ -60,8 +60,7 @@ createKnexDataProvider({
     database: ${args.database},
     port: ${args.port},
   },
-})
-    `,
+})`,
     connect: async args => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
       const { DbMySQL } = await import('./DbMySQL')
@@ -89,8 +88,8 @@ createKnexDataProvider({
       instanceName: { envName: 'MSSQL_INSTANCE' },
     },
     npm: ['tedious', 'knex'],
-    getCode: args => `
-import { createKnexDataProvider } from "remult/remult-knex"
+    getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
+
 createKnexDataProvider({
   client: "mssql",
   connection: {
@@ -103,8 +102,7 @@ createKnexDataProvider({
       encrypt: false,
       instanceName: ${args.instanceName},
     },
-  },
-  `,
+  }`,
     connect: async args => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
       const { DbMySQL } = await import('./DbMySQL')
@@ -149,16 +147,4 @@ function build<argsType>(options: {
       return options.getCode(reducedArgs as any)
     },
   }
-}
-
-export function load() {
-  const x = sessionStorage.getItem('connectionInfo')
-  if (x) return JSON.parse(x) as ConnectionInfo
-  return {
-    db: 'auto',
-    args: {},
-  } as ConnectionInfo
-}
-export function save(x: ConnectionInfo) {
-  sessionStorage.setItem('connectionInfo', JSON.stringify(x))
 }
