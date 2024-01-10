@@ -118,13 +118,12 @@
           class={cls(
             'px-8 py-4',
             'cursor-pointer transition-shadow duration-100 border',
-            'hover:bg-primary-content',
+            'hover:bg-primary/10',
+            selectedItems.includes(row.meta.table.className) ? 'bg-primary/10' : '',
           )}
           noBackground
           noShadow
         >
-          <!-- TODO JYC LATER -->
-          <!-- selectedItems.includes(row.meta.table.className) ? 'bg-primary-content' : '', -->
           <div slot="actions">
             <Checkbox
               checked={selectedItems.includes(row.meta.table.className)}
