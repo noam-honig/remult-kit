@@ -2,6 +2,7 @@ import type { ConnectionInfo } from '$lib/cli/db/databases'
 import { writable } from 'svelte/store'
 
 import { ActionsController } from '../../hooks/contollers/ActionsController'
+import { remultInfos } from './remultInfos'
 
 const def: ConnectionInfo = {
   db: 'auto',
@@ -35,9 +36,11 @@ function createStore() {
       try {
         if (await ActionsController.checkConnection(input)) {
           input = { ...input, status: 'good', error: '' }
+          remultInfos.set(await ActionsController.getDbEntitiesMetadata(input))
         }
       } catch (err: any) {
         input = { ...input, status: 'bad', error: err.message }
+        remultInfos.set({ entities: [] })
       }
 
       save(input)

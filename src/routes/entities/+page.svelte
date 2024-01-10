@@ -1,5 +1,6 @@
 <script lang="ts">
   import { mdiCheckCircleOutline } from '@mdi/js'
+  import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
@@ -9,7 +10,6 @@
   import { Button, Collapse, Icon, Notification, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
-  import { load } from '../../lib/cli/db/databases'
 
   $: search = ''
   let msg = ''
@@ -18,7 +18,7 @@
 
   onMount(async () => {
     try {
-      $remultInfos = await ActionsController.check(load())
+      $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)
     } catch (error) {
       // @ts-ignore
       msg = error.message

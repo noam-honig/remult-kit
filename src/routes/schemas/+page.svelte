@@ -1,12 +1,12 @@
 <script lang="ts">
+  import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { onMount } from 'svelte'
   import { Node, Svelvet, ThemeToggle } from 'svelvet'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
-  import { load } from '../../lib/cli/db/databases'
 
   onMount(async () => {
-    $remultInfos = await ActionsController.check(load())
+    $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)
   })
 </script>
 
