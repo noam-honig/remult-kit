@@ -5,6 +5,6 @@
   },
   {
     "id": "tableProps",
-    "value": "allowApiCrud: remult.isAllowed(\"admin\")"
+    "value": "allowApiCrud: true"
   }
 ]

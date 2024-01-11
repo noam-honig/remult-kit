@@ -1,16 +1,19 @@
 <script lang="ts">
   import { page } from '$app/stores'
-  import { AppBar, AppLayout, Button, NavItem, settings, ThemeButton, Tooltip } from 'svelte-ux'
+  import { AppBar, AppLayout, Button, NavItem, settings, ThemeSelect, Tooltip } from 'svelte-ux'
   import '../app.postcss'
   import {
     mdiCog,
     mdiDatabaseEditOutline,
     mdiHome,
+    mdiInformationOutline,
     mdiLayersTripleOutline,
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
-  import { darkThemes, lightThemes } from 'svelte-ux/styles/daisy'
+  import type { LayoutData } from './$types'
+
+  export let data: LayoutData
 
   settings({
     classes: {
@@ -18,12 +21,16 @@
         aside: 'border-r',
         nav: 'bg-surface-300 py-2',
       },
+
       AppBar: 'bg-primary text-primary-content shadow-md',
+
       NavItem: {
         root: 'text-sm text-surface-content/70 pl-5 py-2 border-l-4 border-transparent hover:bg-surface-100/70',
         active: 'text-primary bg-surface-100 border-l-4 border-primary font-medium',
       },
     },
+
+    themes: data.themes,
   })
 </script>
 
@@ -44,13 +51,12 @@
     <NavItem path="/raw-db" text="Raw DB" icon={mdiDatabaseEditOutline} currentUrl={$page.url} />
     <div></div>
     <NavItem path="/settings" text="Settings" icon={mdiCog} currentUrl={$page.url} />
+    <NavItem path="/about" text="About" icon={mdiInformationOutline} currentUrl={$page.url} />
   </nav>
-
-  <!-- <Env></Env> -->
 
   <AppBar title="Remult Kit">
     <div slot="actions" class="flex gap-3">
-      <ThemeButton {lightThemes} {darkThemes} />
+      <ThemeSelect></ThemeSelect>
 
       <Tooltip title="Discord" placement="left" offset={2}>
         <Button

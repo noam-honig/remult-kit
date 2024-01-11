@@ -1,5 +1,5 @@
 import { type ConnectionInfo } from '$lib/cli/db/databases'
-import { getEntitiesTypescriptPostgres } from '$lib/cli/getEntity'
+import { getEntitiesTypescriptPostgres, type EntityMetaData } from '$lib/cli/getEntity'
 import { write, read } from '@kitql/internals'
 import { BackendMethod, remult } from 'remult'
 
@@ -8,28 +8,37 @@ import { getDbFromConnectionInfo } from './helper'
 
 export class ActionsController {
   @BackendMethod({ allowed: true })
-  static async check(connectionInfo: ConnectionInfo) {
-    const db = await getDbFromConnectionInfo(connectionInfo)
+  static async getDbEntitiesMetadata(connectionInfo: ConnectionInfo): Promise<{
+    entities: {
+      fileContent: string
+      meta: EntityMetaData
+    }[]
+  }> {
+    try {
+      const db = await getDbFromConnectionInfo(connectionInfo)
 
-    const repo = remult.repo(Setting)
-    const all = await repo.find()
-    const outputDir = all.find(c => c.id === SettingKey.outputDir)?.value ?? 'src/shared'
-    const tableProps =
-      all.find(c => c.id === SettingKey.tableProps)?.value ?? "'allowApiCrud: true'"
+      const repo = remult.repo(Setting)
+      const all = await repo.find()
+      const outputDir = all.find(c => c.id === SettingKey.outputDir)?.value ?? 'src/shared'
+      const tableProps =
+        all.find(c => c.id === SettingKey.tableProps)?.value ?? "'allowApiCrud: true'"
 
-    const toRet = await getEntitiesTypescriptPostgres(
-      db,
-      outputDir,
-      tableProps,
-      ['order', 'name'],
-      {},
-      true,
-      [db.schema],
-      'NEVER',
-      ['pg_stat_statements', 'pg_stat_statements_info'],
-    )
+      const toRet = await getEntitiesTypescriptPostgres(
+        db,
+        outputDir,
+        tableProps,
+        ['order', 'name'],
+        {},
+        true,
+        [db.schema],
+        'NEVER',
+        ['pg_stat_statements', 'pg_stat_statements_info'],
+      )
 
-    return toRet
+      return toRet
+    } catch (error) {
+      return { entities: [] }
+    }
   }
 
   @BackendMethod({ allowed: true })
