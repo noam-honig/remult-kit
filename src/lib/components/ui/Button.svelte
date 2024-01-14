@@ -2,11 +2,14 @@
   import Icon from './Icon.svelte'
 
   export let icon: any = undefined
+
+  export { classes as class }
+  let classes = 'btn-primary'
 </script>
 
-<button {...$$restProps} class="btn btn-primary">
-  <div>
+<button {...$$restProps} on:click class="btn {classes}">
+  {#if icon}
     <Icon path={icon}></Icon>
-  </div>
+  {/if}
   <slot />
 </button>

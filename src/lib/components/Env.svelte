@@ -10,8 +10,7 @@
   import Icon from '$lib/components/ui/Icon.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { Button, Card, SelectField, TextField } from '$ui'
-  import { Highlight } from 'svelte-highlight'
-  import typescript from 'svelte-highlight/languages/typescript'
+  import Code from './Code.svelte'
 
   let options = Object.keys(databases).map(key => ({ label: key, value: key }))
 
@@ -32,6 +31,15 @@
         : status === 'good'
           ? mdiCheckboxMarkedOutline
           : mdiCheckboxBlankOutline
+  }
+
+  const getCodeEnv = (con: ConnectionInfo) => {
+    return Object.entries(con.args)
+      .filter(([arg, value]) => value)
+      .map(([arg, value]) => {
+        return `${envName(arg)} = ${value}`
+      })
+    return []
   }
 </script>
 
@@ -87,34 +95,22 @@
           <h2 class="text-lg font-medium">You can setup this now:</h2>
 
           <Card title=".env" subheading="env file">
-            <div class="border">
-              {#each Object.entries($connectionInfo.args).filter(([arg, value]) => value) as [arg, value]}
-                <Highlight
-                  language={typescript}
-                  code={`${envName(arg)}=${$connectionInfo.args[arg]}`}
-                />
-              {:else}
-                <i class="text-secondary">No environement variables yet!</i>
-              {/each}
-            </div>
+            {#if getCodeEnv($connectionInfo).length > 0}
+              <Code code={getCodeEnv($connectionInfo).join('\n')} />
+            {:else}
+              <i class="text-secondary">No environement variables yet!</i>
+            {/if}
+            <!-- {#each Object.entries($connectionInfo.args).filter(([arg, value]) => value) as [arg, value]}
+              <Code code={`${envName(arg)}=${$connectionInfo.args[arg]}`} /> -->
+            <!-- {/each} -->
           </Card>
 
           <Card title="Add dependencies" subheading="commands">
-            <div class="border">
-              <Highlight
-                language={typescript}
-                code={`npm i ${databases[$connectionInfo.db].npm.join(' ')} -D`}
-              />
-            </div>
+            <Code code={`npm i ${databases[$connectionInfo.db].npm.join(' ')} -D`} />
           </Card>
 
           <Card title="Data Provider" subheading="Code">
-            <div class="border">
-              <Highlight
-                language={typescript}
-                code={databases[$connectionInfo.db].getCode($connectionInfo.args)}
-              />
-            </div>
+            <Code code={databases[$connectionInfo.db].getCode($connectionInfo.args)} />
           </Card>
         {/if}
       </div>

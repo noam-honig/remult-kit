@@ -7,5 +7,10 @@
 </script>
 
 <FieldContainer {label} forId="">
-  <input type="text" {placeholder} bind:value class="input input-bordered w-full" />
+  <input
+    type="text"
+    {placeholder}
+    bind:value
+    class="input input-bordered w-full placeholder:text-base-content/30"
+  />
 </FieldContainer>

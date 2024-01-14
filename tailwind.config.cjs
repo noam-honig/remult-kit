@@ -11,16 +11,12 @@ const config = {
     themes: [
       {
         remult: {
-          // dracula
-          // luxury
-          // night
-          // business
-          // coffee
+          // dark
           // dim
-          ...require('daisyui/src/theming/themes')['dim'],
-          primary: '#029431',
-          secondary: '#42B4E6',
-          accent: '#D42A21',
+          ...require('daisyui/src/theming/themes')['dark'],
+          primary: '#FCB335',
+          secondary: '#5B68DF',
+          accent: '#74E0A9',
         },
       },
     ],
