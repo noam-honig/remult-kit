@@ -18,7 +18,8 @@ jobs:
 
       - name: 🧑‍💻 Setup env
         uses: actions/setup-node@v4
-        node-version: 20
+        with:
+          node-version: 20
 
       - name: 🧹 Lint Check
         run: npm run lint
