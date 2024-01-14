@@ -39,7 +39,6 @@
       .map(([arg, value]) => {
         return `${envName(arg)} = ${value}`
       })
-    return []
   }
 </script>
 
@@ -83,9 +82,7 @@
 
         {#if $connectionInfo.error}
           <Card title="Error" class="border border-error">
-            <div>
-              <pre class="text-error">{$connectionInfo.error}</pre>
-            </div>
+            <pre class="text-error">{$connectionInfo.error}</pre>
           </Card>
         {/if}
       </form>

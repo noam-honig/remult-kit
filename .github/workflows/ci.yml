@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  pull_request:
+    paths:
+      - '**'
+
+jobs:
+  build:
+    name: Builds & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🌐 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+
+      - name: 🧑‍💻 Setup env
+        uses: actions/setup-node@v4
+        node-version: 20
+
+      - name: 🧹 Lint Check
+        run: npm run lint
+
+      - name: 🛠️ Build
+        run: npm run build
+
+      - name: 👌 Tests
+        run: npm run test

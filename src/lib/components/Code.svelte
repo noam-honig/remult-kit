@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiContentCopy } from '@mdi/js'
-  import { Button, Icon } from '$ui'
+  import { Button } from '$ui'
   import { Highlight } from 'svelte-highlight'
   import typescript from 'svelte-highlight/languages/typescript'
   import atomOneDark from 'svelte-highlight/styles/atom-one-dark'
