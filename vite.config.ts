@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import { loadEnv } from 'vite'
-import { striper } from 'vite-plugin-striper'
+import { stripper } from 'vite-plugin-stripper'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig(({ mode }) => {
@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
 
     plugins: [
       // First
-      striper({ decorators: ['BackendMethod'], debug: false }),
+      stripper({ decorators: ['BackendMethod'], debug: false }),
       sveltekit(),
     ],
     test: {
