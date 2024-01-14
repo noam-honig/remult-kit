@@ -10,32 +10,27 @@
   })
 </script>
 
-<main class="p-2">
-  <h1 class="text-lg font-semibold">Schemas</h1>
-
-  <br />
-
-  {#if $remultInfos.entities.length > 0}
-    <div class="h-[700px]">
-      <Svelvet fitView controls minimap>
-        {#each $remultInfos.entities as { meta }, i}
-          <Node
-            useDefaults
-            id={meta.table.className}
-            position={{ x: 500 * (i % 5), y: 300 * Math.floor(i / 5) }}
-          >
-            <div class="nodeWrapper">
-              {#each meta.toManys as toMany}
-                <!-- <Anchor
+{#if $remultInfos.entities.length > 0}
+  <div class="h-[700px]">
+    <Svelvet fitView controls minimap>
+      {#each $remultInfos.entities as { meta }, i}
+        <Node
+          useDefaults
+          id={meta.table.className}
+          position={{ x: 500 * (i % 5), y: 300 * Math.floor(i / 5) }}
+        >
+          <div class="nodeWrapper">
+            {#each meta.toManys as toMany}
+              <!-- <Anchor
               id={`${key}_${toMany.addOn}`}
               connections={[[key, toMany.addOn]]}
               input
               direction="west"
             ></Anchor> -->
-                <!-- <div class="p_1">
-            </div> -->
-              {/each}
               <!-- <div class="p_1">
+            </div> -->
+            {/each}
+            <!-- <div class="p_1">
             <Anchor
               id="pilots_anchor1"
               connections={[['people', 'people_anchor1']]}
@@ -51,18 +46,18 @@
               direction="west"
             ></Anchor>
           </div> -->
-              <div id="container">
-                <div id="heading">{meta.table.className}</div>
-                <table id="pilotTable">
-                  {#each meta.colsMeta as colMeta}
-                    <tr>
-                      <td>{colMeta.columnName}</td>
-                      <td>{colMeta.type}</td>
-                      <td>{colMeta.isNullable === 'YES' ? 'nullable' : ''}</td>
-                      <!-- <td>{colMeta. ? 'null' : 'not null'}</td> -->
-                    </tr>
-                  {/each}
-                  <!-- <tr>
+            <div id="container">
+              <div id="heading">{meta.table.className}</div>
+              <table id="pilotTable">
+                {#each meta.colsMeta as colMeta}
+                  <tr>
+                    <td>{colMeta.columnName}</td>
+                    <td>{colMeta.type}</td>
+                    <td>{colMeta.isNullable === 'YES' ? 'nullable' : ''}</td>
+                    <!-- <td>{colMeta. ? 'null' : 'not null'}</td> -->
+                  </tr>
+                {/each}
+                <!-- <tr>
                 <td>id</td>
                 <td>bigint</td>
                 <td>autoincrement()</td>
@@ -77,16 +72,15 @@
                 <td>bigint</td>
                 <td>not null</td>
               </tr> -->
-                </table>
-              </div>
+              </table>
             </div>
-          </Node>
-        {/each}
-        <ThemeToggle main="dark" alt="light" slot="toggle" />
-      </Svelvet>
-    </div>
-  {/if}
-</main>
+          </div>
+        </Node>
+      {/each}
+      <ThemeToggle main="dark" alt="light" slot="toggle" />
+    </Svelvet>
+  </div>
+{/if}
 
 <style>
   .nodeWrapper {

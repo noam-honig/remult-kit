@@ -43,6 +43,7 @@
     "@kitql/helpers": "^0.8.8",
     "@kitql/internals": "^0.9.4",
     "@mdi/js": "^7.4.47",
+    "@neoconfetti/svelte": "^2.2.1",
     "@playwright/test": "^1.40.1",
     "@sveltejs/adapter-node": "^2.0.2",
     "@sveltejs/kit": "^2.0.6",
@@ -51,6 +52,7 @@
     "@typescript-eslint/eslint-plugin": "^6.18.0",
     "@typescript-eslint/parser": "^6.18.0",
     "autoprefixer": "^10.4.16",
+    "daisyui": "^4.6.0",
     "highlight.js": "^11.9.0",
     "knex": "^3.1.0",
     "mysql2": "^3.7.0",
@@ -69,11 +71,11 @@
     "tslib": "^2.6.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
+    "vite-plugin-kit-routes": "^0.5.1",
     "vite-plugin-stripper": "^0.3.2",
     "vitest": "^1.2.0"
   },
   "dependencies": {
-    "daisyui": "^4.6.0",
     "dotenv": "^16.3.1"
   }
 }

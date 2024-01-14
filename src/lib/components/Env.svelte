@@ -47,7 +47,7 @@
   <input type="checkbox" />
   <div class="collapse-title text-xl font-medium">
     <div class="flex items-center gap-4">
-      <Icon path={getIcon($connectionInfo.status)}></Icon> connection
+      <Icon path={getIcon($connectionInfo.status)}></Icon> Connection
     </div>
   </div>
   <div class="collapse-content">
@@ -90,7 +90,7 @@
         {/if}
       </form>
 
-      <div class="p-3 text-sm grid gap-2">
+      <div class="p-4 text-sm grid gap-2">
         {#if $connectionInfo.db !== 'auto'}
           <h2 class="text-lg font-medium">You can setup this now:</h2>
 
@@ -100,9 +100,6 @@
             {:else}
               <i class="text-secondary">No environement variables yet!</i>
             {/if}
-            <!-- {#each Object.entries($connectionInfo.args).filter(([arg, value]) => value) as [arg, value]}
-              <Code code={`${envName(arg)}=${$connectionInfo.args[arg]}`} /> -->
-            <!-- {/each} -->
           </Card>
 
           <Card title="Add dependencies" subheading="commands">

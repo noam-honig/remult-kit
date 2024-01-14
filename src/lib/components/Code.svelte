@@ -29,7 +29,7 @@
       ></Button>
     </span>
     <div class="grid w-full bg-base-300">
-      <Highlight language={typescript} code={code ?? ''} />
+      <Highlight language={typescript} code={code ?? ''} class="overflow-x-auto" />
     </div>
   </div>
 </div>

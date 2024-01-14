@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
+  import { Button, Card, Icon, TextField } from '$ui'
+  import { remult } from 'remult'
   import { onMount } from 'svelte'
-  // import { Button, Card, Checkbox, cls, ListItem, tableOrderStore, TextField } from 'svelte-ux'
+  import { slide } from 'svelte/transition'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
+  import { Setting, SettingKey } from '../../hooks/entities/Setting'
+  import Code from './Code.svelte'
 
   let loading = false
 
@@ -36,78 +41,116 @@
       selectedItems = [...selectedItems, name]
     }
   }
+  let entityOpen = ''
+  const updateEntityOpen = (name: string) => {
+    if (entityOpen === name) {
+      entityOpen = ''
+    } else {
+      entityOpen = name
+    }
+  }
 </script>
 
 {#if ($remultInfos.entities ?? []).length > 0}
-  <!-- <Card>
-    <div class="m-2 grid gap-4">
-      <div class="flex justify-between">
-        <h2>
-          Entities <Button
-            iconOnly
-            icon={mdiRefresh}
-            classes={{ icon: loading ? 'animate-spin' : '' }}
-            on:click={refresh}
-          ></Button>
-        </h2>
-        <Button
-          color="primary"
-          variant="fill"
-          disabled={selectedItems.length === 0}
-          on:click={async () => {
-            const filtered = $remultInfos.entities.filter(e =>
-              selectedItems.includes(e.meta.table.className),
-            )
-
-            const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
-
-            for (const element of filtered) {
-              await ActionsController.writeFile(
-                `${outputDir}/entities/${element.meta.table.className}.ts`,
-                [element.fileContent],
-              )
-            }
-          }}>Write Files</Button
-        >
-      </div>
-      <div class="flex gap-5 justify-between items-end">
-        <div class="w-full">
-          <TextField
-            label="filter"
-            type="search"
-            bind:value={search}
-            placeholder="looking for a specific entity?"
-          ></TextField>
-        </div>
-        <div class="grid gap-1 mx-2">
-          <Button
-            variant="outline"
-            size="sm"
-            color="primary"
-            disabled={selectedItems.length === 0}
-            on:click={() => {
-              selectedItems = []
-            }}
-          >
-            Nothing
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            color="primary"
-            disabled={selectedItems.length === sortedData.length}
-            on:click={() => {
-              selectedItems = sortedData.map(c => c.meta.table.className)
-            }}
-          >
-            All
-          </Button>
-        </div>
+  <div class="collapse bg-base-300">
+    <input type="checkbox" checked />
+    <div class="collapse-title text-xl font-medium">
+      <div class="flex items-center gap-4">
+        <Icon path={mdiLayersTripleOutline}></Icon> Entities
       </div>
     </div>
-    {#each sortedData as row}
-      <div transition:slide class="m-2">
-        <ListItem
+    <div class="collapse-content">
+      <div class="grid gap-4">
+        <div class="flex justify-between">
+          <h2>
+            <Button icon={mdiRefresh} on:click={refresh} disabled={loading} class="btn-ghost"
+              >Refresh</Button
+            >
+          </h2>
+          <Button
+            disabled={selectedItems.length === 0}
+            on:click={async () => {
+              const filtered = $remultInfos.entities.filter(e =>
+                selectedItems.includes(e.meta.table.className),
+              )
+
+              const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
+
+              for (const element of filtered) {
+                await ActionsController.writeFile(
+                  `${outputDir}/entities/${element.meta.table.className}.ts`,
+                  [element.fileContent],
+                )
+              }
+            }}>Write Files</Button
+          >
+        </div>
+        <div class="flex gap-5 justify-between items-end">
+          <div class="w-full">
+            <TextField
+              label="filter"
+              bind:value={search}
+              placeholder="looking for a specific entity?"
+            ></TextField>
+          </div>
+          <div class="grid gap-1 mx-2">
+            <Button
+              class="btn-xs"
+              disabled={selectedItems.length === 0}
+              on:click={() => {
+                selectedItems = []
+              }}
+            >
+              Nothing
+            </Button>
+            <Button
+              class="btn-xs"
+              disabled={selectedItems.length === sortedData.length}
+              on:click={() => {
+                selectedItems = sortedData.map(c => c.meta.table.className)
+              }}
+            >
+              All
+            </Button>
+          </div>
+        </div>
+        <!-- </div>
+      <ul class="menu bg-base-200 rounded-box"> -->
+        <div class="grid">
+          {#each sortedData as row}
+            <div transition:slide class="m-2">
+              <Card>
+                <div class="flex items-center">
+                  <button
+                    on:click={() => updateEntityOpen(row.meta.table.className)}
+                    class="card-title flex-1"
+                  >
+                    {row.meta.table.className}
+                  </button>
+                  <input
+                    type="checkbox"
+                    on:change={() => updateSelection(row.meta.table.className)}
+                    class="checkbox"
+                  />
+                </div>
+                {#if entityOpen === row.meta.table.className}
+                  <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
+                  <Code code={row.fileContent}></Code>
+                {/if}
+              </Card>
+              <!-- <div role="menu" tabindex="0" class="collapse bg-base-200">
+                <div class="collapse-title text-xl font-medium">
+                  {row.meta.table.className}
+                  <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
+                </div>
+                <div class="collapse-content">
+                  <div class="w-full">
+                    <Code code={row.fileContent}></Code>
+                  </div>
+                </div>
+                
+              </div> -->
+              <!-- <ListItem
           title={row.meta.table.className}
           subheading={row.meta.colsMeta.length + ' fields'}
           on:click={() => updateSelection(row.meta.table.className)}
@@ -126,8 +169,11 @@
               on:change={() => updateSelection(row.meta.table.className)}
             />
           </div>
-        </ListItem>
+        </ListItem> -->
+            </div>
+          {/each}
+        </div>
       </div>
-    {/each}
-  </Card> -->
+    </div>
+  </div>
 {/if}

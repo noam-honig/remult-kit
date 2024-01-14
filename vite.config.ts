@@ -1,6 +1,8 @@
+import type { KIT_ROUTES } from '$lib/ROUTES'
 import { sveltekit } from '@sveltejs/kit/vite'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vite'
+import { kitRoutes } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
 
 export default defineConfig(({ mode }) => {
@@ -12,7 +14,13 @@ export default defineConfig(({ mode }) => {
     },
 
     plugins: [
-      // First
+      kitRoutes<KIT_ROUTES>({
+        post_update_run: 'npm exec prettier ./src/lib/ROUTES.ts -- -w',
+        logs: {
+          post_update_run: false,
+          update: false,
+        },
+      }),
       stripper({ decorators: ['BackendMethod'], debug: false }),
       sveltekit(),
     ],

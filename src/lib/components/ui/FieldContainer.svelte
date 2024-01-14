@@ -5,7 +5,7 @@
   export let error: string = ''
 </script>
 
-<div class="form-control w-full pb-2">
+<div class="form-control w-full">
   <label for={forId} class="label gap-1 px-2 pb-1">
     <span class="label-text pl-2 text-xs text-base-content/60">
       {label}{required ? ' *' : ''}

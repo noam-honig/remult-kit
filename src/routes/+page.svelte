@@ -3,6 +3,8 @@
   import Env from '$lib/components/Env.svelte'
 </script>
 
-<Env></Env>
+<div class="grid gap-4">
+  <Env></Env>
 
-<Entities></Entities>
+  <Entities></Entities>
+</div>

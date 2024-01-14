@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let title = 'Card title!'
+  export let title = ''
   export let subheading = ''
 
   export { classes as class }
@@ -8,8 +8,12 @@
 
 <div class="card w-full bg-base-100 shadow-xl {classes}">
   <div class="card-body">
-    <h2 class="card-title">{title}</h2>
-    <h3 class="italic">{subheading}</h3>
+    {#if title}
+      <h2 class="card-title">{title}</h2>
+    {/if}
+    {#if subheading}
+      <div class="card-subtitle">{subheading}</div>
+    {/if}
     <slot />
     <!-- <div class="card-actions justify-end">
       <button class="btn btn-primary">Buy Now</button>
