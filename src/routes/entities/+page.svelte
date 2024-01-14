@@ -1,15 +1,10 @@
 <script lang="ts">
-  import { mdiCheckCircleOutline } from '@mdi/js'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
-  import { remult } from 'remult'
   import { onMount } from 'svelte'
-  import Highlight from 'svelte-highlight'
-  import typescript from 'svelte-highlight/languages/typescript'
   import atomOneDark from 'svelte-highlight/styles/atom-one-dark'
-  import { Button, Collapse, Icon, Notification, TextField } from 'svelte-ux'
+  // import { Button, Collapse, Icon, Notification, TextField } from 'svelte-ux'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
-  import { Setting, SettingKey } from '../../hooks/entities/Setting'
 
   $: search = ''
   let msg = ''
@@ -31,7 +26,7 @@
   {@html atomOneDark}
 </svelte:head>
 
-<main class="p-2">
+<!-- <main class="p-2">
   <h1 class="text-lg font-semibold">Entities</h1>
 
   <TextField
@@ -96,4 +91,4 @@
     <div slot="title">Successfully wrote!</div>
     <div slot="description">The file is on your disk 🎉</div>
   </Notification>
-</div>
+</div> -->

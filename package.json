@@ -53,7 +53,6 @@
     "autoprefixer": "^10.4.16",
     "highlight.js": "^11.9.0",
     "knex": "^3.1.0",
-    "mdi-svelte": "^1.1.2",
     "mysql2": "^3.7.0",
     "pg": "^8.11.3",
     "pluralize": "^8.0.0",

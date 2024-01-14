@@ -5,8 +5,10 @@
   import {
     mdiCog,
     mdiDatabaseEditOutline,
+    mdiGithub,
     mdiHome,
     mdiLayersTripleOutline,
+    mdiTwitter,
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
@@ -50,10 +52,10 @@
         </div> -->
 
         <a target="_blank" href="https://github.com/remult/remult">
-          <Icon name="github" />
+          <Icon path={mdiGithub} />
         </a>
         <a target="_blank" href="https://twitter.com/RemultJs">
-          <Icon name="twitter" />
+          <Icon path={mdiTwitter} />
         </a>
       </header>
       <!-- /header -->

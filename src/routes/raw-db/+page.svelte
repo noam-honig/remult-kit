@@ -1,5 +1,5 @@
 <script>
-  import { Button, Card } from 'svelte-ux'
+  // import { Button, Card } from 'svelte-ux'
 
   // TODO: add favorites saved in .remult-kit 🧡
 
@@ -9,7 +9,7 @@
 <main class="p-2">
   <h1 class="text-lg font-semibold mb-5">Raw DB</h1>
 
-  <Card title="SQL" subheading="Run raw queries">
+  <!-- <Card title="SQL" subheading="Run raw queries">
     <svelte:fragment slot="contents">
       <textarea class="w-full h-96" bind:value={rawDb} />
     </svelte:fragment>
@@ -22,5 +22,5 @@
         }}>Run</Button
       >
     </div>
-  </Card>
+  </Card> -->
 </main>

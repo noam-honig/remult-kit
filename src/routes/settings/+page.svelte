@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { mdiCheckboxMarkedOutline } from '@mdi/js'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
-  import { Button, Card, Collapse, Icon, TextField } from 'svelte-ux'
-  import { Setting, SettingKey } from '../../hooks/entities/Setting'
+  // import { Button, Card, Collapse, Icon, TextField } from 'svelte-ux'
+  import { Setting } from '../../hooks/entities/Setting'
 
   let settings: Setting[] = []
 
@@ -15,7 +14,7 @@
 <main class="p-2">
   <h1 class="text-lg font-semibold mb-5">Setup</h1>
 
-  <Collapse
+  <!-- <Collapse
     popout
     class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
   >
@@ -52,5 +51,5 @@
         </div>
       </Card>
     </div>
-  </Collapse>
+  </Collapse> -->
 </main>
