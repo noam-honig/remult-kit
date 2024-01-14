@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: 📦 install things
+        run: npm i
+
       - name: 🧹 Lint Check
         run: npm run lint
 
