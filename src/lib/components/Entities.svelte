@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { mdiRefresh } from '@mdi/js'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
-  import { remult } from 'remult'
   import { onMount } from 'svelte'
   // import { Button, Card, Checkbox, cls, ListItem, tableOrderStore, TextField } from 'svelte-ux'
-  import { slide } from 'svelte/transition'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
-  import { Setting, SettingKey } from '../../hooks/entities/Setting'
 
   let loading = false
 

@@ -6,14 +6,11 @@
     mdiCog,
     mdiDatabaseEditOutline,
     mdiHome,
-    mdiInformationOutline,
     mdiLayersTripleOutline,
-    mdiTwitter,
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
   import Icon from '$lib/components/ui/Icon.svelte'
-  import type { LayoutData } from './$types'
 
   const links = [
     { text: 'Home', path: '/', icon: mdiHome },
@@ -26,6 +23,8 @@
 
 <svelte:head>
   <link rel="icon" href={logo} />
+
+  <title>Remult Kit</title>
 
   <script
     src="https://cdn.jsdelivr.net/npm/external-svg-loader@1.6.10/svg-loader.min.js"

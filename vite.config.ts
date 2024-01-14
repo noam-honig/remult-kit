@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import { loadEnv } from 'vite'
-import { stripper } from 'vite-plugin-stripper'
 import { defineConfig } from 'vite'
+import { stripper } from 'vite-plugin-stripper'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
