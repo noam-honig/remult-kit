@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores'
-  import { AppBar, AppLayout, Button, NavItem, settings, ThemeSelect, Tooltip } from 'svelte-ux'
+  // import { AppBar, AppLayout, Button, NavItem, settings, ThemeSelect, Tooltip } from 'svelte-ux'
   import '../app.postcss'
   import {
     mdiCog,
@@ -8,37 +8,105 @@
     mdiHome,
     mdiInformationOutline,
     mdiLayersTripleOutline,
+    mdiTwitter,
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
+  import Icon from '$lib/components/ui/Icon.svelte'
   import type { LayoutData } from './$types'
 
-  export let data: LayoutData
-
-  settings({
-    classes: {
-      AppLayout: {
-        aside: 'border-r',
-        nav: 'bg-surface-300 py-2',
-      },
-
-      AppBar: 'bg-primary text-primary-content shadow-md',
-
-      NavItem: {
-        root: 'text-sm text-surface-content/70 pl-5 py-2 border-l-4 border-transparent hover:bg-surface-100/70',
-        active: 'text-primary bg-surface-100 border-l-4 border-primary font-medium',
-      },
-    },
-
-    themes: data.themes,
-  })
+  const links = [
+    { text: 'Home', path: '/', icon: mdiHome },
+    { text: 'Entities', path: '/entities', icon: mdiLayersTripleOutline },
+    { text: 'Schemas', path: '/schemas', icon: mdiVectorLink },
+    { text: 'Raw DB', path: '/raw-db', icon: mdiDatabaseEditOutline },
+    { text: 'Settings', path: '/settings', icon: mdiCog },
+  ]
 </script>
 
 <svelte:head>
   <link rel="icon" href={logo} />
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/external-svg-loader@1.6.10/svg-loader.min.js"
+    async
+  ></script>
 </svelte:head>
 
-<AppLayout>
+<div class="drawer min-h-screen bg-base-200 lg:drawer-open">
+  <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+  <!-- content -->
+  <main class="drawer-content">
+    <div class="grid grid-cols-12 grid-rows-[min-content] gap-y-12 p-4 lg:gap-x-12 lg:p-10">
+      <!-- header -->
+      <header class="col-span-12 flex items-center gap-2 lg:gap-4">
+        <label for="my-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">
+          <svg data-src="https://unpkg.com/heroicons/20/solid/bars-3.svg" class="h-5 w-5"></svg>
+        </label>
+        <div class="grow">
+          <h1 class="lg:text-2xl lg:font-light">Remult Kit</h1>
+        </div>
+        <!-- <div>
+          <input type="text" placeholder="Search" class="input input-sm rounded-full max-sm:w-24" />
+        </div> -->
+
+        <a target="_blank" href="https://github.com/remult/remult">
+          <Icon name="github" />
+        </a>
+        <a target="_blank" href="https://twitter.com/RemultJs">
+          <Icon name="twitter" />
+        </a>
+      </header>
+      <!-- /header -->
+
+      <!-- stats -->
+      <div class="col-span-12">
+        <slot />
+      </div>
+      <!-- /stats -->
+    </div>
+  </main>
+  <!-- /content -->
+  <aside class="drawer-side z-10">
+    <label for="my-drawer" class="drawer-overlay"></label>
+    <!-- sidebar menu -->
+    <nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
+      <div class="mx-4 flex items-center gap-2 font-black">
+        <!-- Logo to add -->
+        Remult Kit
+      </div>
+      <ul class="menu">
+        {#each links as link}
+          <li>
+            <a
+              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-200"
+              class:active={$page.url.pathname === link.path}
+              href={link.path}
+            >
+              <Icon path={link.icon} />
+              {link.text}
+            </a>
+          </li>
+        {/each}
+        <!-- <NavItem path="/" text="Home" icon={mdiHome} currentUrl={$page.url} />
+        <NavItem
+          path="/entities"
+          text="Entities"
+          icon={mdiLayersTripleOutline}
+          currentUrl={$page.url}
+        />
+        <NavItem path="/schemas" text="Schemas" icon={mdiVectorLink} currentUrl={$page.url} />
+        <NavItem path="/raw-db" text="Raw DB" icon={mdiDatabaseEditOutline} currentUrl={$page.url} />
+        <div></div>
+        <NavItem path="/settings" text="Settings" icon={mdiCog} currentUrl={$page.url} />
+        <NavItem path="/about" text="About" icon={mdiInformationOutline} currentUrl={$page.url} /> -->
+      </ul>
+    </nav>
+    <!-- /sidebar menu -->
+  </aside>
+</div>
+
+<!-- <AppLayout>
   <nav slot="nav" class="nav overflow-hidden grid gap-2 py-2">
     <NavItem path="/" text="Home" icon={mdiHome} currentUrl={$page.url} />
     <NavItem
@@ -90,4 +158,4 @@
   <main class="p-2">
     <slot />
   </main>
-</AppLayout>
+</AppLayout> -->

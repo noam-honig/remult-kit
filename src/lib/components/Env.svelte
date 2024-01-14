@@ -7,10 +7,13 @@
     mdiRocketLaunchOutline,
   } from '@mdi/js'
   import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
+  import FieldContainer from '$lib/components/ui/FieldContainer.svelte'
+  import Icon from '$lib/components/ui/Icon.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
+  // import { Button, Card, Collapse, Icon, SelectField, TextField } from 'svelte-ux'
+  import { Button, SelectField, TextField } from '$ui'
   import { Highlight } from 'svelte-highlight'
   import typescript from 'svelte-highlight/languages/typescript'
-  import { Button, Card, Collapse, Icon, SelectField, TextField } from 'svelte-ux'
 
   let options = Object.keys(databases).map(key => ({ label: key, value: key }))
 
@@ -34,22 +37,55 @@
   }
 </script>
 
-<Collapse
+<div class="collapse bg-base-300">
+  <input type="checkbox" />
+  <div class="collapse-title text-xl font-medium">
+    <div class="flex items-center gap-4">
+      <Icon path={getIcon($connectionInfo.status)}></Icon> connection
+    </div>
+  </div>
+  <div class="collapse-content">
+    <div class="p-3 grid gap-4">
+      <SelectField
+        label="Data Provider"
+        bind:value={$connectionInfo.db}
+        on:change={() => {
+          connectionInfo.reset($connectionInfo.db)
+        }}
+        {options}
+      />
+
+      <form
+        on:submit|preventDefault={() => connectionInfo.check($connectionInfo)}
+        class="grid gap-4"
+      >
+        {#each Object.keys(databases[$connectionInfo.db].args) as arg}
+          <TextField
+            label={arg}
+            bind:value={$connectionInfo.args[arg]}
+            placeholder={placeHolder(arg)}
+          ></TextField>
+        {/each}
+
+        <Button
+          type="submit"
+          icon={mdiRocketLaunchOutline}
+          loading={$connectionInfo.status === 'checking'}
+        >
+          Check Connection!
+        </Button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- <Collapse
   popout
   class="bg-surface-100 elevation-1 border-t first:border-t-0 first:rounded-t last:rounded-b"
 >
-  <div slot="trigger" class="flex-1 px-3 py-3">
-    <Icon data={getIcon($connectionInfo.status)}></Icon> connection
-  </div>
+  
   <div class="p-3 grid gap-4">
-    <SelectField
-      label="Data Provider"
-      bind:value={$connectionInfo.db}
-      on:change={() => {
-        connectionInfo.reset($connectionInfo.db)
-      }}
-      {options}
-    />
+  
     <form on:submit|preventDefault={() => connectionInfo.check($connectionInfo)} class="grid gap-4">
       {#each Object.keys(databases[$connectionInfo.db].args) as arg}
         <TextField label={arg} bind:value={$connectionInfo.args[arg]} placeholder={placeHolder(arg)}
@@ -117,4 +153,4 @@
       {/if}
     </div>
   </div>
-</Collapse>
+</Collapse> -->

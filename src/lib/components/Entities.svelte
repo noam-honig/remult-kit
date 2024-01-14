@@ -4,7 +4,7 @@
   import { remultInfos } from '$lib/stores/remultInfos'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
-  import { Button, Card, Checkbox, cls, ListItem, tableOrderStore, TextField } from 'svelte-ux'
+  // import { Button, Card, Checkbox, cls, ListItem, tableOrderStore, TextField } from 'svelte-ux'
   import { slide } from 'svelte/transition'
   import { ActionsController } from '../../hooks/contollers/ActionsController'
   import { Setting, SettingKey } from '../../hooks/entities/Setting'
@@ -21,13 +21,13 @@
     loading = false
   }
 
-  const order = tableOrderStore({ initialBy: 'name', initialDirection: 'asc' })
+  // const order = tableOrderStore({ initialBy: 'name', initialDirection: 'asc' })
 
   $: sortedData = [
     ...($remultInfos.entities ?? []).filter(c =>
       c.meta.table.className.toLowerCase().includes((search ?? '').toLowerCase()),
     ),
-  ].sort($order.handler)
+  ]
 
   let selectedItems: string[] = []
 
@@ -43,7 +43,7 @@
 </script>
 
 {#if ($remultInfos.entities ?? []).length > 0}
-  <Card>
+  <!-- <Card>
     <div class="m-2 grid gap-4">
       <div class="flex justify-between">
         <h2>
@@ -133,5 +133,5 @@
         </ListItem>
       </div>
     {/each}
-  </Card>
+  </Card> -->
 {/if}
