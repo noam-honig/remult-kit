@@ -29,12 +29,12 @@ jobs:
         image: mcr.microsoft.com/mssql/server:2019-latest
         env:
           ACCEPT_EULA: Y
-          SA_PASSWORD: MASTERKEY
+          SA_PASSWORD: pASSWORD!@#123
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MASTERKEY -Q 'SELECT 1'"
-          --health-interval 10s --health-timeout 5s --health-retries 5
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P pASSWORD!@#123 -Q 'SELECT
+          1'" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: 🌐 Checkout Repository
