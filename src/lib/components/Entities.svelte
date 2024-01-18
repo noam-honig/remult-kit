@@ -129,9 +129,9 @@
                       <p>
                         {row.meta.table.className}
                       </p>
-                      <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
+                      <i class="text-xs w-24 text-right">{row.meta.colsMeta.length + ' fields'}</i>
                     </button>
-
+                    sds
                     <div class="flex justify-end">
                       <input
                         type="checkbox"
@@ -149,38 +149,6 @@
                   </div>
                 {/if}
               </Card>
-              <!-- <div role="menu" tabindex="0" class="collapse bg-base-200">
-                <div class="collapse-title text-xl font-medium">
-                  {row.meta.table.className}
-                  <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
-                </div>
-                <div class="collapse-content">
-                  <div class="w-full">
-                    <Code code={row.fileContent}></Code>
-                  </div>
-                </div>
-                
-              </div> -->
-              <!-- <ListItem
-          title={row.meta.table.className}
-          subheading={row.meta.colsMeta.length + ' fields'}
-          on:click={() => updateSelection(row.meta.table.className)}
-          class={cls(
-            'px-8 py-4',
-            'cursor-pointer transition-shadow duration-100 border',
-            'hover:bg-primary/10',
-            selectedItems.includes(row.meta.table.className) ? 'bg-primary/10' : '',
-          )}
-          noBackground
-          noShadow
-        >
-          <div slot="actions">
-            <Checkbox
-              checked={selectedItems.includes(row.meta.table.className)}
-              on:change={() => updateSelection(row.meta.table.className)}
-            />
-          </div>
-        </ListItem> -->
             </div>
           {/each}
         </div>
