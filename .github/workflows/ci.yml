@@ -9,11 +9,34 @@ jobs:
   build:
     name: Builds & Tests
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: MASTERKEY
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P MASTERKEY -Q 'SELECT 1'"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: 🌐 Checkout Repository
         uses: actions/checkout@v4
         with:
-          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
       - name: 🧑‍💻 Setup env
@@ -32,3 +55,8 @@ jobs:
 
       - name: 👌 Tests
         run: npm run test
+        env:
+          DATABASE_URL: postgres://user:password@localhost:5432/test_db
+          MSSQL_PASSWORD: MASTERKEY
+          MSSQL_DATABASE: master
+          SQL_SERVER_URL: 'Server=localhost,1433;User Id=sa;Password=Your_password123;'

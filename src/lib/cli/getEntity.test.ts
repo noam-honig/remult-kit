@@ -132,20 +132,20 @@ describe.skipIf(!DATABASE_URL)('#unit-test build_column', () => {
   })
 })
 
-describe.skipIf(!process.env['TESTS_SQL_SERVER'])('test sql server', async () => {
+describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
   it('test a basic table', async () => {
     const x = await createKnexDataProvider({
       // Knex client configuration for MSSQL
       client: 'mssql',
       connection: {
         server: '127.0.0.1',
-        database: 'test2',
+        database: process.env['MSSQL_DATABASE'],
         user: 'sa',
-        password: 'MASTERKEY',
+        password: process.env['MSSQL_PASSWORD'],
         options: {
           enableArithAbort: true,
           encrypt: false,
-          instanceName: 'sqlexpress',
+          instanceName: process.env['MSSQL_INSTANCE'],
         },
       }, //,debug: true
     })
