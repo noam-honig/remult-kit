@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores'
-  import '../app.postcss'
+  import '../../app.postcss'
   import {
     mdiCog,
     mdiDatabaseEditOutline,

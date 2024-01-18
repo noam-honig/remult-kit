@@ -2,12 +2,12 @@
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
+  import { ActionsController } from '$shared/contollers/ActionsController'
+  import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, Icon, TextField } from '$ui'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
   import { slide } from 'svelte/transition'
-  import { ActionsController } from '../../hooks/contollers/ActionsController'
-  import { Setting, SettingKey } from '../../hooks/entities/Setting'
   import Code from './Code.svelte'
 
   let loading = false
@@ -116,26 +116,37 @@
         </div>
         <!-- </div>
       <ul class="menu bg-base-200 rounded-box"> -->
-        <div class="grid">
+        <div class="grid gap-2">
           {#each sortedData as row}
-            <div transition:slide class="m-2">
+            <div transition:slide>
               <Card>
-                <div class="flex items-center">
-                  <button
-                    on:click={() => updateEntityOpen(row.meta.table.className)}
-                    class="card-title flex-1"
-                  >
-                    {row.meta.table.className}
-                  </button>
-                  <input
-                    type="checkbox"
-                    on:change={() => updateSelection(row.meta.table.className)}
-                    class="checkbox"
-                  />
-                </div>
+                <svelte:fragment slot="title">
+                  <div class="flex items-center">
+                    <button
+                      on:click={() => updateEntityOpen(row.meta.table.className)}
+                      class="card-title flex-1 grid grid-cols-2 place-items-start items-center"
+                    >
+                      <p>
+                        {row.meta.table.className}
+                      </p>
+                      <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
+                    </button>
+
+                    <div class="flex justify-end">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(row.meta.table.className)}
+                        on:change={() => updateSelection(row.meta.table.className)}
+                        class="checkbox"
+                      />
+                    </div>
+                  </div>
+                </svelte:fragment>
+
                 {#if entityOpen === row.meta.table.className}
-                  <i class="text-xs">{row.meta.colsMeta.length + ' fields'}</i>
-                  <Code code={row.fileContent}></Code>
+                  <div class="p-2">
+                    <Code code={row.fileContent}></Code>
+                  </div>
                 {/if}
               </Card>
               <!-- <div role="menu" tabindex="0" class="collapse bg-base-200">

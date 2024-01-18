@@ -1,9 +1,9 @@
 import { type ConnectionInfo } from '$lib/cli/db/databases'
 import { getEntitiesTypescriptPostgres, type EntityMetaData } from '$lib/cli/getEntity'
+import { Setting, SettingKey } from '$shared/entities/Setting'
 import { write, read } from '@kitql/internals'
 import { BackendMethod, remult } from 'remult'
 
-import { Setting, SettingKey } from '../entities/Setting'
 import { getDbFromConnectionInfo } from './helper'
 
 export class ActionsController {

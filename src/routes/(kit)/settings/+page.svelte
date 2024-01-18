@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, TextField } from '$ui'
   import { remult } from 'remult'
   import { onMount } from 'svelte'
-  import { Setting, SettingKey } from '../../hooks/entities/Setting'
 
   let settings: Setting[] = []
 

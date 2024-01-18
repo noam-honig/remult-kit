@@ -1,12 +1,12 @@
 <script lang="ts">
+  import type { EntityMetaData } from '$lib/cli/getEntity'
+  import { toPascalCase } from '$lib/cli/utils/case'
+  import FieldContainer from '$lib/components/ui/FieldContainer.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
+  import { ActionsController } from '$shared/contollers/ActionsController'
   import { onMount } from 'svelte'
   import { Anchor, Node, Svelvet, ThemeToggle } from 'svelvet'
-  import { ActionsController } from '../../hooks/contollers/ActionsController'
-  import type { EntityMetaData } from '../../lib/cli/getEntity'
-  import { toPascalCase } from '../../lib/cli/utils/case'
-  import FieldContainer from '../../lib/components/ui/FieldContainer.svelte'
 
   onMount(async () => {
     $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)

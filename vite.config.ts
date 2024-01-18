@@ -3,6 +3,7 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vite'
 import { kitRoutes } from 'vite-plugin-kit-routes'
+import { viteSingleFile } from 'vite-plugin-singlefile'
 import { stripper } from 'vite-plugin-stripper'
 
 export default defineConfig(({ mode }) => {
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => {
     },
 
     plugins: [
+      viteSingleFile({}),
       kitRoutes<KIT_ROUTES>({
         post_update_run: 'npm exec prettier ./src/lib/ROUTES.ts -- -w',
         logs: {
