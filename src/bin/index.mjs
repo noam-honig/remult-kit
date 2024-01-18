@@ -22,20 +22,22 @@ log.info(`v${green(`${version}`)} - Starting`)
 const runMe = path.join(rootPath, 'remult-kit-app', 'index.js')
 
 try {
-  const npx = spawn('node', [runMe], {
-    env: {
-      PORT: 4321,
-      HOST: '127.0.0.1',
-      ...process.env,
-    },
-  })
+  const env = {
+    PORT: 4321,
+    HOST: '127.0.0.1',
+    ...process.env,
+  }
 
-  open(`http://127.0.0.1:4321`)
+  const npx = spawn('node', [runMe], { env })
+
+  const url = `http://${env.HOST}:${env.PORT}`
+
+  open(url)
 
   // Capture standard output and error
   npx.stdout.on('data', data => {
     if (data.includes('Listening on')) {
-      log.info('Listening on http://127.0.0.1:4321')
+      log.info(`Listening on ${url}`)
     } else log.info(`${data}`)
   })
 
