@@ -3,7 +3,6 @@ import { Log, green } from '@kitql/helpers'
 import { spawn } from 'child_process'
 import { config } from 'dotenv'
 import { readFileSync, existsSync } from 'node:fs'
-import os from 'node:os'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
