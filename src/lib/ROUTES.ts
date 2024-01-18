@@ -13,7 +13,6 @@ const PAGES = {
   '/raw-db': `/raw-db`,
   '/schemas': `/schemas`,
   '/settings': `/settings`,
-  '/admin': `/admin`,
 }
 
 /**
@@ -137,7 +136,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
  * ```
  */
 export type KIT_ROUTES = {
-  PAGES: { '/': never; '/raw-db': never; '/schemas': never; '/settings': never; '/admin': never }
+  PAGES: { '/': never; '/raw-db': never; '/schemas': never; '/settings': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: Record<string, never>
