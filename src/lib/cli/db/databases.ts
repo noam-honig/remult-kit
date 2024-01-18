@@ -27,7 +27,7 @@ export const databases = {
     npm: ['pg'],
     getCode: args => `import { createPostgresDataProvider } from "remult/postgres"
 
-createPostgresDataProvider({
+const dataProvider = createPostgresDataProvider({
   connectionString: ${args['database url']}
 })`,
     connect: async args => {
@@ -51,7 +51,7 @@ createPostgresDataProvider({
     npm: ['mysql2', 'knex'],
     getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
 
-createKnexDataProvider({
+const dataProvider = createKnexDataProvider({
   client: "mysql2",
   connection: {
     user: ${args.user},
@@ -90,7 +90,7 @@ createKnexDataProvider({
     npm: ['tedious', 'knex'],
     getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
 
-createKnexDataProvider({
+const dataProvider = createKnexDataProvider({
   client: "mssql",
   connection: {
     server: ${args.server},
@@ -102,7 +102,8 @@ createKnexDataProvider({
       encrypt: false,
       instanceName: ${args.instanceName},
     },
-  }`,
+  }
+})`,
     connect: async args => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
       const { DbMySQL } = await import('./DbMySQL')
