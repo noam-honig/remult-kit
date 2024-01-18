@@ -3,7 +3,7 @@ import { Log, green } from '@kitql/helpers'
 import { spawn } from 'child_process'
 import { config } from 'dotenv'
 import { readFileSync, existsSync } from 'node:fs'
-import os from 'node:os'
+import open from 'open'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -29,6 +29,8 @@ try {
       ...process.env,
     },
   })
+
+  open(`http://127.0.0.1:4321`)
 
   // Capture standard output and error
   npx.stdout.on('data', data => {
