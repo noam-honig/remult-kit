@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { Log, green } from '@kitql/helpers'
+import { Log, green, red, yellow } from '@kitql/helpers'
 import { spawn } from 'child_process'
 import { config } from 'dotenv'
 import { readFileSync, existsSync } from 'node:fs'
+import open from 'open'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -20,34 +21,44 @@ log.info(`v${green(`${version}`)} - Starting`)
 
 const runMe = path.join(rootPath, 'remult-kit-app', 'index.js')
 
-try {
-  const npx = spawn('node', [runMe], {
-    env: {
-      PORT: 4321,
-      HOST: '127.0.0.1',
-      ...process.env,
-    },
-  })
+function runServer(env) {
+  try {
+    const npx = spawn('node', [runMe], { env })
 
-  // Capture standard output and error
-  npx.stdout.on('data', data => {
-    if (data.includes('Listening on')) {
-      log.info('Listening on http://127.0.0.1:4321')
-    } else log.info(`${data}`)
-  })
+    const url = `http://${env.HOST}:${env.PORT}`
 
-  npx.stderr.on('data', data => {
-    log.error(`${data}`)
-  })
+    // Capture standard output and error
+    npx.stdout.on('data', data => {
+      if (data.includes('Listening on')) {
+        log.info(`Listening on ${url}`)
+        open(url)
+      } else log.info(`${data}`)
+    })
 
-  // Listen for errors and exit event
-  npx.on('error', error => {
-    log.error(`${error.message}`)
-  })
+    npx.stderr.on('data', data => {
+      if (data.includes('EADDRINUSE')) {
+        log.info(`Port ${red(env.PORT)} is already in use, trying ${yellow(env.PORT + 1)}...`)
+        runServer({ ...env, PORT: env.PORT + 1 })
+      } else {
+        log.error(`${data}`)
+      }
+    })
 
-  npx.on('close', code => {
-    log.info(`Child process exited with code ${code}`)
-  })
-} catch (err) {
-  log.error('something went wrong', err)
+    // Listen for errors and exit event
+    npx.on('error', error => {
+      log.error(`${error.message}`)
+    })
+
+    npx.on('close', code => {
+      // log.info(`Child process exited with code ${code}`)
+    })
+  } catch (err) {
+    log.error('something went wrong', err)
+  }
 }
+
+runServer({
+  PORT: 4321,
+  HOST: '127.0.0.1',
+  ...process.env,
+})

@@ -1,9 +1,8 @@
+import { ActionsController } from '$shared/contollers/ActionsController'
+import { Setting, SettingKey } from '$shared/entities/Setting'
 import { JsonDataProvider } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import { JsonEntityFileStorage } from 'remult/server'
-
-import { ActionsController } from './contollers/ActionsController'
-import { Setting, SettingKey } from './entities/Setting'
 
 export const handleRemult = remultSveltekit({
   dataProvider: async () => new JsonDataProvider(new JsonEntityFileStorage('.remult-kit')),

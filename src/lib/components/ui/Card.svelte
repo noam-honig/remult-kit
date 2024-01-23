@@ -6,17 +6,22 @@
   let classes = ''
 </script>
 
-<div class="card w-full bg-base-100 shadow-xl {classes} overflow-auto">
-  <div class="card-body">
-    {#if title}
-      <h2 class="card-title">{title}</h2>
+<div class="w-full rounded-lg bg-base-100 shadow-xl {classes} overflow-auto">
+  <div class="p-2 rounded-md">
+    {#if !$$slots.title}
+      {#if title}
+        <h2 class="card-title">{title}</h2>
+      {/if}
+      {#if subheading}
+        <div class="italic">{subheading}</div>
+      {/if}
+    {:else}
+      <slot name="title" />
     {/if}
-    {#if subheading}
-      <div class="card-subtitle">{subheading}</div>
-    {/if}
-    <div class="overflow-auto">
+
+    {#if $$slots.default}
       <slot />
-    </div>
+    {/if}
     <!-- <div class="card-actions justify-end">
       <button class="btn btn-primary">Buy Now</button>
     </div> -->

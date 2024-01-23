@@ -19,7 +19,7 @@
   {@html atomOneDark}
 </svelte:head>
 
-<div class="border border-accent">
+<div class="border border-accent m-5">
   <div class="indicator w-full">
     <span class="indicator-item">
       <Button

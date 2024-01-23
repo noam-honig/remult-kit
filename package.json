@@ -78,6 +78,7 @@
   "dependencies": {
     "dotenv": "^16.3.1",
     "@kitql/helpers": "^0.8.8",
+    "open": "^10.0.3",
     "knex": "^3.1.0"
   },
   "files": [
