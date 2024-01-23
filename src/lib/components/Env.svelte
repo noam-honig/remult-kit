@@ -100,7 +100,7 @@
           </Card>
 
           <Card title="Add dependencies" subheading="commands">
-            <Code code={`npm i ${databases[$connectionInfo.db].npm.join(' ')} -D`} />
+            <Code code={`npm i ${databases[$connectionInfo.db].npm.join(' ')}`} />
           </Card>
 
           <Card title="Data Provider" subheading="Code">
