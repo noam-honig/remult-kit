@@ -15,6 +15,7 @@ const config = {
 
     alias: {
       $ui: './src/lib/components/ui',
+      $shared: './src/hooks/shared',
     },
   },
 }

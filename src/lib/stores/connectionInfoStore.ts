@@ -1,7 +1,7 @@
 import type { ConnectionInfo } from '$lib/cli/db/databases'
+import { ActionsController } from '$shared/contollers/ActionsController'
 import { writable } from 'svelte/store'
 
-import { ActionsController } from '../../hooks/contollers/ActionsController'
 import { remultInfos } from './remultInfos'
 
 const def: ConnectionInfo = {
