@@ -19,7 +19,7 @@ export class ActionsController {
 
       const repo = remult.repo(Setting)
       const all = await repo.find()
-      const outputDir = all.find(c => c.id === SettingKey.outputDir)?.value ?? 'src/shared'
+      const outputDir = all.find(c => c.id === SettingKey.outputDir)?.value ?? 'src/shared/entities'
       const tableProps =
         all.find(c => c.id === SettingKey.tableProps)?.value ?? "'allowApiCrud: true'"
 

@@ -7,6 +7,9 @@ const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault 
   if (defaultVal) {
     const index = defaultVal?.indexOf("'::")
     if (index > 0) defaultVal = defaultVal?.substring(0, index + 1)
+    if (defaultVal==`(' ')`)
+    defaultVal="\"\""
+      
   }
   if (columnName === 'id') {
     return {

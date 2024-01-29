@@ -1,10 +1,10 @@
 [
   {
     "id": "outputDir",
-    "value": "src/shared"
+    "value": "../../try/t98/remult-react-todo/src/shared"
   },
   {
     "id": "tableProps",
-    "value": "allowApiCrud: false"
+    "value": "allowApiCrud: true"
   }
 ]

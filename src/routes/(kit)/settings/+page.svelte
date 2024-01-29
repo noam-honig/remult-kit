@@ -17,7 +17,7 @@
       <TextField
         label={setting.id}
         bind:value={setting.value}
-        on:change={async () => {
+        on:change={() => {
           remult.repo(Setting).save(setting)
         }}
       ></TextField>

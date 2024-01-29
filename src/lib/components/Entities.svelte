@@ -78,7 +78,7 @@
 
               for (const element of filtered) {
                 await ActionsController.writeFile(
-                  `${outputDir}/entities/${element.meta.table.className}.ts`,
+                  `${outputDir}/${element.meta.table.className}.ts`,
                   [element.fileContent],
                 )
               }
@@ -131,7 +131,7 @@
                       </p>
                       <i class="text-xs w-24 text-right">{row.meta.colsMeta.length + ' fields'}</i>
                     </button>
-                    sds
+
                     <div class="flex justify-end">
                       <input
                         type="checkbox"
@@ -146,6 +146,17 @@
                 {#if entityOpen === row.meta.table.className}
                   <div class="p-2">
                     <Code code={row.fileContent}></Code>
+                    <Button
+                      on:click={async () => {
+                        const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))
+                          .value
+
+                        await ActionsController.writeFile(
+                          `${outputDir}/${row.meta.table.className}.ts`,
+                          [row.fileContent],
+                        )
+                      }}>Write File</Button
+                    >
                   </div>
                 {/if}
               </Card>

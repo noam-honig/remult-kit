@@ -19,7 +19,7 @@ export const handleRemult = remultSveltekit({
     // }
     if ((await repo.count()) === 0) {
       await repo.insert([
-        { id: SettingKey.outputDir, value: 'src/shared' },
+        { id: SettingKey.outputDir, value: 'src/shared/entities' },
         { id: SettingKey.tableProps, value: 'allowApiCrud: true' },
       ])
     }
