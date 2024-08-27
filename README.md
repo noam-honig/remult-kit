@@ -17,7 +17,7 @@ npm i
 npm run dev
 ```
 
-## Try npx locally
+## Try it locally
 
 ```bash
 npm run build

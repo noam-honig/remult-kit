@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
         logs: {
           post_update_run: false,
           update: false,
+          errors: false,
         },
       }),
       stripper({ decorators: ['BackendMethod'], debug: false }),
