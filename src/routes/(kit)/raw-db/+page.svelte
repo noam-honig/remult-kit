@@ -12,6 +12,11 @@ CREATE SCHEMA IF NOT EXISTS "public";`
 </script>
 
 <Card title="SQL" subheading="Run raw queries">
+  {#if isVisible}
+    <center>
+      <div use:confetti={{ stageWidth: 600, stageHeight: 300, force: 1 }} />
+    </center>
+  {/if}
   <textarea class="input input-bordered w-full h-96" bind:value={rawDb} />
 
   <Button
@@ -23,8 +28,5 @@ CREATE SCHEMA IF NOT EXISTS "public";`
       isVisible = true
     }}
     >Run
-    {#if isVisible}
-      <div use:confetti={{ stageWidth: 600, stageHeight: 300, force: 1 }} />
-    {/if}
   </Button>
 </Card>

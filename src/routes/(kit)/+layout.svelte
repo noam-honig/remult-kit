@@ -10,7 +10,7 @@
     mdiVectorLink,
   } from '@mdi/js'
   import logo from '$lib/assets/remult-kit.png'
-  import remult_kit from '$lib/assets/remult-kit.svg'
+  import remult_kit from '$lib/assets/remult-kit.png'
   import Icon from '$lib/components/ui/Icon.svelte'
   import { route } from '$lib/ROUTES'
 

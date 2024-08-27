@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 
 src/shared
 remult-kit-app
+/.remult-kit

@@ -14,9 +14,9 @@ const config = {
           // dark
           // dim
           ...require('daisyui/src/theming/themes')['dark'],
-          primary: '#FCB335',
-          secondary: '#5B68DF',
-          accent: '#74E0A9',
+          primary: '#0066c8',
+          // secondary: '#5B68DF',
+          // accent: '#74E0A9',
         },
       },
     ],
