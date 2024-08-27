@@ -32,13 +32,13 @@
     "release": "npm run build && npm run patch-versions && npm publish --public",
     "patch-versions": " FOR /F %i in ('npm version patch -m \"release %s\"') DO git push origin %i",
     "preview": "npm exec remult-kit",
+    "test": "vitest",
+    "test:integration": "playwright test",
     "test:all": "npm run test:integration && npm run test",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "kitql-lint",
-    "format": "kitql-lint --format",
-    "test:integration": "playwright test",
-    "test": "vitest"
+    "format": "kitql-lint --format"
   },
   "devDependencies": {
     "@kitql/eslint-config": "^0.1.1",
