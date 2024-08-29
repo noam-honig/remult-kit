@@ -6,10 +6,11 @@ export const enum SettingKey {
 }
 
 @Entity('settings', {
+  caption: '__remult-kit settings',
   allowApiCrud: true,
 })
 export class Setting {
-  @Fields.string()
+  @Fields.string({ allowApiUpdate: false })
   id!: string
 
   @Fields.string()

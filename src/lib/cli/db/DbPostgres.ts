@@ -42,7 +42,7 @@ export class DbPostgres implements IDatabase {
         `AND table_schema = ${command.addParameterAndReturnSqlToken(schema)};`,
     )
 
-    return tablesColumnInfo.rows.map(c => {
+    return tablesColumnInfo.rows.map((c) => {
       return {
         table_schema: c.table_schema,
         table_name: c.table_name,

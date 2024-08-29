@@ -1,12 +1,13 @@
 import { config } from 'dotenv'
+import { beforeEach, describe, expect, it, test } from 'vitest'
+
 import { createPostgresDataProvider } from 'remult/postgres'
 import { createKnexDataProvider } from 'remult/remult-knex'
-import { expect, test, describe, it, beforeEach } from 'vitest'
 
 import { DbMySQL } from './db/DbMySQL.js'
 import { DbPostgres } from './db/DbPostgres.js'
 import type { IDatabase } from './db/types.js'
-import { buildColumn, getEntitiesTypescriptPostgres } from './getEntity.js'
+import { buildColumn, getEntitiesTypescriptFromDb } from './getEntity.js'
 
 config()
 
@@ -149,12 +150,11 @@ describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
     }, //,debug: true
   })
   beforeEach(async () => {
-
     try {
       await x.knex.raw('drop table test1')
     } catch (e) {}
   })
-  
+
   it('test a basic table', async () => {
     await x.knex.raw(
       "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
@@ -278,11 +278,10 @@ describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
       "
     `)
   })
-  
 })
 
 async function getTypescript(db: IDatabase, entity: string) {
-  const r = await getEntitiesTypescriptPostgres(
+  const r = await getEntitiesTypescriptFromDb(
     db,
     '',
     '',
@@ -294,6 +293,6 @@ async function getTypescript(db: IDatabase, entity: string) {
     [],
     [entity],
   )
-  const result = r.entities.find(x => x.meta.table.dbName == entity)!.fileContent
+  const result = r.entities.find((x) => x.meta.table.dbName == entity)!.fileContent
   return result
 }

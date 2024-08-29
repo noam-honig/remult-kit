@@ -1,15 +1,33 @@
-import { ActionsController } from '$shared/contollers/ActionsController'
-import { Setting, SettingKey } from '$shared/entities/Setting'
 import { JsonDataProvider } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import { JsonEntityFileStorage } from 'remult/server'
+import { getFilesUnder } from '@kitql/internals'
+
+import { ActionsController } from '$shared/contollers/ActionsController'
+import { Setting, SettingKey } from '$shared/entities/Setting'
+
+const files = getFilesUnder('./src/shared/entities')
+
+const dynamicEntities = []
+for (let i = 0; i < files.length; i++) {
+  const className = files[i].replaceAll('.ts', '')
+  const imp = await import('../shared/entities/' + className)
+  dynamicEntities.push(imp[className])
+}
+
+// const u = await import('../shared/entities/User')
 
 export const handleRemult = remultSveltekit({
   dataProvider: async () => new JsonDataProvider(new JsonEntityFileStorage('.remult-kit')),
   logApiEndPoints: false,
-  entities: [Setting],
+  entities: [
+    Setting,
+    ...dynamicEntities,
+    // u.User,
+  ],
   controllers: [ActionsController],
-  initApi: async remult => {
+  admin: true,
+  initApi: async (remult) => {
     const repo = remult.repo(Setting)
 
     // reset all settings
@@ -17,6 +35,7 @@ export const handleRemult = remultSveltekit({
     // for (const setting of all) {
     //   await repo.delete(setting.id)
     // }
+
     if ((await repo.count()) === 0) {
       await repo.insert([
         { id: SettingKey.outputDir, value: 'src/shared/entities' },

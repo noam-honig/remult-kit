@@ -7,9 +7,7 @@ const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault 
   if (defaultVal) {
     const index = defaultVal?.indexOf("'::")
     if (index > 0) defaultVal = defaultVal?.substring(0, index + 1)
-    if (defaultVal==`(' ')`)
-    defaultVal="\"\""
-      
+    if (defaultVal == `(' ')`) defaultVal = '""'
   }
   if (columnName === 'id') {
     return {
@@ -75,7 +73,7 @@ const enumProcessor: DataTypeProcessorFunction = ({ columnDefault, udtName }) =>
   }
 }
 
-const arrayProcessor: DataTypeProcessorFunction = input => {
+const arrayProcessor: DataTypeProcessorFunction = (input) => {
   // udtName will show "_numeric" or "_permission_enum" (USER-DEFINED)
   const cleanUdtName = input.udtName.substring(1)
 
@@ -133,7 +131,7 @@ const intOrNumberProcessor: DataTypeProcessorFunction = ({ datetimePrecision }) 
   }
 }
 
-const charProcessor: DataTypeProcessorFunction = input => {
+const charProcessor: DataTypeProcessorFunction = (input) => {
   if (input.characterMaximumLength == 8 && input.columnDefault == "('00000000')") {
     return { decorator: '@Fields.dateOnly', type: 'Date' }
   }
@@ -149,6 +147,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   smallint: intOrAutoIncrementProcessor,
   tinyint: intOrAutoIncrementProcessor,
 
+  'INTEGER UNSIGNED': intOrNumberProcessor,
   bigint: intOrNumberProcessor,
   float: intOrNumberProcessor,
   numeric: intOrNumberProcessor,
@@ -166,6 +165,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   character: stringProcessor,
   'character varying': stringProcessor,
   inet: stringProcessor,
+  TEXT: stringProcessor,
 
   uuid: stringProcessor,
 
@@ -175,6 +175,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   date: dateProcessor,
   DATE: dateProcessor,
   datetime: dateProcessor,
+  DATETIME: dateProcessor,
   datetime2: dateProcessor,
   'timestamp without time zone': dateProcessor,
   'timestamp with time zone': dateProcessor,
