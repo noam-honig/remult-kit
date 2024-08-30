@@ -111,7 +111,7 @@ describe('field generation', () => {
 describe('db', () => {
   const DATABASE_URL = process.env['DATABASE_URL']
   describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
-    it('test1', async () => {
+    it('test a basic table', async () => {
       const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
       await x.execute('drop table if exists test1')
       await x.execute(
@@ -125,6 +125,90 @@ describe('db', () => {
           dbName: "test1",
         })
         export class Test1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+    })
+    it('test a products', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists test1')
+      await x.execute(
+        `CREATE TABLE test1 (
+          "ProductID" SERIAL PRIMARY KEY,
+          "ProductName" VARCHAR(40) NOT NULL,
+          "SupplierID" INT NOT NULL DEFAULT 0,
+          "CategoryID" INT NOT NULL DEFAULT 0,
+          "QuantityPerUnit" VARCHAR(20) NOT NULL DEFAULT '',
+          "UnitPrice" DECIMAL(19, 4) NOT NULL DEFAULT 0.0000,
+          "UnitsInStock" SMALLINT NOT NULL DEFAULT 0,
+          "UnitsOnOrder" SMALLINT NOT NULL DEFAULT 0,
+          "ReorderLevel" SMALLINT NOT NULL DEFAULT 0,
+          "Discontinued" BOOLEAN NOT NULL DEFAULT FALSE
+        );`,
+      )
+      const result = await getTypescript(new DbPostgres(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.autoIncrement()
+          ProductID = 0
+
+          @Fields.string()
+          ProductName!: string
+
+          @Fields.integer()
+          SupplierID = 0
+
+          @Fields.integer()
+          CategoryID = 0
+
+          @Fields.string()
+          QuantityPerUnit = ""
+
+          @Fields.number()
+          UnitPrice!: number
+
+          @Fields.integer()
+          UnitsInStock = 0
+
+          @Fields.integer()
+          UnitsOnOrder = 0
+
+          @Fields.integer()
+          ReorderLevel = 0
+
+          @Fields.boolean()
+          Discontinued = false
+        }
+        "
+      `)
+    })
+    it('test a name with space', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists "test it1"')
+      await x.execute(
+        `CREATE TABLE "test it1" (
+          id INT NOT NULL DEFAULT 0,
+          name VARCHAR(100) NOT NULL DEFAULT ''
+        );`,
+      )
+      const result = await getTypescript(new DbPostgres(x), 'test it1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<TestIt1>("test-it1s", {
+          dbName: "test it1",
+        })
+        export class TestIt1 {
           @Fields.integer()
           id = 0
 
@@ -529,8 +613,7 @@ async function getTypescript(db: IDatabase, entity: string) {
   )
 
   const result = r.entities.find((x) => {
-    console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
-
+    // console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
     return x.meta.table.dbName == entity
   })
   if (!result) return `NO DATA FOR ENTITY "${entity}"`

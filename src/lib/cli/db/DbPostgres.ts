@@ -1,7 +1,7 @@
 import type { SqlDatabase } from 'remult'
 
 import type { DbTable } from './DbTable.js'
-import type { IDatabase } from './types.js'
+import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
   constructor(private sqlDatabase: SqlDatabase) {}
@@ -39,12 +39,24 @@ export class DbPostgres implements IDatabase {
     const tablesColumnInfo = await command.execute(
       `SELECT * from INFORMATION_SCHEMA.COLUMNS
 				WHERE
-					table_name=${command.addParameterAndReturnSqlToken(tableName)}
+					table_name=${command.param(tableName)}
 					AND
-					table_schema=${command.addParameterAndReturnSqlToken(schema)}
+					table_schema=${command.param(schema)}
 				ORDER BY ordinal_position`,
     )
-    return tablesColumnInfo.rows
+    return tablesColumnInfo.rows.map((c) => {
+      const i: DbTableColumnInfo = {
+        column_name: c.column_name,
+        column_default: c.column_default,
+        data_type: c.data_type,
+        precision: c.datetime_precision,
+        character_maximum_length: c.character_maximum_length,
+        udt_name: c.udt_name,
+        is_nullable: c.is_nullable,
+        is_key: c.is_key,
+      }
+      return i
+    })
   }
 
   async getUniqueInfo(schema: string) {
