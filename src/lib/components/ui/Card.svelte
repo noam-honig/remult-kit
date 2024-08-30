@@ -7,7 +7,7 @@
 </script>
 
 <div class="w-full rounded-lg bg-base-100 shadow-xl {classes} overflow-auto">
-  <div class="p-2 rounded-md">
+  <div class="rounded-md p-2">
     {#if !$$slots.title}
       {#if title}
         <h2 class="card-title">{title}</h2>

@@ -1,9 +1,9 @@
-import type { KIT_ROUTES } from '$lib/ROUTES'
 import { sveltekit } from '@sveltejs/kit/vite'
-import { loadEnv } from 'vite'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { kitRoutes } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
+
+import type { KIT_ROUTES } from '$lib/ROUTES'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')

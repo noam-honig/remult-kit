@@ -3,7 +3,7 @@ import prettier from 'prettier'
 
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
-import type { FieldInfo, IDatabase } from './db/types.js'
+import type { IDatabase } from './db/types.js'
 import { kababToConstantCase, toCamelCase, toPascalCase, toTitleCase } from './utils/case.js'
 import { toFnAndImport } from './utils/format.js'
 

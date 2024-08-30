@@ -1,7 +1,8 @@
 <script>
   import { confetti } from '@neoconfetti/svelte'
-  import { Button, Card } from '$ui'
   import { tick } from 'svelte'
+
+  import { Button, Card } from '$ui'
 
   // TODO: add favorites saved in .remult-kit 🧡
 
@@ -17,7 +18,7 @@ CREATE SCHEMA IF NOT EXISTS "public";`
       <div use:confetti={{ stageWidth: 600, stageHeight: 300, force: 1 }} />
     </center>
   {/if}
-  <textarea class="input input-bordered w-full h-96" bind:value={rawDb} />
+  <textarea class="input input-bordered h-96 w-full" bind:value={rawDb} />
 
   <Button
     on:click={async () => {

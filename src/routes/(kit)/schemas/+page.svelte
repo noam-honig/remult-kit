@@ -1,12 +1,13 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { Anchor, Node, Svelvet, ThemeToggle } from 'svelvet'
+
   import type { EntityMetaData } from '$lib/cli/getEntity'
   import { toPascalCase } from '$lib/cli/utils/case'
   import FieldContainer from '$lib/components/ui/FieldContainer.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { ActionsController } from '$shared/contollers/ActionsController'
-  import { onMount } from 'svelte'
-  import { Anchor, Node, Svelvet, ThemeToggle } from 'svelvet'
 
   onMount(async () => {
     $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)
@@ -41,7 +42,7 @@
       const mins = Math.min(...columns)
       let columnIndex = isLeft ? columns.indexOf(mins) : columns.lastIndexOf(mins)
       // To alterna big tables
-      columns.filter(c => c === mins).length > 1 ? (isLeft = !isLeft) : (isLeft = isLeft)
+      columns.filter((c) => c === mins).length > 1 ? (isLeft = !isLeft) : (isLeft = isLeft)
 
       // Store table positions temporarily
       tablePositions.push({
@@ -59,11 +60,11 @@
     const maxColumnHeight = Math.max(...columns)
 
     // Second pass: Adjust y position to center tables in each column
-    tablePositions.forEach(position => {
+    tablePositions.forEach((position) => {
       const columnHeight = columns[position.columnIndex]
       const extraSpace = maxColumnHeight - columnHeight
       const numTables = tablePositions.filter(
-        pos => pos.columnIndex === position.columnIndex,
+        (pos) => pos.columnIndex === position.columnIndex,
       ).length
       const extraSpacePerTable = extraSpace / (numTables + 1)
       let cumulativeExtraSpace = extraSpacePerTable
@@ -77,7 +78,7 @@
       cumulativeExtraSpace += extraSpacePerTable + position.height
     })
 
-    return tablePositions.map(pos => pos.entity)
+    return tablePositions.map((pos) => pos.entity)
   }
 
   let withRelations = true
@@ -104,7 +105,7 @@
             <div id="container">
               <table class="table table-xs">
                 <tr>
-                  <th colspan="3" class="text-center bg-secondary rounded-t-lg text-lg">
+                  <th colspan="3" class="rounded-t-lg bg-secondary text-center text-lg">
                     {meta.table.className}
                   </th>
                 </tr>

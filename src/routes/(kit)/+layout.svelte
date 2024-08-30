@@ -1,6 +1,8 @@
 <script lang="ts">
   import { page } from '$app/stores'
+
   import '../../app.postcss'
+
   import {
     mdiCog,
     mdiDatabaseEditOutline,
@@ -9,6 +11,7 @@
     mdiTwitter,
     mdiVectorLink,
   } from '@mdi/js'
+
   import logo from '$lib/assets/remult-kit.png'
   import remult_kit from '$lib/assets/remult-kit.png'
   import Icon from '$lib/components/ui/Icon.svelte'
@@ -41,11 +44,11 @@
       <!-- header -->
       <header class="col-span-12 flex items-center gap-2 lg:gap-4">
         <label for="my-drawer" class="btn btn-square btn-ghost drawer-button lg:hidden">
-          <img class="w-10 h-10" src={remult_kit} alt="logo" />
+          <img class="h-10 w-10" src={remult_kit} alt="logo" />
         </label>
         <div class="grow">
           <h1 class="lg:text-2xl lg:font-light">
-            {links.find(c => c.path === $page.url.pathname)?.text ??
+            {links.find((c) => c.path === $page.url.pathname)?.text ??
               $page.url.pathname.replace('/', '')}
           </h1>
         </div>
@@ -75,7 +78,7 @@
     <!-- sidebar menu -->
     <nav class="flex min-h-screen w-72 flex-col gap-2 overflow-y-auto bg-base-100 px-6 py-10">
       <div class="mx-4 flex items-center justify-evenly gap-6 font-black">
-        <img class="w-10 h-10" src={remult_kit} alt="logo" />
+        <img class="h-10 w-10" src={remult_kit} alt="logo" />
 
         <div class="text-primary">Remult Kit</div>
       </div>
@@ -83,7 +86,7 @@
         {#each links as link}
           <li>
             <a
-              class="flex items-center gap-2 p-2 rounded-md hover:bg-base-200"
+              class="flex items-center gap-2 rounded-md p-2 hover:bg-base-200"
               class:active={$page.url.pathname === link.path}
               href={link.path}
             >

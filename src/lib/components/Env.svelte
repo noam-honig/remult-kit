@@ -6,13 +6,15 @@
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
+
   import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { Button, Card, SelectField, TextField } from '$ui'
+
   import Code from './Code.svelte'
 
-  let options = Object.keys(databases).map(key => ({ label: key, value: key }))
+  let options = Object.keys(databases).map((key) => ({ label: key, value: key }))
 
   function placeHolder(arg: string) {
     return 'process.env["' + envName(arg) + '"]'
@@ -50,7 +52,7 @@
     </div>
   </div>
   <div class="collapse-content">
-    <div class="p-3 grid gap-4">
+    <div class="grid gap-4 p-3">
       <SelectField
         label="Data Provider"
         bind:value={$connectionInfo.db}
@@ -87,7 +89,7 @@
         {/if}
       </form>
 
-      <div class="p-4 text-sm grid gap-2">
+      <div class="grid gap-2 p-4 text-sm">
         {#if $connectionInfo.db !== 'auto'}
           <h2 class="text-lg font-medium">You can setup this now:</h2>
 

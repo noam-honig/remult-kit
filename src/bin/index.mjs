@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { Log, green, red, yellow } from '@kitql/helpers'
 import { spawn } from 'child_process'
-import { config } from 'dotenv'
-import { readFileSync, existsSync } from 'node:fs'
-import open from 'open'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { config } from 'dotenv'
+import open from 'open'
+
+import { green, Log, red, yellow } from '@kitql/helpers'
 
 const metaUrl = fileURLToPath(import.meta.url)
 const cwd = process.cwd()
@@ -28,14 +29,14 @@ function runServer(env) {
     const url = `http://${env.HOST}:${env.PORT}`
 
     // Capture standard output and error
-    npx.stdout.on('data', data => {
+    npx.stdout.on('data', (data) => {
       if (data.includes('Listening on')) {
         log.info(`Listening on ${url}`)
         open(url)
       } else log.info(`${data}`)
     })
 
-    npx.stderr.on('data', data => {
+    npx.stderr.on('data', (data) => {
       if (data.includes('EADDRINUSE')) {
         log.info(`Port ${red(env.PORT)} is already in use, trying ${yellow(env.PORT + 1)}...`)
         runServer({ ...env, PORT: env.PORT + 1 })
@@ -45,11 +46,11 @@ function runServer(env) {
     })
 
     // Listen for errors and exit event
-    npx.on('error', error => {
+    npx.on('error', (error) => {
       log.error(`${error.message}`)
     })
 
-    npx.on('close', code => {
+    npx.on('close', (code) => {
       // log.info(`Child process exited with code ${code}`)
     })
   } catch (err) {
