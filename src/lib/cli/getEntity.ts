@@ -3,7 +3,7 @@ import prettier from 'prettier'
 
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
-import type { IDatabase } from './db/types.js'
+import type { FieldInfo, IDatabase } from './db/types.js'
 import { kababToConstantCase, toCamelCase, toPascalCase, toTitleCase } from './utils/case.js'
 import { toFnAndImport } from './utils/format.js'
 
@@ -15,26 +15,26 @@ type CliColumnInfo = {
 
 // TODO: ColMetaData vs FieldInfo??? should be ONE
 type ColMetaData = {
+  type: string | null
   decorator: string
+  defaultVal: string | null
   decoratorArgsValueType: string
   decoratorArgsOptions?: string[]
-  columnNameTweak?: string
   columnName: string
+  columnNameTweak?: string
   isNullable: 'YES' | 'NO'
-  type: string | null
-  defaultVal: string | null
   foreignField?: string | null
 }
 
 export function buildColumn({
+  type,
   decorator,
+  defaultVal,
   decoratorArgsValueType,
   decoratorArgsOptions = [],
   columnNameTweak,
   columnName,
   isNullable,
-  type,
-  defaultVal,
   foreignField,
 }: ColMetaData): CliColumnInfo {
   if (foreignField) {
