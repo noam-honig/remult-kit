@@ -1,5 +1,3 @@
-import { SqlDatabase } from 'remult'
-
 import type { IDatabase } from './types'
 
 export type ConnectionInfo = {
