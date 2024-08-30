@@ -254,7 +254,7 @@ describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
       "
     `)
   })
-  it.only('test a name with space', async () => {
+  it('test a name with space', async () => {
     try {
       await x.knex.raw('drop table [test it1]')
     } catch (e) {}
