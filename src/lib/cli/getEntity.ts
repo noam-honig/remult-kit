@@ -114,13 +114,13 @@ export async function getEntitiesTypescriptFromDb(
   db: IDatabase,
   outputDir: string,
   tableProps: string,
-  orderBy?: (string | number)[],
+  orderBy?: string[],
   customDecorators: Record<string, string> = {},
   withEnums: boolean = true,
-  schemas: (string | number)[] = [],
+  schemas: (string | undefined)[] = [],
   schemasPrefix: 'NEVER' | 'ALWAYS' | 'SMART' = 'SMART',
-  exclude: (string | number)[] = [],
-  include: (string | number)[] = [],
+  exclude: string[] = [],
+  include: string[] = [],
 ) {
   const tableInfo = await db.getTablesInfo()
 
@@ -132,7 +132,6 @@ export async function getEntitiesTypescriptFromDb(
 
   const allTables = tableInfo.map((table) => {
     const tableForeignKeys = foreignKeys.filter(({ table_name }) => table.table_name === table_name)
-
     return new DbTable(table.table_name, table.table_schema, schemasPrefix, tableForeignKeys)
   })
 
@@ -304,7 +303,7 @@ export async function getEntitiesTypescriptFromDb(
 async function getEntityTypescript(
   allTables: DbTable[],
   db: IDatabase,
-  schema: string,
+  schema: string | undefined,
   table: DbTable,
   tableProps: string,
   customDecorators: Record<string, string>,
@@ -318,18 +317,12 @@ async function getEntityTypescript(
   const props = []
   const toManys = []
   if (tableProps) props.push(tableProps)
-  if (table.dbName !== table.className) {
-    if (table.schema === 'public' && table.dbName === 'user') {
-      // user is a reserved keyword, we need to speak about public.user
-      props.push(`dbName: 'public.${table.dbName}'`)
-    } else if (table.schema === 'public' || table.schema === 'dbo') {
-      if (table.dbName !== table.key) {
-        props.push(`dbName: '${table.dbName}'`)
-      }
-    } else {
-      props.push(`dbName: '${table.schema}.${table.dbName}'`)
-    }
+
+  const dbNameToUse = db.getRemultEntityDbName(table)
+  if (dbNameToUse) {
+    props.push(`dbName: '${dbNameToUse}'`)
   }
+
   let usesValidators = false
   let defaultOrderBy: string | null = null
   const columnWithId: string[] = []

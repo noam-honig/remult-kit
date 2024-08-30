@@ -1,5 +1,6 @@
 import type { SqlDatabase } from 'remult'
 
+import type { DbTable } from './DbTable.js'
 import type { IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
@@ -15,6 +16,22 @@ export class DbPostgres implements IDatabase {
       `SELECT table_name, table_schema FROM information_schema.tables;`,
     )
     return tablesInfo.rows
+  }
+
+  getRemultEntityDbName(table: DbTable) {
+    if (table.dbName !== table.className) {
+      if (table.schema === 'public' && table.dbName === 'user') {
+        // user is a reserved keyword, we need to speak about public.user
+        return `'public.${table.dbName}'`
+      } else if (table.schema === 'public') {
+        if (table.dbName !== table.key) {
+          return table.dbName
+        }
+      } else {
+        return `${table.schema}.${table.dbName}`
+      }
+    }
+    return null
   }
 
   async getTableColumnInfo(schema: string, tableName: string) {

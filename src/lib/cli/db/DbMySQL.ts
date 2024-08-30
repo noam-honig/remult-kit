@@ -1,5 +1,6 @@
 import type { KnexDataProvider } from 'remult/remult-knex'
 
+import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbMySQL implements IDatabase {
@@ -32,6 +33,10 @@ export class DbMySQL implements IDatabase {
       )
   }
 
+  getRemultEntityDbName(table: DbTable) {
+    return table.dbName
+  }
+
   async getTableColumnInfo(schema: string, tableName: string) {
     const tablesColumnInfo = await this.knex!.knex('INFORMATION_SCHEMA.COLUMNS')
       .select()
@@ -41,7 +46,7 @@ export class DbMySQL implements IDatabase {
     return tablesColumnInfo.map((c) => {
       const i: DbTableColumnInfo = {
         column_name: c.COLUMN_NAME,
-        column_default: c.COLUMN_DEFAULT,
+        column_default: c.DATA_TYPE === 'varchar' ? `'${c.COLUMN_DEFAULT}'` : c.COLUMN_DEFAULT,
         data_type: c.DATA_TYPE,
         datetime_precision: c.NUMERIC_PRECISION,
         character_maximum_length: c.CHARACTER_MAXIMUM_LENGTH,

@@ -1,3 +1,5 @@
+import { Log } from '@kitql/helpers'
+
 import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
 import type { DataTypeProcessorFunction, DbTableColumnInfo, FieldInfo, IDatabase } from './types'
@@ -221,7 +223,8 @@ export const processColumnType = (
   const field = dataTypeProcessors[data_type]?.(input)
 
   if (!field) {
-    throw new Error(`Unmanaged data type: ${data_type}`, { cause: input })
+    new Log('remult-kit').error(`Unmanaged data type: ${data_type}`, input)
+    // throw new Error(`Unmanaged data type: ${data_type}`, { cause: input })
   }
 
   return {

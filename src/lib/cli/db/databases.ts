@@ -149,7 +149,7 @@ const dataProvider = new SqlDatabase(
         },
       })
       // const schema = await db.knex.raw('PRAGMA database_list;')
-      return new DbSQLite(db, 'public')
+      return new DbSQLite(db)
     },
   }),
 }

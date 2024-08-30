@@ -1,12 +1,10 @@
 import type { KnexDataProvider } from 'remult/remult-knex'
 
+import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbSQLite implements IDatabase {
-  constructor(
-    private knex: KnexDataProvider,
-    public schema: 'public',
-  ) {}
+  constructor(private knex: KnexDataProvider) {}
   async test() {
     await this.knex.knex.raw('select 1')
   }
@@ -26,11 +24,14 @@ export class DbSQLite implements IDatabase {
       .then((r) =>
         r.map((x) => {
           return {
-            table_schema: x.TABLE_SCHEMA ?? this.schema,
             table_name: x.name,
           }
         }),
       )
+  }
+
+  getRemultEntityDbName(table: DbTable) {
+    return table.dbName
   }
 
   async getTableColumnInfo(schemaName: string, tableName: string) {

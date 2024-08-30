@@ -1,11 +1,11 @@
 import type { DbTable } from './DbTable'
 
 export interface IDatabase {
-  schema: string
+  schema?: string
   test(): Promise<void>
   getTablesInfo(): Promise<DbTableInfo[]>
-  getTableColumnInfo(schema: string, tableName: string): Promise<DbTableColumnInfo[]>
-  getUniqueInfo(schema: string): Promise<
+  getTableColumnInfo(schema: string | undefined, tableName: string): Promise<DbTableColumnInfo[]>
+  getUniqueInfo(schema?: string): Promise<
     {
       table_schema: string
       table_name: string
@@ -14,11 +14,13 @@ export interface IDatabase {
   >
   getForeignKeys(): Promise<DbForeignKey[]>
   getEnumDef(udt_name: string): Promise<EnumDef[]>
+
+  getRemultEntityDbName(table: DbTable): string | null
 }
 
 export interface DbTableInfo {
   table_name: string
-  table_schema: string
+  table_schema?: string
 }
 
 export interface DbTableColumnInfo {

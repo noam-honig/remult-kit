@@ -11,7 +11,7 @@ export interface DbTableForeignKey {
 }
 
 export class DbTable {
-  schema: string
+  schema: string | undefined
   dbName: string
   key: string
   className: string
@@ -19,7 +19,7 @@ export class DbTable {
 
   constructor(
     dbName: string,
-    schema: string,
+    schema: string | undefined,
     schemasPrefix: 'NEVER' | 'ALWAYS' | 'SMART' = 'SMART',
     foreignKeys: DbForeignKey[],
   ) {
@@ -43,12 +43,12 @@ export class DbTable {
     if (schemasPrefix === 'NEVER') {
       this.className = sing
     } else if (schemasPrefix === 'ALWAYS') {
-      this.className = `${toPascalCase(schema)}_${sing}`
+      this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
     } else {
       if (schema === 'public') {
         this.className = sing
       } else {
-        this.className = `${toPascalCase(schema)}_${sing}`
+        this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
       }
     }
     this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')

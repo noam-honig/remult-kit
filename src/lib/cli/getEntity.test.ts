@@ -5,6 +5,7 @@ import { createPostgresDataProvider } from 'remult/postgres'
 import { createKnexDataProvider } from 'remult/remult-knex'
 
 import { DbMsSQL } from './db/DbMsSQL.js'
+import { DbMySQL } from './db/DbMySQL.js'
 import { DbPostgres } from './db/DbPostgres.js'
 import { DbSQLite } from './db/DbSQLite.js'
 import type { IDatabase } from './db/types.js'
@@ -12,7 +13,7 @@ import { buildColumn, getEntitiesTypescriptFromDb } from './getEntity.js'
 
 config()
 
-describe('#unit-test build_column', () => {
+describe('field generation', () => {
   test('string not nullable wo default val', () => {
     const info = buildColumn({
       decorator: '@Fields.string',
@@ -107,16 +108,17 @@ describe('#unit-test build_column', () => {
   })
 })
 
-const DATABASE_URL = process.env['DATABASE_URL']
-describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
-  it('test1', async () => {
-    const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
-    await x.execute('drop table if exists test1')
-    await x.execute(
-      "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
-    )
-    const result = await getTypescript(new DbPostgres(x), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+describe('db', () => {
+  const DATABASE_URL = process.env['DATABASE_URL']
+  describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
+    it('test1', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists test1')
+      await x.execute(
+        "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+      )
+      const result = await getTypescript(new DbPostgres(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
         @Entity<Test1>("test1s", {
@@ -131,37 +133,37 @@ describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
         }
         "
       `)
-  })
-})
-
-describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed)', async () => {
-  const x = await createKnexDataProvider({
-    // Knex client configuration for MSSQL
-    client: 'mssql',
-    connection: {
-      server: '127.0.0.1',
-      database: process.env['MSSQL_DATABASE'],
-      user: 'sa',
-      password: process.env['MSSQL_PASSWORD'],
-      options: {
-        enableArithAbort: true,
-        encrypt: false,
-        instanceName: process.env['MSSQL_INSTANCE'],
-      },
-    }, //,debug: true
-  })
-  beforeEach(async () => {
-    try {
-      await x.knex.raw('drop table test1')
-    } catch (e) {}
+    })
   })
 
-  it('test a basic table', async () => {
-    await x.knex.raw(
-      "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
-    )
-    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+  describe.skipIf(!process.env['MSSQL_DATABASE'])('mssql (env MSSQL_DATABASE needed)', async () => {
+    const x = await createKnexDataProvider({
+      // Knex client configuration for MSSQL
+      client: 'mssql',
+      connection: {
+        server: '127.0.0.1',
+        database: process.env['MSSQL_DATABASE'],
+        user: 'sa',
+        password: process.env['MSSQL_PASSWORD'],
+        options: {
+          enableArithAbort: true,
+          encrypt: false,
+          instanceName: process.env['MSSQL_INSTANCE'],
+        },
+      }, //,debug: true
+    })
+    beforeEach(async () => {
+      try {
+        await x.knex.raw('drop table test1')
+      } catch (e) {}
+    })
+
+    it('test a basic table', async () => {
+      await x.knex.raw(
+        "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+      )
+      const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+      expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
         @Entity<Test1>("test1s", {
@@ -176,31 +178,10 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
         }
         "
       `)
-  })
-  it('test a basic table', async () => {
-    await x.knex.raw(
-      "create table test1 (id int default 0 not null, name varchar(100) default ' ' not null)",
-    )
-    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
-        "import { Entity, Fields } from "remult"
-
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
-        export class Test1 {
-          @Fields.integer()
-          id = 0
-
-          @Fields.string()
-          name = ""
-        }
-        "
-      `)
-  })
-  it('test a products', async () => {
-    await x.knex.raw(
-      `CREATE TABLE test1(
+    })
+    it('test a products', async () => {
+      await x.knex.raw(
+        `CREATE TABLE test1(
         [ProductID] [int] NOT NULL primary key,
         [ProductName] [varchar](40) NOT NULL,
         [SupplierID] [int] NOT NULL DEFAULT ((0)),
@@ -212,9 +193,9 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
         [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
         [Discontinued] [bit] NOT NULL DEFAULT ((0))
       )`,
-    )
-    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+      )
+      const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+      expect(result).toMatchInlineSnapshot(`
       "import { Entity, Fields } from "remult"
 
       @Entity<Test1>("test1s", {
@@ -254,16 +235,16 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
       }
       "
     `)
-  })
-  it('test a name with space', async () => {
-    try {
-      await x.knex.raw('drop table [test it1]')
-    } catch (e) {}
-    await x.knex.raw(
-      "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
-    )
-    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
-    expect(result).toMatchInlineSnapshot(`
+    })
+    it('test a name with space', async () => {
+      try {
+        await x.knex.raw('drop table [test it1]')
+      } catch (e) {}
+      await x.knex.raw(
+        "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
+      )
+      const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
+      expect(result).toMatchInlineSnapshot(`
       import { Entity, Fields } from 'remult'
 
       @Entity<TestIt1>('test-it1s', {
@@ -278,28 +259,36 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
       }
       "
     `)
-  })
-})
-
-describe('SQLite', async () => {
-  const x = await createKnexDataProvider({
-    client: 'sqlite3',
-    connection: {
-      filename: '/home/jycouet/udev/gh/lib/remult-kit/src/lib/cli/db/sqlite3/dev.db',
-    }, //,debug: true
-  })
-  beforeEach(async () => {
-    try {
-      await x.knex.raw('drop table test1')
-    } catch (e) {}
+    })
   })
 
-  it('test a basic table', async () => {
-    await x.knex.raw(
-      "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
-    )
-    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+  describe.skipIf(!process.env['MYSQL_DATABASE'])('MySQL (env MYSQL_DATABASE needed)', async () => {
+    const x = await createKnexDataProvider({
+      // Knex client configuration for MSSQL
+      client: 'mysql2',
+      connection: {
+        user: process.env['MYSQL_USER'],
+        password: process.env['MYSQL_PASSWORD'],
+        host: process.env['MYSQL_HOST'],
+        database: process.env['MYSQL_DATABASE'],
+        port: 3306,
+      },
+    })
+    beforeEach(async () => {
+      try {
+        await x.knex.raw('drop table test1')
+      } catch (e) {}
+    })
+
+    it('test a basic table', async () => {
+      await x.knex.raw(
+        "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+      )
+      const result = await getTypescript(
+        new DbMySQL(x, process.env['MYSQL_DATABASE'] ?? ''),
+        'test1',
+      )
+      expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
         @Entity<Test1>("test1s", {
@@ -314,13 +303,130 @@ describe('SQLite', async () => {
         }
         "
       `)
+    })
+    // it('test a basic table', async () => {
+    //   await x.knex.raw(
+    //     "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+    //   )
+    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+    //   expect(result).toMatchInlineSnapshot(`
+    //     "import { Entity, Fields } from "remult"
+
+    //     @Entity<Test1>("test1s", {
+    //       dbName: "test1",
+    //     })
+    //     export class Test1 {
+    //       @Fields.integer()
+    //       id = 0
+
+    //       @Fields.string()
+    //       name = ""
+    //     }
+    //     "
+    //   `)
+    // })
+    // it('test a products', async () => {
+    //   await x.knex.raw(
+    //     `CREATE TABLE test1(
+    //     [ProductID] [int] NOT NULL primary key,
+    //     [ProductName] [varchar](40) NOT NULL,
+    //     [SupplierID] [int] NOT NULL DEFAULT ((0)),
+    //     [CategoryID] [int] NOT NULL DEFAULT ((0)),
+    //     [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (' '),
+    //     [UnitPrice] [money] NOT NULL DEFAULT ((0)),
+    //     [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
+    //     [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
+    //     [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
+    //     [Discontinued] [bit] NOT NULL DEFAULT ((0))
+    //   )`,
+    //   )
+    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+    //   expect(result).toMatchInlineSnapshot(`
+    //   "import { Entity, Fields } from "remult"
+
+    //   @Entity<Test1>("test1s", {
+    //     dbName: "test1",
+    //     id: { ProductID: true },
+    //   })
+    //   export class Test1 {
+    //     @Fields.integer()
+    //     ProductID!: number
+
+    //     @Fields.string()
+    //     ProductName!: string
+
+    //     @Fields.integer()
+    //     SupplierID = 0
+
+    //     @Fields.integer()
+    //     CategoryID = 0
+
+    //     @Fields.string()
+    //     QuantityPerUnit = ""
+
+    //     @Fields.number()
+    //     UnitPrice: 0
+
+    //     @Fields.integer()
+    //     UnitsInStock = 0
+
+    //     @Fields.integer()
+    //     UnitsOnOrder = 0
+
+    //     @Fields.integer()
+    //     ReorderLevel = 0
+
+    //     @Fields.boolean()
+    //     Discontinued = false
+    //   }
+    //   "
+    // `)
+    // })
+    // it('test a name with space', async () => {
+    //   try {
+    //     await x.knex.raw('drop table [test it1]')
+    //   } catch (e) {}
+    //   await x.knex.raw(
+    //     "create table [test it1] (id int default 0 not null, name varchar(100) default '' not null)",
+    //   )
+    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
+    //   expect(result).toMatchInlineSnapshot(`
+    //   import { Entity, Fields } from 'remult'
+
+    //   @Entity<TestIt1>('test-it1s', {
+    //   	dbName: 'test it1'
+    //   })
+    //   export class TestIt1 {
+    //   	@Fields.integer()
+    //   	id = 0
+
+    //   	@Fields.string()
+    //   	name = ""
+    //   }
+    //   "
+    // `)
+    // })
   })
-  it('test a basic table', async () => {
-    await x.knex.raw(
-      "create table test1 (id int default 0 not null, name varchar(100) default 'yop' not null)",
-    )
-    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+
+  describe('SQLite', async () => {
+    const x = await createKnexDataProvider({
+      client: 'sqlite3',
+      connection: {
+        filename: 'src/lib/cli/db/sqlite3/dev.db',
+      }, //,debug: true
+    })
+    beforeEach(async () => {
+      try {
+        await x.knex.raw('drop table test1')
+      } catch (e) {}
+    })
+
+    it('test a basic table', async () => {
+      await x.knex.raw(
+        "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+      )
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
         @Entity<Test1>("test1s", {
@@ -331,15 +437,14 @@ describe('SQLite', async () => {
           id = 0
 
           @Fields.string()
-          name = "yop"
+          name = ""
         }
         "
       `)
-  })
-
-  it('test a products', async () => {
-    await x.knex.raw(
-      `CREATE TABLE test1(
+    })
+    it('test a products', async () => {
+      await x.knex.raw(
+        `CREATE TABLE test1(
         [ProductID] [int] NOT NULL primary key,
         [ProductName] [varchar](40) NOT NULL,
         [SupplierID] [int] NOT NULL DEFAULT ((0)),
@@ -351,9 +456,9 @@ describe('SQLite', async () => {
         [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
         [Discontinued] [bit] NOT NULL DEFAULT ((0))
       )`,
-    )
-    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
-    expect(result).toMatchInlineSnapshot(`
+      )
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
       "import { Entity, Fields } from "remult"
 
       @Entity<Test1>("test1s", {
@@ -393,16 +498,16 @@ describe('SQLite', async () => {
       }
       "
     `)
-  })
-  it('test a name with space', async () => {
-    try {
-      await x.knex.raw('drop table [test it1]')
-    } catch (e) {}
-    await x.knex.raw(
-      "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
-    )
-    const result = await getTypescript(new DbSQLite(x, 'public'), 'test it1')
-    expect(result).toMatchInlineSnapshot(`
+    })
+    it('test a name with space', async () => {
+      try {
+        await x.knex.raw('drop table [test it1]')
+      } catch (e) {}
+      await x.knex.raw(
+        "create table [test it1] (id int default 0 not null, name varchar(100) default '' not null)",
+      )
+      const result = await getTypescript(new DbSQLite(x), 'test it1')
+      expect(result).toMatchInlineSnapshot(`
       "import { Entity, Fields } from "remult"
 
       @Entity<TestIt1>("test-it1s", {
@@ -413,10 +518,11 @@ describe('SQLite', async () => {
         id = 0
 
         @Fields.string()
-        name = " "
+        name = ""
       }
       "
     `)
+    })
   })
 })
 

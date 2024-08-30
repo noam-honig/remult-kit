@@ -1,5 +1,6 @@
 import type { KnexDataProvider } from 'remult/remult-knex'
 
+import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbMsSQL implements IDatabase {
@@ -30,6 +31,19 @@ export class DbMsSQL implements IDatabase {
           }
         }),
       )
+  }
+
+  getRemultEntityDbName(table: DbTable) {
+    if (table.dbName !== table.className) {
+      if (table.schema === 'dbo') {
+        if (table.dbName !== table.key) {
+          return table.dbName
+        }
+      } else {
+        return `${table.schema}.${table.dbName}`
+      }
+    }
+    return null
   }
 
   async getTableColumnInfo(schema: string, tableName: string) {
