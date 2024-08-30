@@ -34,7 +34,7 @@ jobs:
           - 1433:1433
         options: >-
           --memory=2g --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P pASSWORD!@#123
-          -Q 'SELECT 1'" --health-interval 30s --health-timeout 10s --health-retries 10
+          -Q 'SELECT 1'" --health-interval 30s --health-timeout 10s --health-retries 20
 
     steps:
       - name: 🌐 Checkout Repository
