@@ -248,6 +248,8 @@ describe('db', () => {
         "CREATE TABLE test1 (id INT DEFAULT 0 NOT NULL, name VARCHAR(100) DEFAULT '' NOT NULL)",
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+      console.log(`result`, result)
+
       expect(result).toMatchInlineSnapshot(`
           "import { Entity, Fields } from 'remult'
   
@@ -269,10 +271,10 @@ describe('db', () => {
       await x.knex.raw(
         `CREATE TABLE test1(
             [ProductID] [int] NOT NULL PRIMARY KEY,
-              NOT NULL,
+            [ProductName] [varchar](40) NOT NULL,
             [SupplierID] [int] NOT NULL DEFAULT ((0)),
             [CategoryID] [int] NOT NULL DEFAULT ((0)),
-             NOT NULL DEFAULT (''),
+            [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (''),
             [UnitPrice] [money] NOT NULL DEFAULT ((0)),
             [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
             [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
@@ -281,6 +283,8 @@ describe('db', () => {
           )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
+      console.log(`result`, result)
+
       expect(result).toMatchInlineSnapshot(`
           "import { Entity, Fields } from 'remult'
   
@@ -333,6 +337,8 @@ describe('db', () => {
           )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
+      console.log(`result`, result)
+
       expect(result).toMatchInlineSnapshot(`
           "import { Entity, Fields } from 'remult'
   
