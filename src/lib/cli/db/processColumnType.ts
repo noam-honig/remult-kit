@@ -133,7 +133,7 @@ const intOrAutoIncrementProcessor: DataTypeProcessorFunction = ({ column_default
   }
 }
 
-const intOrNumberProcessor: DataTypeProcessorFunction = ({ datetime_precision }) => {
+const intOrNumberProcessor: DataTypeProcessorFunction = ({ precision: datetime_precision }) => {
   return {
     type: 'number',
     decorator: datetime_precision === 0 ? '@Fields.integer' : '@Fields.number',

@@ -328,7 +328,7 @@ describe('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: { ProductID: true, SupplierID: true, CategoryID: true },
+          id: { ProductID: true },
         })
         export class Test1 {
           @Fields.integer()
@@ -451,7 +451,7 @@ describe('db', () => {
 
       @Entity<Test1>("test1s", {
         dbName: "test1",
-        id: { ProductID: true, SupplierID: true, CategoryID: true },
+        id: { ProductID: true },
       })
       export class Test1 {
         @Fields.integer()
@@ -496,20 +496,20 @@ describe('db', () => {
       )
       const result = await getTypescript(new DbSQLite(x), 'test it1')
       expect(result).toMatchInlineSnapshot(`
-      "import { Entity, Fields } from "remult"
+        "import { Entity, Fields } from "remult"
 
-      @Entity<TestIt1>("test-it1s", {
-        dbName: "test it1",
-      })
-      export class TestIt1 {
-        @Fields.integer()
-        id = 0
+        @Entity<TestIt1>("test-it1s", {
+          dbName: "test it1",
+        })
+        export class TestIt1 {
+          @Fields.integer()
+          id = 0
 
-        @Fields.string()
-        name = ""
-      }
-      "
-    `)
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
     })
   })
 })

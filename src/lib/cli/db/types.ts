@@ -27,7 +27,7 @@ export interface DbTableColumnInfo {
   column_name: string
   column_default: string | null
   data_type: string
-  datetime_precision: number
+  precision: number
   character_maximum_length: number
   udt_name: string
   is_nullable: 'YES' | 'NO'

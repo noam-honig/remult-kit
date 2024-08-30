@@ -53,7 +53,7 @@ export class DbMySQL implements IDatabase {
               ? `'${c.COLUMN_DEFAULT}'`
               : c.COLUMN_DEFAULT,
         data_type: c.DATA_TYPE,
-        datetime_precision: c.NUMERIC_PRECISION,
+        precision: c.NUMERIC_PRECISION,
         character_maximum_length: c.CHARACTER_MAXIMUM_LENGTH,
         udt_name: '',
         is_nullable: c.IS_NULLABLE === 'NO' ? 'NO' : 'YES',

@@ -342,8 +342,7 @@ async function getEntityTypescript(
       db,
       table,
     })
-    if (dbCol.column_name.toLowerCase().includes('id')) {
-      // if (isKey) {
+    if (dbCol.is_key) {
       columnWithId.push(dbCol.column_name)
     }
     if (
@@ -416,7 +415,7 @@ async function getEntityTypescript(
     props.push(`defaultOrderBy: { ${defaultOrderBy}: 'asc' }`)
   }
 
-  if (!columnWithId.includes('id')) {
+  if (!columnWithId.includes('id') && columnWithId.length > 0) {
     props.push(`id: { ${columnWithId.map((c) => `${c}: true`).join(', ')} }`)
   }
 

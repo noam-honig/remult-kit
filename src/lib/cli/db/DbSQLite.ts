@@ -67,7 +67,7 @@ export class DbSQLite implements IDatabase {
           column_name: c.name,
           column_default: c.dflt_value,
           data_type,
-          datetime_precision: 0, // I don't know
+          precision: 0, // I don't know
           character_maximum_length,
           udt_name: '',
           is_nullable: c.notnull === 0 ? 'YES' : 'NO',
