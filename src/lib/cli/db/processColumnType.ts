@@ -1,15 +1,15 @@
 import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
-import type { ColumnInfo, DataTypeProcessorFunction, IDatabase } from './types'
+import type { DataTypeProcessorFunction, DbTableColumnInfo, FieldInfo, IDatabase } from './types'
 
-const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault }) => {
-  let defaultVal = columnDefault !== null ? columnDefault : undefined
+const stringProcessor: DataTypeProcessorFunction = ({ column_name, column_default }) => {
+  let defaultVal = column_default !== null ? column_default : undefined
   if (defaultVal) {
     const index = defaultVal?.indexOf("'::")
     if (index > 0) defaultVal = defaultVal?.substring(0, index + 1)
     if (defaultVal == `(' ')`) defaultVal = '""'
   }
-  if (columnName === 'id') {
+  if (column_name === 'id') {
     return {
       type: 'string',
       decorator: '@Fields.cuid',
@@ -24,12 +24,12 @@ const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault 
   }
 }
 
-const booleanProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
-  if (columnDefault !== null) {
+const booleanProcessor: DataTypeProcessorFunction = ({ column_default }) => {
+  if (column_default !== null) {
     return {
       decorator: '@Fields.boolean',
       type: 'boolean',
-      defaultVal: columnDefault === 'true' ? 'true' : 'false',
+      defaultVal: column_default === 'true' ? 'true' : 'false',
     }
   }
   return {
@@ -38,51 +38,51 @@ const booleanProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
   }
 }
 
-const dateProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault, udtName }) => {
+const dateProcessor: DataTypeProcessorFunction = ({ column_name, column_default, udt_name }) => {
   const toRet = {
     decorator: '@Fields.date',
     type: 'Date',
-    defaultVal: columnDefault !== null ? 'new Date()' : '',
+    defaultVal: column_default !== null ? 'new Date()' : '',
   }
 
   if (
-    columnName === 'createdAt' ||
-    columnName === 'dateCreated' ||
-    columnName === 'created_at' ||
-    columnName === 'createdat'
+    column_name === 'createdAt' ||
+    column_name === 'dateCreated' ||
+    column_name === 'created_at' ||
+    column_name === 'createdat'
   ) {
     toRet.decorator = '@Fields.createdAt'
   }
 
-  if (columnName === 'updatedAt' || columnName === 'updated_at' || columnName === 'updatedat') {
+  if (column_name === 'updatedAt' || column_name === 'updated_at' || column_name === 'updatedat') {
     toRet.decorator = '@Fields.updatedAt'
   }
 
-  if (udtName === 'date') {
+  if (udt_name === 'date') {
     toRet.decorator = '@Fields.dateOnly'
   }
 
   return toRet
 }
 
-const enumProcessor: DataTypeProcessorFunction = ({ columnDefault, udtName }) => {
-  const enumDefault = columnDefault?.split("'")[1]
+const enumProcessor: DataTypeProcessorFunction = ({ column_default, udt_name }) => {
+  const enumDefault = column_default?.split("'")[1]
 
   return {
     decorator: `@Field`,
-    decoratorArgsValueType: `() => ${toPascalCase(udtName)}`,
+    decoratorArgsValueType: `() => ${toPascalCase(udt_name)}`,
     decoratorArgsOptions: ["inputType: 'selectEnum'"],
-    type: columnDefault === null ? toPascalCase(udtName) : null,
+    type: column_default === null ? toPascalCase(udt_name) : null,
     defaultVal:
-      columnDefault !== null && enumDefault
-        ? `${toPascalCase(udtName)}.${kababToConstantCase(enumDefault)}`
+      column_default !== null && enumDefault
+        ? `${toPascalCase(udt_name)}.${kababToConstantCase(enumDefault)}`
         : undefined,
   }
 }
 
 const arrayProcessor: DataTypeProcessorFunction = (input) => {
   // udtName will show "_numeric" or "_permission_enum" (USER-DEFINED)
-  const cleanUdtName = input.udtName.substring(1)
+  const cleanUdtName = input.udt_name.substring(1)
 
   let toRet = {}
 
@@ -94,7 +94,7 @@ const arrayProcessor: DataTypeProcessorFunction = (input) => {
     // It means that it's a custom type
     const field = dataTypeProcessors['USER-DEFINED']?.({
       ...input,
-      dataType: cleanUdtName,
+      data_type: cleanUdtName,
     })
     if (field) {
       // field.decoratorArgsValueType = field.decoratorArgsValueType + "[]";
@@ -119,41 +119,38 @@ const jsonProcessor: DataTypeProcessorFunction = () => {
   }
 }
 
-const intOrAutoIncrementProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
+const intOrAutoIncrementProcessor: DataTypeProcessorFunction = ({ column_default }) => {
   return {
     type: 'number',
-    decorator: columnDefault?.startsWith('nextval') ? '@Fields.autoIncrement' : '@Fields.integer',
-    defaultVal: columnDefault?.startsWith('nextval')
+    decorator: column_default?.startsWith('nextval') ? '@Fields.autoIncrement' : '@Fields.integer',
+    defaultVal: column_default?.startsWith('nextval')
       ? '0'
-      : columnDefault != null
-        ? columnDefault
+      : column_default != null
+        ? column_default
         : undefined,
   }
 }
 
-const intOrNumberProcessor: DataTypeProcessorFunction = ({ datetimePrecision }) => {
+const intOrNumberProcessor: DataTypeProcessorFunction = ({ datetime_precision }) => {
   return {
     type: 'number',
-    decorator: datetimePrecision === 0 ? '@Fields.integer' : '@Fields.number',
+    decorator: datetime_precision === 0 ? '@Fields.integer' : '@Fields.number',
   }
 }
 
-const numberProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
-  if (columnDefault !== null) {
-    return {
-      type: 'number',
-      decorator: '@Fields.number',
-      defaultVal: columnDefault,
-    }
-  }
-  return {
+const numberProcessor: DataTypeProcessorFunction = ({ column_default }) => {
+  const toRet: Partial<FieldInfo> = {
     type: 'number',
     decorator: '@Fields.number',
   }
+  if (column_default !== null) {
+    toRet.defaultVal = column_default
+  }
+  return toRet
 }
 
 const charProcessor: DataTypeProcessorFunction = (input) => {
-  if (input.characterMaximumLength == 8 && input.columnDefault == "('00000000')") {
+  if (input.character_maximum_length == 8 && input.column_default == "('00000000')") {
     return { decorator: '@Fields.dateOnly', type: 'Date' }
   }
   // fallback
@@ -214,34 +211,17 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
 }
 
 export const processColumnType = (
-  input: ColumnInfo & {
+  input: DbTableColumnInfo & {
     enums: Record<string, string[]>
     db: IDatabase
     table: DbTable
   },
 ) => {
-  const { characterMaximumLength, columnDefault, columnName, dataType, udtName, table } = input
-  const field = dataTypeProcessors[dataType]?.(input)
+  const { data_type } = input
+  const field = dataTypeProcessors[data_type]?.(input)
 
   if (!field) {
-    const cause = {
-      tableObj: table,
-      columnName,
-      data_type: dataType,
-      character_maximum_length: characterMaximumLength,
-      column_default: columnDefault,
-      udt_name: udtName,
-    }
-
-    throw new Error(`Unmanaged data type: ${dataType}`, { cause })
-    console.error('unmanaged', {
-      tableObj: JSON.stringify(table),
-      columnName,
-      data_type: dataType,
-      character_maximum_length: characterMaximumLength,
-      column_default: columnDefault,
-      udt_name: udtName,
-    })
+    throw new Error(`Unmanaged data type: ${data_type}`, { cause: input })
   }
 
   return {

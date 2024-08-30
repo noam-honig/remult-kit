@@ -1,6 +1,6 @@
 import type { KnexDataProvider } from 'remult/remult-knex'
 
-import type { IDatabase, TableColumnInfo } from './types.js'
+import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbMySQL implements IDatabase {
   constructor(
@@ -22,8 +22,8 @@ export class DbMySQL implements IDatabase {
         'sys',
         'performance_schema',
       ])
-      .then(r =>
-        r.map(x => {
+      .then((r) =>
+        r.map((x) => {
           return {
             table_schema: x.table_schema || x.TABLE_SCHEMA,
             table_name: x.table_name || x.TABLE_NAME,
@@ -38,8 +38,8 @@ export class DbMySQL implements IDatabase {
       .where('TABLE_NAME', tableName)
       .orderBy('ORDINAL_POSITION')
 
-    return tablesColumnInfo.map(c => {
-      const i: TableColumnInfo = {
+    return tablesColumnInfo.map((c) => {
+      const i: DbTableColumnInfo = {
         column_name: c.COLUMN_NAME,
         column_default: c.COLUMN_DEFAULT,
         data_type: c.DATA_TYPE,
@@ -47,6 +47,7 @@ export class DbMySQL implements IDatabase {
         character_maximum_length: c.CHARACTER_MAXIMUM_LENGTH,
         udt_name: '',
         is_nullable: c.IS_NULLABLE === 'NO' ? 'NO' : 'YES',
+        is_key: false, //TODO
       }
       return i
     })

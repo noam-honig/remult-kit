@@ -3,7 +3,7 @@ import pluralize from 'pluralize'
 import { bold, cyan, gray, green, italic, red, strikethrough, yellow } from '@kitql/helpers'
 
 import { toCamelCase, toPascalCase } from '../utils/case.js'
-import type { ForeignKey } from './types.js'
+import type { DbForeignKey } from './types.js'
 
 export interface DbTableForeignKey {
   columnName: string
@@ -21,7 +21,7 @@ export class DbTable {
     dbName: string,
     schema: string,
     schemasPrefix: 'NEVER' | 'ALWAYS' | 'SMART' = 'SMART',
-    foreignKeys: ForeignKey[],
+    foreignKeys: DbForeignKey[],
   ) {
     this.schema = schema
     this.dbName = dbName

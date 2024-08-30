@@ -1,6 +1,6 @@
 import type { KnexDataProvider } from 'remult/remult-knex'
 
-import type { IDatabase, TableColumnInfo } from './types.js'
+import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbSQLite implements IDatabase {
   constructor(
@@ -62,7 +62,7 @@ export class DbSQLite implements IDatabase {
         const data_type = typeMatch ? typeMatch[1] : c.type
         character_maximum_length = typeMatch ? parseInt(typeMatch[2]) : 0
 
-        const i: TableColumnInfo = {
+        const i: DbTableColumnInfo = {
           column_name: c.name,
           column_default: c.dflt_value,
           data_type,

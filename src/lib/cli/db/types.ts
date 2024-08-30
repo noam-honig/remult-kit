@@ -3,8 +3,8 @@ import type { DbTable } from './DbTable'
 export interface IDatabase {
   schema: string
   test(): Promise<void>
-  getTablesInfo(): Promise<TableInfo[]>
-  getTableColumnInfo(schema: string, tableName: string): Promise<TableColumnInfo[]>
+  getTablesInfo(): Promise<DbTableInfo[]>
+  getTableColumnInfo(schema: string, tableName: string): Promise<DbTableColumnInfo[]>
   getUniqueInfo(schema: string): Promise<
     {
       table_schema: string
@@ -12,16 +12,16 @@ export interface IDatabase {
       column_name: string
     }[]
   >
-  getForeignKeys(): Promise<ForeignKey[]>
+  getForeignKeys(): Promise<DbForeignKey[]>
   getEnumDef(udt_name: string): Promise<EnumDef[]>
 }
 
-export interface TableInfo {
+export interface DbTableInfo {
   table_name: string
   table_schema: string
 }
 
-export interface TableColumnInfo {
+export interface DbTableColumnInfo {
   column_name: string
   column_default: string | null
   data_type: string
@@ -32,7 +32,7 @@ export interface TableColumnInfo {
   is_key: boolean
 }
 
-export interface ForeignKey {
+export interface DbForeignKey {
   table_schema: string
   table_name: string
   column_name: string
@@ -46,24 +46,17 @@ export interface EnumDef {
   enumlabel: string
 }
 
-export interface ColumnInfo {
-  columnName: string
-  columnDefault: string | null
-  dataType: string
-  datetimePrecision: number
-  characterMaximumLength: number
-  udtName: string
-}
-
-export type DataTypeProcessorFunction = (
-  input: ColumnInfo & {
-    table: DbTable
-  },
-) => Partial<{
+export interface FieldInfo {
   type: string | null
   decorator: string
   defaultVal: string
   decoratorArgsValueType: string
   decoratorArgsOptions: string[]
   enumAdditionalName: string
-}> | void
+}
+
+export type DataTypeProcessorFunction = (
+  input: DbTableColumnInfo & {
+    table: DbTable
+  },
+) => Partial<FieldInfo>

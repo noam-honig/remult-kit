@@ -13,6 +13,7 @@ type CliColumnInfo = {
   decorator_import: string | null
 }
 
+// TODO: ColMetaData vs FieldInfo??? should be ONE
 type ColMetaData = {
   decorator: string
   decoratorArgsValueType: string
@@ -334,16 +335,7 @@ async function getEntityTypescript(
   const columnWithId: string[] = []
 
   const uniqueInfo = await db.getUniqueInfo(schema)
-  for (const {
-    column_name: columnName,
-    column_default: columnDefault,
-    data_type: dataType,
-    datetime_precision: datetimePrecision,
-    character_maximum_length: characterMaximumLength,
-    udt_name: udtName,
-    is_nullable: isNullable,
-    is_key: isKey,
-  } of await db.getTableColumnInfo(schema, table.dbName)) {
+  for (const dbCol of await db.getTableColumnInfo(schema, table.dbName)) {
     const {
       decorator: decoratorInfered,
       defaultVal,
@@ -352,26 +344,21 @@ async function getEntityTypescript(
       decoratorArgsOptions,
       enumAdditionalName,
     } = processColumnType({
-      columnName,
-      columnDefault,
-      dataType,
-      datetimePrecision,
-      characterMaximumLength,
-      udtName,
+      ...dbCol,
       enums,
       db,
       table,
     })
-    if (columnName.toLowerCase().includes('id')) {
+    if (dbCol.column_name.toLowerCase().includes('id')) {
       // if (isKey) {
-      columnWithId.push(columnName)
+      columnWithId.push(dbCol.column_name)
     }
     if (
       uniqueInfo.find(
         (u) =>
           u.table_schema === schema &&
           u.table_name === table.dbName &&
-          u.column_name === columnName,
+          u.column_name === dbCol.column_name,
       )
     ) {
       usesValidators = true
@@ -384,18 +371,18 @@ async function getEntityTypescript(
     if (enumAdditionalName) {
       await handleEnums(enums, 'USER-DEFINED', db, enumAdditionalName)
     }
-    await handleEnums(enums, dataType, db, udtName)
+    await handleEnums(enums, dbCol.data_type, db, dbCol.udt_name)
 
-    if (!defaultOrderBy && orderBy?.includes(columnName)) {
-      defaultOrderBy = columnName
+    if (!defaultOrderBy && orderBy?.includes(dbCol.column_name)) {
+      defaultOrderBy = dbCol.column_name
     }
 
     const colMeta: ColMetaData = {
       decorator,
       decoratorArgsValueType,
       decoratorArgsOptions,
-      columnName,
-      isNullable,
+      columnName: dbCol.column_name,
+      isNullable: dbCol.is_nullable,
       type,
       defaultVal,
     }
@@ -406,21 +393,21 @@ async function getEntityTypescript(
     cols.push(currentCol.col + `\n`)
     colsMeta.push(colMeta)
 
-    const foreignKey = table.foreignKeys.find((f) => f.columnName === columnName)
+    const foreignKey = table.foreignKeys.find((f) => f.columnName === dbCol.column_name)
     if (foreignKey) {
       const { columnNameTweak } = handleForeignKeyCol(
         allTables,
         foreignKey,
-        columnName,
+        dbCol.column_name,
         additionnalImports,
         cols,
-        isNullable,
+        dbCol.is_nullable,
       )
 
       const toMany = {
         addOn: foreignKey.foreignDbName,
         ref: table.className,
-        refField: columnName,
+        refField: dbCol.column_name,
         table_key: table.key,
         columnNameTweak,
         // columnName:
