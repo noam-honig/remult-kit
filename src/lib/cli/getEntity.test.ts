@@ -234,115 +234,120 @@ describe('db', () => {
           encrypt: false,
           instanceName: process.env['MSSQL_INSTANCE'],
         },
-      }, //,debug: true
+      },
     })
+
     beforeEach(async () => {
       try {
-        await x.knex.raw('drop table test1')
+        await x.knex.raw('DROP TABLE IF EXISTS test1')
       } catch (e) {}
     })
 
     it('test a basic table', async () => {
       await x.knex.raw(
-        "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+        "CREATE TABLE test1 (id INT DEFAULT 0 NOT NULL, name VARCHAR(100) DEFAULT '' NOT NULL)",
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
       expect(result).toMatchInlineSnapshot(`
-        "import { Entity, Fields } from "remult"
-
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
-        export class Test1 {
-          @Fields.integer()
-          id = 0
-
-          @Fields.string()
-          name = ""
-        }
-        "
-      `)
+          "import { Entity, Fields } from 'remult'
+  
+          @Entity<Test1>('test1s', {
+            dbName: 'test1',
+          })
+          export class Test1 {
+            @Fields.integer()
+            id = 0
+  
+            @Fields.string()
+            name = ''
+          }
+          "
+        `)
     })
-    it('test a products', async () => {
+
+    it('test a products table', async () => {
       await x.knex.raw(
         `CREATE TABLE test1(
-        [ProductID] [int] NOT NULL primary key,
-        [ProductName] [varchar](40) NOT NULL,
-        [SupplierID] [int] NOT NULL DEFAULT ((0)),
-        [CategoryID] [int] NOT NULL DEFAULT ((0)),
-        [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (' '),
-        [UnitPrice] [money] NOT NULL DEFAULT ((0)),
-        [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
-        [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
-        [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
-        [Discontinued] [bit] NOT NULL DEFAULT ((0))
-      )`,
+            [ProductID] [int] NOT NULL PRIMARY KEY,
+              NOT NULL,
+            [SupplierID] [int] NOT NULL DEFAULT ((0)),
+            [CategoryID] [int] NOT NULL DEFAULT ((0)),
+             NOT NULL DEFAULT (''),
+            [UnitPrice] [money] NOT NULL DEFAULT ((0)),
+            [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
+            [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
+            [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
+            [Discontinued] [bit] NOT NULL DEFAULT ((0))
+          )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
       expect(result).toMatchInlineSnapshot(`
-      "import { Entity, Fields } from "remult"
-
-      @Entity<Test1>("test1s", {
-        dbName: "test1",
-        id: { ProductID: true },
-      })
-      export class Test1 {
-        @Fields.integer()
-        ProductID!: number
-
-        @Fields.string()
-        ProductName!: string
-
-        @Fields.integer()
-        SupplierID = 0
-
-        @Fields.integer()
-        CategoryID = 0
-
-        @Fields.string()
-        QuantityPerUnit = ""
-
-        @Fields.number()
-        UnitPrice: 0
-
-        @Fields.integer()
-        UnitsInStock = 0
-
-        @Fields.integer()
-        UnitsOnOrder = 0
-
-        @Fields.integer()
-        ReorderLevel = 0
-
-        @Fields.boolean()
-        Discontinued = false
-      }
-      "
-    `)
+          "import { Entity, Fields } from 'remult'
+  
+          @Entity<Test1>('test1s', {
+            dbName: 'test1',
+          })
+          export class Test1 {
+            @Fields.integer()
+            ProductID!: number
+  
+            @Fields.string()
+            ProductName!: string
+  
+            @Fields.integer()
+            SupplierID = 0
+  
+            @Fields.integer()
+            CategoryID = 0
+  
+            @Fields.string()
+            QuantityPerUnit = ''
+  
+            @Fields.number()
+            UnitPrice = 0
+  
+            @Fields.integer()
+            UnitsInStock = 0
+  
+            @Fields.integer()
+            UnitsOnOrder = 0
+  
+            @Fields.integer()
+            ReorderLevel = 0
+  
+            @Fields.boolean()
+            Discontinued = false
+          }
+          "
+        `)
     })
+
     it('test a name with space', async () => {
       try {
-        await x.knex.raw('drop table [test it1]')
+        await x.knex.raw('DROP TABLE IF EXISTS [test it1]')
       } catch (e) {}
       await x.knex.raw(
-        "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
+        `CREATE TABLE [test it1] (
+            id INT DEFAULT 0 NOT NULL,
+            name VARCHAR(100) DEFAULT '' NOT NULL
+          )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
       expect(result).toMatchInlineSnapshot(`
-      import { Entity, Fields } from 'remult'
-
-      @Entity<TestIt1>('test-it1s', {
-      	dbName: 'test it1'
-      })
-      export class TestIt1 {
-      	@Fields.integer()
-      	id = 0
-
-      	@Fields.string()
-      	name = ""
-      }
-      "
-    `)
+          "import { Entity, Fields } from 'remult'
+  
+          @Entity<TestIt1>('test-it1s', {
+            dbName: 'test it1',
+          })
+          export class TestIt1 {
+            @Fields.integer()
+            id = 0
+  
+            @Fields.string()
+            name = ''
+          }
+          "
+        `)
     })
   })
 
