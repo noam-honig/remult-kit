@@ -29,6 +29,7 @@ export interface TableColumnInfo {
   character_maximum_length: number
   udt_name: string
   is_nullable: 'YES' | 'NO'
+  is_key: boolean
 }
 
 export interface ForeignKey {

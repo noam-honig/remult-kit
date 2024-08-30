@@ -24,7 +24,14 @@ const stringProcessor: DataTypeProcessorFunction = ({ columnName, columnDefault 
   }
 }
 
-const booleanProcessor: DataTypeProcessorFunction = () => {
+const booleanProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
+  if (columnDefault !== null) {
+    return {
+      decorator: '@Fields.boolean',
+      type: 'boolean',
+      defaultVal: columnDefault === 'true' ? 'true' : 'false',
+    }
+  }
   return {
     decorator: '@Fields.boolean',
     type: 'boolean',
@@ -131,6 +138,20 @@ const intOrNumberProcessor: DataTypeProcessorFunction = ({ datetimePrecision }) 
   }
 }
 
+const numberProcessor: DataTypeProcessorFunction = ({ columnDefault }) => {
+  if (columnDefault !== null) {
+    return {
+      type: 'number',
+      decorator: '@Fields.number',
+      defaultVal: columnDefault,
+    }
+  }
+  return {
+    type: 'number',
+    decorator: '@Fields.number',
+  }
+}
+
 const charProcessor: DataTypeProcessorFunction = (input) => {
   if (input.characterMaximumLength == 8 && input.columnDefault == "('00000000')") {
     return { decorator: '@Fields.dateOnly', type: 'Date' }
@@ -143,6 +164,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   decimal: intOrAutoIncrementProcessor,
   real: intOrAutoIncrementProcessor,
   int: intOrAutoIncrementProcessor,
+  INT: intOrAutoIncrementProcessor,
   integer: intOrAutoIncrementProcessor,
   smallint: intOrAutoIncrementProcessor,
   tinyint: intOrAutoIncrementProcessor,
@@ -152,8 +174,9 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   float: intOrNumberProcessor,
   numeric: intOrNumberProcessor,
   NUMBER: intOrNumberProcessor,
-  money: intOrNumberProcessor,
   'double precision': intOrNumberProcessor,
+
+  money: numberProcessor,
 
   nchar: stringProcessor,
   nvarchar: stringProcessor,
@@ -198,11 +221,19 @@ export const processColumnType = (
   },
 ) => {
   const { characterMaximumLength, columnDefault, columnName, dataType, udtName, table } = input
-
   const field = dataTypeProcessors[dataType]?.(input)
 
   if (!field) {
-    // console.log('')
+    const cause = {
+      tableObj: table,
+      columnName,
+      data_type: dataType,
+      character_maximum_length: characterMaximumLength,
+      column_default: columnDefault,
+      udt_name: udtName,
+    }
+
+    throw new Error(`Unmanaged data type: ${dataType}`, { cause })
     console.error('unmanaged', {
       tableObj: JSON.stringify(table),
       columnName,

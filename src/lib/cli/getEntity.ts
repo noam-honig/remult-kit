@@ -342,6 +342,7 @@ async function getEntityTypescript(
     character_maximum_length: characterMaximumLength,
     udt_name: udtName,
     is_nullable: isNullable,
+    is_key: isKey,
   } of await db.getTableColumnInfo(schema, table.dbName)) {
     const {
       decorator: decoratorInfered,
@@ -362,6 +363,7 @@ async function getEntityTypescript(
       table,
     })
     if (columnName.toLowerCase().includes('id')) {
+      // if (isKey) {
       columnWithId.push(columnName)
     }
     if (

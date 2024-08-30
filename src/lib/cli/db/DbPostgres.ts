@@ -27,7 +27,6 @@ export class DbPostgres implements IDatabase {
 					table_schema=${command.addParameterAndReturnSqlToken(schema)}
 				ORDER BY ordinal_position`,
     )
-
     return tablesColumnInfo.rows
   }
 

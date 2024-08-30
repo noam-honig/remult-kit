@@ -6,6 +6,7 @@ import { createKnexDataProvider } from 'remult/remult-knex'
 
 import { DbMySQL } from './db/DbMySQL.js'
 import { DbPostgres } from './db/DbPostgres.js'
+import { DbSQLite } from './db/DbSQLite.js'
 import type { IDatabase } from './db/types.js'
 import { buildColumn, getEntitiesTypescriptFromDb } from './getEntity.js'
 
@@ -107,7 +108,7 @@ describe('#unit-test build_column', () => {
 })
 
 const DATABASE_URL = process.env['DATABASE_URL']
-describe.skipIf(!DATABASE_URL)('#unit-test build_column', () => {
+describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
   it('test1', async () => {
     const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
     await x.execute('drop table if exists test1')
@@ -133,7 +134,7 @@ describe.skipIf(!DATABASE_URL)('#unit-test build_column', () => {
   })
 })
 
-describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
+describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed)', async () => {
   const x = await createKnexDataProvider({
     // Knex client configuration for MSSQL
     client: 'mssql',
@@ -280,6 +281,145 @@ describe.skipIf(!process.env['MSSQL_PASSWORD'])('test sql server', async () => {
   })
 })
 
+describe('SQLite', async () => {
+  const x = await createKnexDataProvider({
+    client: 'sqlite3',
+    connection: {
+      filename: '/home/jycouet/udev/gh/lib/remult-kit/src/lib/cli/db/sqlite3/dev.db',
+    }, //,debug: true
+  })
+  beforeEach(async () => {
+    try {
+      await x.knex.raw('drop table test1')
+    } catch (e) {}
+  })
+
+  it('test a basic table', async () => {
+    await x.knex.raw(
+      "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
+    )
+    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
+    expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+  })
+  it('test a basic table', async () => {
+    await x.knex.raw(
+      "create table test1 (id int default 0 not null, name varchar(100) default 'yop' not null)",
+    )
+    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
+    expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = "yop"
+        }
+        "
+      `)
+  })
+
+  it('test a products', async () => {
+    await x.knex.raw(
+      `CREATE TABLE test1(
+        [ProductID] [int] NOT NULL primary key,
+        [ProductName] [varchar](40) NOT NULL,
+        [SupplierID] [int] NOT NULL DEFAULT ((0)),
+        [CategoryID] [int] NOT NULL DEFAULT ((0)),
+        [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (' '),
+        [UnitPrice] [money] NOT NULL DEFAULT ((0)),
+        [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
+        [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
+        [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
+        [Discontinued] [bit] NOT NULL DEFAULT ((0))
+      )`,
+    )
+    const result = await getTypescript(new DbSQLite(x, 'public'), 'test1')
+    expect(result).toMatchInlineSnapshot(`
+      "import { Entity, Fields } from "remult"
+
+      @Entity<Test1>("test1s", {
+        dbName: "test1",
+        id: { ProductID: true, SupplierID: true, CategoryID: true },
+      })
+      export class Test1 {
+        @Fields.integer()
+        ProductID!: number
+
+        @Fields.string()
+        ProductName!: string
+
+        @Fields.integer()
+        SupplierID = 0
+
+        @Fields.integer()
+        CategoryID = 0
+
+        @Fields.string()
+        QuantityPerUnit = " "
+
+        @Fields.number()
+        UnitPrice = 0
+
+        @Fields.integer()
+        UnitsInStock = 0
+
+        @Fields.integer()
+        UnitsOnOrder = 0
+
+        @Fields.integer()
+        ReorderLevel = 0
+
+        @Fields.boolean()
+        Discontinued = false
+      }
+      "
+    `)
+  })
+  it('test a name with space', async () => {
+    try {
+      await x.knex.raw('drop table [test it1]')
+    } catch (e) {}
+    await x.knex.raw(
+      "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
+    )
+    const result = await getTypescript(new DbSQLite(x, 'public'), 'test it1')
+    expect(result).toMatchInlineSnapshot(`
+      "import { Entity, Fields } from "remult"
+
+      @Entity<TestIt1>("test-it1s", {
+        dbName: "test it1",
+      })
+      export class TestIt1 {
+        @Fields.integer()
+        id = 0
+
+        @Fields.string()
+        name = " "
+      }
+      "
+    `)
+  })
+})
+
 async function getTypescript(db: IDatabase, entity: string) {
   const r = await getEntitiesTypescriptFromDb(
     db,
@@ -293,6 +433,7 @@ async function getTypescript(db: IDatabase, entity: string) {
     [],
     [entity],
   )
+
   const result = r.entities.find((x) => x.meta.table.dbName == entity)!.fileContent
   return result
 }

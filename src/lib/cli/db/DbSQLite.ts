@@ -5,7 +5,7 @@ import type { IDatabase, TableColumnInfo } from './types.js'
 export class DbSQLite implements IDatabase {
   constructor(
     private knex: KnexDataProvider,
-    public schema: string,
+    public schema: 'public',
   ) {}
   async test() {
     await this.knex.knex.raw('select 1')
@@ -34,19 +34,47 @@ export class DbSQLite implements IDatabase {
   }
 
   async getTableColumnInfo(schemaName: string, tableName: string) {
-    const tablesColumnInfo = await this.knex!.knex.raw(`PRAGMA table_info(${tableName})`)
-    return tablesColumnInfo.map((c: any) => {
-      const i: TableColumnInfo = {
-        column_name: c.name,
-        column_default: c.dflt_value,
-        data_type: c.type,
-        datetime_precision: 0, // I don't know
-        character_maximum_length: 12, // I don't know
-        udt_name: '',
-        is_nullable: c.notnull === 0 ? 'YES' : 'NO',
-      }
-      return i
-    })
+    const tablesColumnInfo = await this.knex!.knex.raw(`PRAGMA table_info('${tableName}')`)
+    return tablesColumnInfo.map(
+      (c: {
+        cid: number
+        name: string
+        type: string
+        notnull: number
+        dflt_value: string
+        pk: number
+      }) => {
+        if (c.dflt_value?.startsWith('(') && c.dflt_value?.endsWith(')')) {
+          c.dflt_value = c.dflt_value.slice(1, -1)
+        }
+
+        let character_maximum_length = 0
+        // To manage "varchar](40"
+        const s = c.type.split('](')
+        if (s.length > 1) {
+          c.type = s[0]
+          character_maximum_length = parseInt(s[1])
+        }
+
+        // To manage "varchar(100)"
+        const typeRegex = /^(\w+)\((\d+)\)$/
+        const typeMatch = c.type.match(typeRegex)
+        const data_type = typeMatch ? typeMatch[1] : c.type
+        character_maximum_length = typeMatch ? parseInt(typeMatch[2]) : 0
+
+        const i: TableColumnInfo = {
+          column_name: c.name,
+          column_default: c.dflt_value,
+          data_type,
+          datetime_precision: 0, // I don't know
+          character_maximum_length,
+          udt_name: '',
+          is_nullable: c.notnull === 0 ? 'YES' : 'NO',
+          is_key: c.pk === 1,
+        }
+        return i
+      },
+    )
   }
 
   // eslint-disable-next-line

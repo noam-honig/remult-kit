@@ -11,6 +11,7 @@ const files = getFilesUnder('./src/shared/entities')
 const dynamicEntities = []
 for (let i = 0; i < files.length; i++) {
   const className = files[i].replaceAll('.ts', '')
+  /* @vite-ignore */
   const imp = await import('../shared/entities/' + className)
   dynamicEntities.push(imp[className])
 }

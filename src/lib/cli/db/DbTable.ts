@@ -1,5 +1,6 @@
-import { gray, green, italic, yellow, cyan, bold, strikethrough, red } from '@kitql/helpers'
 import pluralize from 'pluralize'
+
+import { bold, cyan, gray, green, italic, red, strikethrough, yellow } from '@kitql/helpers'
 
 import { toCamelCase, toPascalCase } from '../utils/case.js'
 import type { ForeignKey } from './types.js'
@@ -32,8 +33,12 @@ export class DbTable {
       }
     })
 
-    const plur = toPascalCase(pluralize.plural(dbName))
-    const sing = toPascalCase(pluralize.singular(dbName))
+    const rmvSpaceDbName = dbName
+      .split(' ')
+      .map((c) => toPascalCase(c))
+      .join('')
+
+    const sing = toPascalCase(pluralize.singular(rmvSpaceDbName))
 
     if (schemasPrefix === 'NEVER') {
       this.className = sing
@@ -46,7 +51,7 @@ export class DbTable {
         this.className = `${toPascalCase(schema)}_${sing}`
       }
     }
-    this.key = toCamelCase(plur)
+    this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
   }
 
   checkNamingConvention() {
