@@ -304,108 +304,96 @@ describe('db', () => {
         "
       `)
     })
-    // it('test a basic table', async () => {
-    //   await x.knex.raw(
-    //     "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
-    //   )
-    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-    //   expect(result).toMatchInlineSnapshot(`
-    //     "import { Entity, Fields } from "remult"
+    it('test a products', async () => {
+      await x.knex.raw(
+        `CREATE TABLE test1 (
+          ProductID INT NOT NULL PRIMARY KEY,
+          ProductName VARCHAR(40) NOT NULL,
+          SupplierID INT NOT NULL DEFAULT 0,
+          CategoryID INT NOT NULL DEFAULT 0,
+          QuantityPerUnit VARCHAR(20) NOT NULL DEFAULT '',
+          UnitPrice DECIMAL(19, 4) NOT NULL DEFAULT 0.0000,
+          UnitsInStock SMALLINT NOT NULL DEFAULT 0,
+          UnitsOnOrder SMALLINT NOT NULL DEFAULT 0,
+          ReorderLevel SMALLINT NOT NULL DEFAULT 0,
+          Discontinued BIT NOT NULL DEFAULT 0
+        )`,
+      )
+      const result = await getTypescript(
+        new DbMySQL(x, process.env['MYSQL_DATABASE'] ?? ''),
+        'test1',
+      )
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
 
-    //     @Entity<Test1>("test1s", {
-    //       dbName: "test1",
-    //     })
-    //     export class Test1 {
-    //       @Fields.integer()
-    //       id = 0
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+          id: { ProductID: true, SupplierID: true, CategoryID: true },
+        })
+        export class Test1 {
+          @Fields.integer()
+          ProductID!: number
 
-    //       @Fields.string()
-    //       name = ""
-    //     }
-    //     "
-    //   `)
-    // })
-    // it('test a products', async () => {
-    //   await x.knex.raw(
-    //     `CREATE TABLE test1(
-    //     [ProductID] [int] NOT NULL primary key,
-    //     [ProductName] [varchar](40) NOT NULL,
-    //     [SupplierID] [int] NOT NULL DEFAULT ((0)),
-    //     [CategoryID] [int] NOT NULL DEFAULT ((0)),
-    //     [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (' '),
-    //     [UnitPrice] [money] NOT NULL DEFAULT ((0)),
-    //     [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
-    //     [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
-    //     [ReorderLevel] [smallint] NOT NULL DEFAULT ((0)),
-    //     [Discontinued] [bit] NOT NULL DEFAULT ((0))
-    //   )`,
-    //   )
-    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-    //   expect(result).toMatchInlineSnapshot(`
-    //   "import { Entity, Fields } from "remult"
+          @Fields.string()
+          ProductName!: string
 
-    //   @Entity<Test1>("test1s", {
-    //     dbName: "test1",
-    //     id: { ProductID: true },
-    //   })
-    //   export class Test1 {
-    //     @Fields.integer()
-    //     ProductID!: number
+          @Fields.integer()
+          SupplierID = 0
 
-    //     @Fields.string()
-    //     ProductName!: string
+          @Fields.integer()
+          CategoryID = 0
 
-    //     @Fields.integer()
-    //     SupplierID = 0
+          @Fields.string()
+          QuantityPerUnit = ""
 
-    //     @Fields.integer()
-    //     CategoryID = 0
+          @Fields.number()
+          UnitPrice = 0.0
 
-    //     @Fields.string()
-    //     QuantityPerUnit = ""
+          @Fields.integer()
+          UnitsInStock = 0
 
-    //     @Fields.number()
-    //     UnitPrice: 0
+          @Fields.integer()
+          UnitsOnOrder = 0
 
-    //     @Fields.integer()
-    //     UnitsInStock = 0
+          @Fields.integer()
+          ReorderLevel = 0
 
-    //     @Fields.integer()
-    //     UnitsOnOrder = 0
+          @Fields.boolean()
+          Discontinued = false
+        }
+        "
+      `)
+    })
+    it('test a name with space', async () => {
+      try {
+        await x.knex.raw(`DROP TABLE IF EXISTS \`test it1\`;`)
+      } catch (e) {}
+      await x.knex.raw(
+        `CREATE TABLE \`test it1\` (
+          id INT NOT NULL DEFAULT 0,
+          name VARCHAR(100) NOT NULL DEFAULT ''
+        )`,
+      )
+      const result = await getTypescript(
+        new DbMySQL(x, process.env['MYSQL_DATABASE'] ?? ''),
+        'test it1',
+      )
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
 
-    //     @Fields.integer()
-    //     ReorderLevel = 0
+        @Entity<TestIt1>("test-it1s", {
+          dbName: "test it1",
+        })
+        export class TestIt1 {
+          @Fields.integer()
+          id = 0
 
-    //     @Fields.boolean()
-    //     Discontinued = false
-    //   }
-    //   "
-    // `)
-    // })
-    // it('test a name with space', async () => {
-    //   try {
-    //     await x.knex.raw('drop table [test it1]')
-    //   } catch (e) {}
-    //   await x.knex.raw(
-    //     "create table [test it1] (id int default 0 not null, name varchar(100) default '' not null)",
-    //   )
-    //   const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
-    //   expect(result).toMatchInlineSnapshot(`
-    //   import { Entity, Fields } from 'remult'
-
-    //   @Entity<TestIt1>('test-it1s', {
-    //   	dbName: 'test it1'
-    //   })
-    //   export class TestIt1 {
-    //   	@Fields.integer()
-    //   	id = 0
-
-    //   	@Fields.string()
-    //   	name = ""
-    //   }
-    //   "
-    // `)
-    // })
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+    })
   })
 
   describe('SQLite', async () => {
@@ -449,7 +437,7 @@ describe('db', () => {
         [ProductName] [varchar](40) NOT NULL,
         [SupplierID] [int] NOT NULL DEFAULT ((0)),
         [CategoryID] [int] NOT NULL DEFAULT ((0)),
-        [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (' '),
+        [QuantityPerUnit] [varchar](20) NOT NULL DEFAULT (''),
         [UnitPrice] [money] NOT NULL DEFAULT ((0)),
         [UnitsInStock] [smallint] NOT NULL DEFAULT ((0)),
         [UnitsOnOrder] [smallint] NOT NULL DEFAULT ((0)),
@@ -479,7 +467,7 @@ describe('db', () => {
         CategoryID = 0
 
         @Fields.string()
-        QuantityPerUnit = " "
+        QuantityPerUnit = ""
 
         @Fields.number()
         UnitPrice = 0
@@ -540,6 +528,12 @@ async function getTypescript(db: IDatabase, entity: string) {
     [entity],
   )
 
-  const result = r.entities.find((x) => x.meta.table.dbName == entity)!.fileContent
-  return result
+  const result = r.entities.find((x) => {
+    console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
+
+    return x.meta.table.dbName == entity
+  })
+  if (!result) return `NO DATA FOR ENTITY "${entity}"`
+  const fileContent = result.fileContent
+  return fileContent
 }

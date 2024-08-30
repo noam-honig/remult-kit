@@ -160,7 +160,6 @@ const charProcessor: DataTypeProcessorFunction = (input) => {
 }
 
 const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
-  decimal: intOrAutoIncrementProcessor,
   real: intOrAutoIncrementProcessor,
   int: intOrAutoIncrementProcessor,
   INT: intOrAutoIncrementProcessor,
@@ -176,6 +175,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   'double precision': intOrNumberProcessor,
 
   money: numberProcessor,
+  decimal: numberProcessor,
 
   nchar: stringProcessor,
   nvarchar: stringProcessor,

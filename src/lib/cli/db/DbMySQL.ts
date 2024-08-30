@@ -46,13 +46,18 @@ export class DbMySQL implements IDatabase {
     return tablesColumnInfo.map((c) => {
       const i: DbTableColumnInfo = {
         column_name: c.COLUMN_NAME,
-        column_default: c.DATA_TYPE === 'varchar' ? `'${c.COLUMN_DEFAULT}'` : c.COLUMN_DEFAULT,
+        column_default:
+          c.COLUMN_DEFAULT === null
+            ? null
+            : c.DATA_TYPE === 'varchar'
+              ? `'${c.COLUMN_DEFAULT}'`
+              : c.COLUMN_DEFAULT,
         data_type: c.DATA_TYPE,
         datetime_precision: c.NUMERIC_PRECISION,
         character_maximum_length: c.CHARACTER_MAXIMUM_LENGTH,
         udt_name: '',
         is_nullable: c.IS_NULLABLE === 'NO' ? 'NO' : 'YES',
-        is_key: false, //TODO
+        is_key: c.COLUMN_KEY === 'PRI',
       }
       return i
     })
