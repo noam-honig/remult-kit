@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, test } from 'vitest'
 import { createPostgresDataProvider } from 'remult/postgres'
 import { createKnexDataProvider } from 'remult/remult-knex'
 
-import { DbMySQL } from './db/DbMySQL.js'
+import { DbMsSQL } from './db/DbMsSQL.js'
 import { DbPostgres } from './db/DbPostgres.js'
 import { DbSQLite } from './db/DbSQLite.js'
 import type { IDatabase } from './db/types.js'
@@ -160,7 +160,7 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
     await x.knex.raw(
       "create table test1 (id int default 0 not null, name varchar(100) default '' not null)",
     )
-    const result = await getTypescript(new DbMySQL(x, 'dbo'), 'test1')
+    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
     expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
@@ -181,7 +181,7 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
     await x.knex.raw(
       "create table test1 (id int default 0 not null, name varchar(100) default ' ' not null)",
     )
-    const result = await getTypescript(new DbMySQL(x, 'dbo'), 'test1')
+    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
     expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
@@ -213,7 +213,7 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
         [Discontinued] [bit] NOT NULL DEFAULT ((0))
       )`,
     )
-    const result = await getTypescript(new DbMySQL(x, 'dbo'), 'test1')
+    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
     expect(result).toMatchInlineSnapshot(`
       "import { Entity, Fields } from "remult"
 
@@ -262,7 +262,7 @@ describe.skipIf(!process.env['MSSQL_DATABASE'])('MSQL (env MSSQL_DATABASE needed
     await x.knex.raw(
       "create table [test it1] (id int default 0 not null, name varchar(100) default ' ' not null)",
     )
-    const result = await getTypescript(new DbMySQL(x, 'dbo'), 'test it1')
+    const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
     expect(result).toMatchInlineSnapshot(`
       import { Entity, Fields } from 'remult'
 

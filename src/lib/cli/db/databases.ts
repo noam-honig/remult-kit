@@ -106,8 +106,8 @@ const dataProvider = createKnexDataProvider({
 })`,
     connect: async (args) => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
-      const { DbMySQL } = await import('./DbMySQL')
-      return new DbMySQL(
+      const { DbMsSQL } = await import('./DbMsSQL')
+      return new DbMsSQL(
         await createKnexDataProvider({
           // Knex client configuration for MSSQL
           client: 'mssql',
