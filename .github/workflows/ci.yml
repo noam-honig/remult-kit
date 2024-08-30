@@ -35,6 +35,16 @@ jobs:
         options: >-
           --memory=2g
 
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: example_password
+          MYSQL_DATABASE: example_db
+          MYSQL_USER: example_user
+          MYSQL_PASSWORD: example_user_password
+        ports:
+          - '3306:3306'
+
     steps:
       - name: 🌐 Checkout Repository
         uses: actions/checkout@v4
