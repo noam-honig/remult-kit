@@ -213,17 +213,17 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
 }
 
 export const processColumnType = (
-  input: DbTableColumnInfo & {
+  dbCol: DbTableColumnInfo & {
     enums: Record<string, string[]>
     db: IDatabase
     table: DbTable
   },
-) => {
-  const { data_type } = input
-  const field = dataTypeProcessors[data_type]?.(input)
+): FieldInfo => {
+  const { data_type } = dbCol
+  const field = dataTypeProcessors[data_type]?.(dbCol)
 
   if (!field) {
-    new Log('remult-kit').error(`Unmanaged data type: ${data_type}`, input)
+    new Log('remult-kit').error(`Unmanaged data type: ${data_type}`, dbCol)
     // throw new Error(`Unmanaged data type: ${data_type}`, { cause: input })
   }
 
@@ -234,5 +234,7 @@ export const processColumnType = (
     type: field?.type === undefined ? 'string' : field?.type,
     defaultVal: field?.defaultVal ?? null,
     enumAdditionalName: field?.enumAdditionalName ?? null,
+
+    db: dbCol,
   }
 }

@@ -51,10 +51,12 @@ export interface EnumDef {
 export interface FieldInfo {
   type: string | null
   decorator: string
-  defaultVal: string
+  defaultVal: string | null
   decoratorArgsValueType: string
   decoratorArgsOptions: string[]
-  enumAdditionalName: string
+  enumAdditionalName: string | null
+
+  db: DbTableColumnInfo
 }
 
 export type DataTypeProcessorFunction = (

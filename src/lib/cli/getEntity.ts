@@ -328,55 +328,48 @@ async function getEntityTypescript(
   const columnWithId: string[] = []
 
   const uniqueInfo = await db.getUniqueInfo(schema)
-  for (const dbCol of await db.getTableColumnInfo(schema, table.dbName)) {
-    const {
-      decorator: decoratorInfered,
-      defaultVal,
-      type,
-      decoratorArgsValueType,
-      decoratorArgsOptions,
-      enumAdditionalName,
-    } = processColumnType({
-      ...dbCol,
+  for (const dbCol2 of await db.getTableColumnInfo(schema, table.dbName)) {
+    const fieldInfo = processColumnType({
+      ...dbCol2,
       enums,
       db,
       table,
     })
-    if (dbCol.is_key) {
-      columnWithId.push(dbCol.column_name)
+    if (fieldInfo.db.is_key) {
+      columnWithId.push(fieldInfo.db.column_name)
     }
     if (
       uniqueInfo.find(
         (u) =>
           u.table_schema === schema &&
           u.table_name === table.dbName &&
-          u.column_name === dbCol.column_name,
+          u.column_name === fieldInfo.db.column_name,
       )
     ) {
       usesValidators = true
-      decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
+      fieldInfo.decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
     }
 
-    const decorator = customDecorators[decoratorInfered] ?? decoratorInfered
+    const decorator = customDecorators[fieldInfo.decorator] ?? fieldInfo.decorator
 
     // TODO: extract this logic from the process column
-    if (enumAdditionalName) {
-      await handleEnums(enums, 'USER-DEFINED', db, enumAdditionalName)
+    if (fieldInfo.enumAdditionalName) {
+      await handleEnums(enums, 'USER-DEFINED', db, fieldInfo.enumAdditionalName)
     }
-    await handleEnums(enums, dbCol.data_type, db, dbCol.udt_name)
+    await handleEnums(enums, fieldInfo.db.data_type, db, fieldInfo.db.udt_name)
 
-    if (!defaultOrderBy && orderBy?.includes(dbCol.column_name)) {
-      defaultOrderBy = dbCol.column_name
+    if (!defaultOrderBy && orderBy?.includes(fieldInfo.db.column_name)) {
+      defaultOrderBy = fieldInfo.db.column_name
     }
 
     const colMeta: ColMetaData = {
       decorator,
-      decoratorArgsValueType,
-      decoratorArgsOptions,
-      columnName: dbCol.column_name,
-      isNullable: dbCol.is_nullable,
-      type,
-      defaultVal,
+      decoratorArgsValueType: fieldInfo.decoratorArgsValueType,
+      decoratorArgsOptions: fieldInfo.decoratorArgsOptions,
+      columnName: fieldInfo.db.column_name,
+      isNullable: fieldInfo.db.is_nullable,
+      type: fieldInfo.type,
+      defaultVal: fieldInfo.defaultVal,
     }
     const currentCol = buildColumn(colMeta)
     if (currentCol.decorator_import) {
@@ -385,21 +378,21 @@ async function getEntityTypescript(
     cols.push(currentCol.col + `\n`)
     colsMeta.push(colMeta)
 
-    const foreignKey = table.foreignKeys.find((f) => f.columnName === dbCol.column_name)
+    const foreignKey = table.foreignKeys.find((f) => f.columnName === fieldInfo.db.column_name)
     if (foreignKey) {
       const { columnNameTweak } = handleForeignKeyCol(
         allTables,
         foreignKey,
-        dbCol.column_name,
+        fieldInfo.db.column_name,
         additionnalImports,
         cols,
-        dbCol.is_nullable,
+        fieldInfo.db.is_nullable,
       )
 
       const toMany = {
         addOn: foreignKey.foreignDbName,
         ref: table.className,
-        refField: dbCol.column_name,
+        refField: fieldInfo.db.column_name,
         table_key: table.key,
         columnNameTweak,
         // columnName:
