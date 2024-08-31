@@ -6,15 +6,17 @@ import { getFilesUnder } from '@kitql/internals'
 import { ActionsController } from '$shared/contollers/ActionsController'
 import { Setting, SettingKey } from '$shared/entities/Setting'
 
-const files = getFilesUnder('./src/shared/entities')
-
 const dynamicEntities = []
-for (let i = 0; i < files.length; i++) {
-  const className = files[i].replaceAll('.ts', '')
-  /* @vite-ignore */
-  const imp = await import('../shared/entities/' + className)
-  dynamicEntities.push(imp[className])
-}
+try {
+  const files = getFilesUnder('./src/shared/entities')
+
+  for (let i = 0; i < files.length; i++) {
+    const className = files[i].replaceAll('.ts', '')
+    /* @vite-ignore */
+    const imp = await import('../shared/entities/' + className)
+    dynamicEntities.push(imp[className])
+  }
+} catch (error) {}
 
 // const u = await import('../shared/entities/User')
 
