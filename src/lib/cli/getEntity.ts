@@ -409,7 +409,11 @@ async function getEntityTypescript(
   }
 
   if (!columnWithId.includes('id') && columnWithId.length > 0) {
-    props.push(`id: { ${columnWithId.map((c) => `${c}: true`).join(', ')} }`)
+    if (columnWithId.length === 1) {
+      props.push(`id: '${columnWithId[0]}'`)
+    } else {
+      props.push(`id: [${columnWithId.map((c) => `'${c}'`).join(', ')} ]`)
+    }
   }
 
   return {

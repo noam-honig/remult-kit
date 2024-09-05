@@ -157,7 +157,7 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: { ProductID: true },
+          id: "ProductID",
         })
         export class Test1 {
           @Fields.autoIncrement()
@@ -422,7 +422,7 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: { ProductID: true },
+          id: "ProductID",
         })
         export class Test1 {
           @Fields.integer()
@@ -541,45 +541,45 @@ describe.sequential('db', () => {
       )
       const result = await getTypescript(new DbSQLite(x), 'test1')
       expect(result).toMatchInlineSnapshot(`
-      "import { Entity, Fields } from "remult"
+        "import { Entity, Fields } from "remult"
 
-      @Entity<Test1>("test1s", {
-        dbName: "test1",
-        id: { ProductID: true },
-      })
-      export class Test1 {
-        @Fields.integer()
-        ProductID!: number
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+          id: "ProductID",
+        })
+        export class Test1 {
+          @Fields.integer()
+          ProductID!: number
 
-        @Fields.string()
-        ProductName!: string
+          @Fields.string()
+          ProductName!: string
 
-        @Fields.integer()
-        SupplierID = 0
+          @Fields.integer()
+          SupplierID = 0
 
-        @Fields.integer()
-        CategoryID = 0
+          @Fields.integer()
+          CategoryID = 0
 
-        @Fields.string()
-        QuantityPerUnit = ""
+          @Fields.string()
+          QuantityPerUnit = ""
 
-        @Fields.number()
-        UnitPrice = 0
+          @Fields.number()
+          UnitPrice = 0
 
-        @Fields.integer()
-        UnitsInStock = 0
+          @Fields.integer()
+          UnitsInStock = 0
 
-        @Fields.integer()
-        UnitsOnOrder = 0
+          @Fields.integer()
+          UnitsOnOrder = 0
 
-        @Fields.integer()
-        ReorderLevel = 0
+          @Fields.integer()
+          ReorderLevel = 0
 
-        @Fields.boolean()
-        Discontinued = false
-      }
-      "
-    `)
+          @Fields.boolean()
+          Discontinued = false
+        }
+        "
+      `)
     })
     it('test a name with space', async () => {
       try {
