@@ -157,6 +157,7 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
+          id: { ProductID: true },
         })
         export class Test1 {
           @Fields.autoIncrement()

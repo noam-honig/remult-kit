@@ -37,24 +37,48 @@ export class DbPostgres implements IDatabase {
   async getTableColumnInfo(schema: string, tableName: string) {
     const command = this.sqlDatabase!.createCommand()
     const tablesColumnInfo = await command.execute(
-      `SELECT * from INFORMATION_SCHEMA.COLUMNS
-				WHERE
-					table_name=${command.param(tableName)}
-					AND
-					table_schema=${command.param(schema)}
-				ORDER BY ordinal_position`,
+      `SELECT 
+          cols.column_name, 
+          cols.column_default, 
+          cols.data_type, 
+          cols.datetime_precision AS precision, 
+          cols.character_maximum_length, 
+          cols.udt_name, 
+          cols.is_nullable,
+          CASE 
+            WHEN kc.column_name IS NOT NULL THEN 'YES' 
+            ELSE 'NO' 
+          END AS is_key
+        FROM 
+          INFORMATION_SCHEMA.COLUMNS cols
+        LEFT JOIN 
+          INFORMATION_SCHEMA.KEY_COLUMN_USAGE kc 
+          ON kc.table_name = cols.table_name 
+          AND kc.column_name = cols.column_name 
+          AND kc.constraint_name IN (
+            SELECT constraint_name 
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+            WHERE constraint_type = 'PRIMARY KEY'
+          )
+        WHERE
+          cols.table_name = ${command.param(tableName)}
+          AND cols.table_schema = ${command.param(schema)}
+        ORDER BY 
+          cols.ordinal_position`,
     )
+
     return tablesColumnInfo.rows.map((c) => {
       const i: DbTableColumnInfo = {
         column_name: c.column_name,
         column_default: c.column_default,
         data_type: c.data_type,
-        precision: c.datetime_precision,
+        precision: c.precision,
         character_maximum_length: c.character_maximum_length,
         udt_name: c.udt_name,
         is_nullable: c.is_nullable,
-        is_key: c.is_key,
+        is_key: c.is_key === 'YES',
       }
+
       return i
     })
   }
