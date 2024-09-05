@@ -410,7 +410,9 @@ async function getEntityTypescript(
 
   if (!columnWithId.includes('id') && columnWithId.length > 0) {
     if (columnWithId.length === 1) {
-      props.push(`id: '${columnWithId[0]}'`)
+      if (colsMeta.length > 0 && colsMeta[0].columnName !== columnWithId[0]) {
+        props.push(`id: '${columnWithId[0]}'`)
+      }
     } else {
       props.push(`id: [${columnWithId.map((c) => `'${c}'`).join(', ')} ]`)
     }

@@ -157,7 +157,6 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: "ProductID",
         })
         export class Test1 {
           @Fields.autoIncrement()
@@ -289,7 +288,6 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: "ProductID",
         })
         export class Test1 {
           @Fields.integer()
@@ -422,7 +420,6 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: "ProductID",
         })
         export class Test1 {
           @Fields.integer()
@@ -545,7 +542,6 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1s", {
           dbName: "test1",
-          id: "ProductID",
         })
         export class Test1 {
           @Fields.integer()
