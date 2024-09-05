@@ -108,7 +108,7 @@ describe('field generation', () => {
   })
 })
 
-describe('db', () => {
+describe.sequential('db', () => {
   const DATABASE_URL = process.env['DATABASE_URL']
   describe.skipIf(!DATABASE_URL)('Postgres (env DATABASE_URL needed)', () => {
     it('test a basic table', async () => {
@@ -225,7 +225,7 @@ describe('db', () => {
       // Knex client configuration for MSSQL
       client: 'mssql',
       connection: {
-        server: '127.0.0.1',
+        server: process.env['MSSQL_SERVER'] ?? '127.0.0.1',
         database: process.env['MSSQL_DATABASE'],
         user: 'sa',
         password: process.env['MSSQL_PASSWORD'],
@@ -248,23 +248,22 @@ describe('db', () => {
         "CREATE TABLE test1 (id INT DEFAULT 0 NOT NULL, name VARCHAR(100) DEFAULT '' NOT NULL)",
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-      console.log(`result`, result)
 
       expect(result).toMatchInlineSnapshot(`
-          "import { Entity, Fields } from 'remult'
-  
-          @Entity<Test1>('test1s', {
-            dbName: 'test1',
-          })
-          export class Test1 {
-            @Fields.integer()
-            id = 0
-  
-            @Fields.string()
-            name = ''
-          }
-          "
-        `)
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
     })
 
     it('test a products table', async () => {
@@ -283,47 +282,47 @@ describe('db', () => {
           )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test1')
-      console.log(`result`, result)
 
       expect(result).toMatchInlineSnapshot(`
-          "import { Entity, Fields } from 'remult'
-  
-          @Entity<Test1>('test1s', {
-            dbName: 'test1',
-          })
-          export class Test1 {
-            @Fields.integer()
-            ProductID!: number
-  
-            @Fields.string()
-            ProductName!: string
-  
-            @Fields.integer()
-            SupplierID = 0
-  
-            @Fields.integer()
-            CategoryID = 0
-  
-            @Fields.string()
-            QuantityPerUnit = ''
-  
-            @Fields.number()
-            UnitPrice = 0
-  
-            @Fields.integer()
-            UnitsInStock = 0
-  
-            @Fields.integer()
-            UnitsOnOrder = 0
-  
-            @Fields.integer()
-            ReorderLevel = 0
-  
-            @Fields.boolean()
-            Discontinued = false
-          }
-          "
-        `)
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+          id: { ProductID: true },
+        })
+        export class Test1 {
+          @Fields.integer()
+          ProductID!: number
+
+          @Fields.string()
+          ProductName!: string
+
+          @Fields.integer()
+          SupplierID = 0
+
+          @Fields.integer()
+          CategoryID = 0
+
+          @Fields.string()
+          QuantityPerUnit = ""
+
+          @Fields.number()
+          UnitPrice = 0
+
+          @Fields.integer()
+          UnitsInStock = 0
+
+          @Fields.integer()
+          UnitsOnOrder = 0
+
+          @Fields.integer()
+          ReorderLevel = 0
+
+          @Fields.boolean()
+          Discontinued = false
+        }
+        "
+      `)
     })
 
     it('test a name with space', async () => {
@@ -337,23 +336,22 @@ describe('db', () => {
           )`,
       )
       const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'test it1')
-      console.log(`result`, result)
 
       expect(result).toMatchInlineSnapshot(`
-          "import { Entity, Fields } from 'remult'
-  
-          @Entity<TestIt1>('test-it1s', {
-            dbName: 'test it1',
-          })
-          export class TestIt1 {
-            @Fields.integer()
-            id = 0
-  
-            @Fields.string()
-            name = ''
-          }
-          "
-        `)
+        "import { Entity, Fields } from "remult"
+
+        @Entity<TestIt1>("test-it1s", {
+          dbName: "test it1",
+        })
+        export class TestIt1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
     })
   })
 

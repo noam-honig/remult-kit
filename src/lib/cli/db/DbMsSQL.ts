@@ -56,8 +56,6 @@ export class DbMsSQL implements IDatabase {
     const primaryKeys = await this.getPrimaryKeys(schema, tableName)
 
     return tablesColumnInfo.map((c) => {
-      console.log(`c`, c)
-
       const i: DbTableColumnInfo = {
         column_name: c.COLUMN_NAME,
         column_default: c.COLUMN_DEFAULT,
@@ -98,7 +96,8 @@ export class DbMsSQL implements IDatabase {
         JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS kcu 
           ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
       WHERE 
-        tc.CONSTRAINT_TYPE = 'UNIQUE';
+        tc.CONSTRAINT_TYPE = 'UNIQUE' and 
+        tc.TABLE_SCHEMA= ?
       `,
       [schema],
     )

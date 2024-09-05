@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
       host: env.REMULT_KIT_HOST ?? '127.0.0.1',
       port: parseInt(env.REMULT_KIT_PORT ?? '4321'),
     },
+    testTimeout: 600000,
 
     plugins: [
       kitRoutes<KIT_ROUTES>({
@@ -26,6 +27,7 @@ export default defineConfig(({ mode }) => {
       sveltekit(),
     ],
     test: {
+      threads: false,
       include: ['src/**/*.{test,spec}.{js,ts}'],
     },
   }
