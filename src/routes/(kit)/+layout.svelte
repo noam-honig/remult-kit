@@ -19,8 +19,6 @@
 
   const links = [
     { text: 'Home', path: route('/'), icon: mdiHome },
-    { text: 'Schemas', path: route('/schemas'), icon: mdiVectorLink },
-    { text: 'Raw DB', path: route('/raw-db'), icon: mdiDatabaseEditOutline },
     { text: 'Settings', path: route('/settings'), icon: mdiCog },
   ]
 </script>

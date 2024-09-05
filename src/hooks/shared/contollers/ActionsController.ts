@@ -59,11 +59,4 @@ export class ActionsController {
     await db.test()
     return true
   }
-
-  @BackendMethod({ allowed: true })
-  static async execute(connectionInfo: ConnectionInfo) {
-    const db = await getDbFromConnectionInfo(connectionInfo)
-    // db.execute()
-    return `NOT YET`
-  }
 }
