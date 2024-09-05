@@ -5,11 +5,9 @@
 
   import {
     mdiCog,
-    mdiDatabaseEditOutline,
     mdiGithub,
     mdiHome,
     mdiTwitter,
-    mdiVectorLink,
   } from '@mdi/js'
 
   import logo from '$lib/assets/remult-kit.png'
