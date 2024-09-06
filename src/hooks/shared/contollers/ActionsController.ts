@@ -1,8 +1,9 @@
-import { type ConnectionInfo } from '$lib/cli/db/databases'
-import { getEntitiesTypescriptPostgres, type EntityMetaData } from '$lib/cli/getEntity'
-import { Setting, SettingKey } from '$shared/entities/Setting'
-import { write, read } from '@kitql/internals'
 import { BackendMethod, remult } from 'remult'
+import { read, write } from '@kitql/internals'
+
+import { type ConnectionInfo } from '$lib/cli/db/databases'
+import { getEntitiesTypescriptFromDb, type EntityMetaData } from '$lib/cli/getEntity'
+import { Setting, SettingKey } from '$shared/entities/Setting'
 
 import { getDbFromConnectionInfo } from './helper'
 
@@ -19,11 +20,12 @@ export class ActionsController {
 
       const repo = remult.repo(Setting)
       const all = await repo.find()
-      const outputDir = all.find(c => c.id === SettingKey.outputDir)?.value ?? 'src/shared/entities'
+      const outputDir =
+        all.find((c) => c.id === SettingKey.outputDir)?.value ?? 'src/shared/entities'
       const tableProps =
-        all.find(c => c.id === SettingKey.tableProps)?.value ?? "'allowApiCrud: true'"
+        all.find((c) => c.id === SettingKey.tableProps)?.value ?? "'allowApiCrud: true'"
 
-      const toRet = await getEntitiesTypescriptPostgres(
+      const toRet = await getEntitiesTypescriptFromDb(
         db,
         outputDir,
         tableProps,

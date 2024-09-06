@@ -1,6 +1,7 @@
 import type { SqlDatabase } from 'remult'
 
-import type { IDatabase } from './types.js'
+import type { DbTable } from './DbTable.js'
+import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
   constructor(private sqlDatabase: SqlDatabase) {}
@@ -17,18 +18,69 @@ export class DbPostgres implements IDatabase {
     return tablesInfo.rows
   }
 
+  getRemultEntityDbName(table: DbTable) {
+    if (table.dbName !== table.className) {
+      if (table.schema === 'public' && table.dbName === 'user') {
+        // user is a reserved keyword, we need to speak about public.user
+        return `'public.${table.dbName}'`
+      } else if (table.schema === 'public') {
+        if (table.dbName !== table.key) {
+          return table.dbName
+        }
+      } else {
+        return `${table.schema}.${table.dbName}`
+      }
+    }
+    return null
+  }
+
   async getTableColumnInfo(schema: string, tableName: string) {
     const command = this.sqlDatabase!.createCommand()
     const tablesColumnInfo = await command.execute(
-      `SELECT * from INFORMATION_SCHEMA.COLUMNS
-				WHERE
-					table_name=${command.addParameterAndReturnSqlToken(tableName)}
-					AND
-					table_schema=${command.addParameterAndReturnSqlToken(schema)}
-				ORDER BY ordinal_position`,
+      `SELECT 
+          cols.column_name, 
+          cols.column_default, 
+          cols.data_type, 
+          cols.datetime_precision AS precision, 
+          cols.character_maximum_length, 
+          cols.udt_name, 
+          cols.is_nullable,
+          CASE 
+            WHEN kc.column_name IS NOT NULL THEN 'YES' 
+            ELSE 'NO' 
+          END AS is_key
+        FROM 
+          INFORMATION_SCHEMA.COLUMNS cols
+        LEFT JOIN 
+          INFORMATION_SCHEMA.KEY_COLUMN_USAGE kc 
+          ON kc.table_name = cols.table_name 
+          AND kc.column_name = cols.column_name 
+          AND kc.constraint_name IN (
+            SELECT constraint_name 
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+            WHERE constraint_type = 'PRIMARY KEY'
+          )
+        WHERE
+          cols.table_name = ${command.param(tableName)}
+          AND cols.table_schema = ${command.param(schema)}
+        ORDER BY 
+          cols.ordinal_position`,
     )
 
-    return tablesColumnInfo.rows
+    return tablesColumnInfo.rows.map((c) => {
+      const i: DbTableColumnInfo = {
+        column_name: c.column_name,
+        column_default: c.column_default,
+        data_type: c.data_type,
+        precision: c.precision,
+        character_maximum_length: c.character_maximum_length,
+        udt_name: c.udt_name,
+        is_nullable: c.is_nullable,
+        is_key: c.is_key === 'YES',
+      }
+
+      return i
+    })
   }
 
   async getUniqueInfo(schema: string) {
@@ -42,7 +94,7 @@ export class DbPostgres implements IDatabase {
         `AND table_schema = ${command.addParameterAndReturnSqlToken(schema)};`,
     )
 
-    return tablesColumnInfo.rows.map(c => {
+    return tablesColumnInfo.rows.map((c) => {
       return {
         table_schema: c.table_schema,
         table_name: c.table_name,

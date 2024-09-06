@@ -1,5 +1,5 @@
 export const toPascalCase = (str: string) => {
-  return str.replace(/[-_](\w)/g, (_, c) => c.toUpperCase()).replace(/^\w/, c => c.toUpperCase())
+  return str.replace(/[-_](\w)/g, (_, c) => c.toUpperCase()).replace(/^\w/, (c) => c.toUpperCase())
 }
 
 export function toCamelCase(str: string) {
@@ -20,7 +20,7 @@ export const toTitleCase = (str: string) => {
   // Capitalize the first letter of each word and join them back
   const words = titleCaseString.split(' ')
   const titleCaseWords = words.map(
-    word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+    (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
   )
 
   return titleCaseWords.join(' ')

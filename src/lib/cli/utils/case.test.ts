@@ -1,4 +1,4 @@
-import { expect, test, describe } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
 import { kababToConstantCase, toCamelCase, toPascalCase, toTitleCase } from './case.js'
 

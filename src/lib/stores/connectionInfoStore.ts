@@ -1,6 +1,7 @@
+import { writable } from 'svelte/store'
+
 import type { ConnectionInfo } from '$lib/cli/db/databases'
 import { ActionsController } from '$shared/contollers/ActionsController'
-import { writable } from 'svelte/store'
 
 import { remultInfos } from './remultInfos'
 
@@ -31,7 +32,7 @@ function createStore() {
     },
 
     check: async (input: ConnectionInfo) => {
-      update(y => ({ ...y, ...{ status: '???' } }))
+      update((y) => ({ ...y, ...{ status: '???' } }))
 
       try {
         if (await ActionsController.checkConnection(input)) {

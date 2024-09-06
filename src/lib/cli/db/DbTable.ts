@@ -1,8 +1,9 @@
-import { gray, green, italic, yellow, cyan, bold, strikethrough, red } from '@kitql/helpers'
 import pluralize from 'pluralize'
 
+import { bold, cyan, gray, green, italic, red, strikethrough, yellow } from '@kitql/helpers'
+
 import { toCamelCase, toPascalCase } from '../utils/case.js'
-import type { ForeignKey } from './types.js'
+import type { DbForeignKey } from './types.js'
 
 export interface DbTableForeignKey {
   columnName: string
@@ -10,7 +11,7 @@ export interface DbTableForeignKey {
 }
 
 export class DbTable {
-  schema: string
+  schema: string | undefined
   dbName: string
   key: string
   className: string
@@ -18,9 +19,9 @@ export class DbTable {
 
   constructor(
     dbName: string,
-    schema: string,
+    schema: string | undefined,
     schemasPrefix: 'NEVER' | 'ALWAYS' | 'SMART' = 'SMART',
-    foreignKeys: ForeignKey[],
+    foreignKeys: DbForeignKey[],
   ) {
     this.schema = schema
     this.dbName = dbName
@@ -32,21 +33,25 @@ export class DbTable {
       }
     })
 
-    const plur = toPascalCase(pluralize.plural(dbName))
-    const sing = toPascalCase(pluralize.singular(dbName))
+    const rmvSpaceDbName = dbName
+      .split(' ')
+      .map((c) => toPascalCase(c))
+      .join('')
+
+    const sing = toPascalCase(pluralize.singular(rmvSpaceDbName))
 
     if (schemasPrefix === 'NEVER') {
       this.className = sing
     } else if (schemasPrefix === 'ALWAYS') {
-      this.className = `${toPascalCase(schema)}_${sing}`
+      this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
     } else {
       if (schema === 'public') {
         this.className = sing
       } else {
-        this.className = `${toPascalCase(schema)}_${sing}`
+        this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
       }
     }
-    this.key = toCamelCase(plur)
+    this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
   }
 
   checkNamingConvention() {

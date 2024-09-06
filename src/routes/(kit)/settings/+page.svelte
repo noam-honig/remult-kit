@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+
+  import { remult } from 'remult'
+
   import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, TextField } from '$ui'
-  import { remult } from 'remult'
-  import { onMount } from 'svelte'
 
   let settings: Setting[] = []
 
@@ -22,7 +24,7 @@
         }}
       ></TextField>
       {#if setting.id === SettingKey.tableProps}
-        <div class="flex gap-2 mt-2 items-center">
+        <div class="mt-2 flex items-center gap-2">
           <i class="text-xs">Presets:</i>
           {#each ['allowApiCrud: false', 'allowApiCrud: true', 'allowApiCrud: Allow.authenticated', 'allowApiCrud: "admin"'] as preset}
             <Button

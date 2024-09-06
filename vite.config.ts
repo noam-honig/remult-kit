@@ -1,9 +1,9 @@
-import type { KIT_ROUTES } from '$lib/ROUTES'
 import { sveltekit } from '@sveltejs/kit/vite'
-import { loadEnv } from 'vite'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { kitRoutes } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
+
+import type { KIT_ROUTES } from '$lib/ROUTES'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
       host: env.REMULT_KIT_HOST ?? '127.0.0.1',
       port: parseInt(env.REMULT_KIT_PORT ?? '4321'),
     },
+    testTimeout: 600000,
 
     plugins: [
       kitRoutes<KIT_ROUTES>({
@@ -26,6 +27,7 @@ export default defineConfig(({ mode }) => {
       sveltekit(),
     ],
     test: {
+      threads: false,
       include: ['src/**/*.{test,spec}.{js,ts}'],
     },
   }

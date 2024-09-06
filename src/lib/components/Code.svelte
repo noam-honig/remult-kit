@@ -1,9 +1,10 @@
 <script lang="ts">
   import { mdiContentCopy } from '@mdi/js'
-  import { Button } from '$ui'
   import { Highlight } from 'svelte-highlight'
   import typescript from 'svelte-highlight/languages/typescript'
   import atomOneDark from 'svelte-highlight/styles/atom-one-dark'
+
+  import { Button } from '$ui'
 
   export let code: string = ''
 
@@ -19,7 +20,7 @@
   {@html atomOneDark}
 </svelte:head>
 
-<div class="border border-accent m-5">
+<div class="m-5 border border-accent">
   <div class="indicator w-full">
     <span class="indicator-item">
       <Button

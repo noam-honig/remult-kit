@@ -1,37 +1,40 @@
 import type { DbTable } from './DbTable'
 
 export interface IDatabase {
-  schema: string
+  schema?: string
   test(): Promise<void>
-  getTablesInfo(): Promise<TableInfo[]>
-  getTableColumnInfo(schema: string, tableName: string): Promise<TableColumnInfo[]>
-  getUniqueInfo(schema: string): Promise<
+  getTablesInfo(): Promise<DbTableInfo[]>
+  getTableColumnInfo(schema: string | undefined, tableName: string): Promise<DbTableColumnInfo[]>
+  getUniqueInfo(schema?: string): Promise<
     {
       table_schema: string
       table_name: string
       column_name: string
     }[]
   >
-  getForeignKeys(): Promise<ForeignKey[]>
+  getForeignKeys(): Promise<DbForeignKey[]>
   getEnumDef(udt_name: string): Promise<EnumDef[]>
+
+  getRemultEntityDbName(table: DbTable): string | null
 }
 
-export interface TableInfo {
+export interface DbTableInfo {
   table_name: string
-  table_schema: string
+  table_schema?: string
 }
 
-export interface TableColumnInfo {
+export interface DbTableColumnInfo {
   column_name: string
   column_default: string | null
   data_type: string
-  datetime_precision: number
+  precision: number
   character_maximum_length: number
   udt_name: string
   is_nullable: 'YES' | 'NO'
+  is_key: boolean
 }
 
-export interface ForeignKey {
+export interface DbForeignKey {
   table_schema: string
   table_name: string
   column_name: string
@@ -45,24 +48,19 @@ export interface EnumDef {
   enumlabel: string
 }
 
-export interface ColumnInfo {
-  columnName: string
-  columnDefault: string | null
-  dataType: string
-  datetimePrecision: number
-  characterMaximumLength: number
-  udtName: string
+export interface FieldInfo {
+  type: string | null
+  decorator: string
+  defaultVal: string | null
+  decoratorArgsValueType: string
+  decoratorArgsOptions: string[]
+  enumAdditionalName: string | null
+
+  db: DbTableColumnInfo
 }
 
 export type DataTypeProcessorFunction = (
-  input: ColumnInfo & {
+  input: DbTableColumnInfo & {
     table: DbTable
   },
-) => Partial<{
-  type: string | null
-  decorator: string
-  defaultVal: string
-  decoratorArgsValueType: string
-  decoratorArgsOptions: string[]
-  enumAdditionalName: string
-}> | void
+) => Partial<FieldInfo>

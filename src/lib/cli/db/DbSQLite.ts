@@ -3,31 +3,28 @@ import type { KnexDataProvider } from 'remult/remult-knex'
 import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
-export class DbMySQL implements IDatabase {
-  constructor(
-    private knex: KnexDataProvider,
-    public schema: string,
-  ) {}
+export class DbSQLite implements IDatabase {
+  constructor(private knex: KnexDataProvider) {}
   async test() {
     await this.knex.knex.raw('select 1')
   }
 
   async getTablesInfo() {
     return this.knex.knex
-      .select('TABLE_SCHEMA', 'TABLE_NAME')
-      .from('information_schema.tables')
-      .whereNotIn('table_schema', [
-        'pg_catalog',
-        'information_schema',
-        'mysql',
-        'sys',
-        'performance_schema',
+      .select('name')
+      .from('sqlite_master')
+      .where({ type: 'table' })
+      .whereNotIn('name', [
+        'sqlite_sequence',
+        'sqlite_stat1',
+        'sqlite_stat2',
+        'sqlite_stat3',
+        'sqlite_stat4',
       ])
       .then((r) =>
         r.map((x) => {
           return {
-            table_schema: x.table_schema || x.TABLE_SCHEMA,
-            table_name: x.table_name || x.TABLE_NAME,
+            table_name: x.name,
           }
         }),
       )
@@ -37,30 +34,48 @@ export class DbMySQL implements IDatabase {
     return table.dbName
   }
 
-  async getTableColumnInfo(schema: string, tableName: string) {
-    const tablesColumnInfo = await this.knex!.knex('INFORMATION_SCHEMA.COLUMNS')
-      .select()
-      .where('TABLE_NAME', tableName)
-      .orderBy('ORDINAL_POSITION')
+  async getTableColumnInfo(schemaName: string, tableName: string) {
+    const tablesColumnInfo = await this.knex!.knex.raw(`PRAGMA table_info('${tableName}')`)
+    return tablesColumnInfo.map(
+      (c: {
+        cid: number
+        name: string
+        type: string
+        notnull: number
+        dflt_value: string
+        pk: number
+      }) => {
+        if (c.dflt_value?.startsWith('(') && c.dflt_value?.endsWith(')')) {
+          c.dflt_value = c.dflt_value.slice(1, -1)
+        }
 
-    return tablesColumnInfo.map((c) => {
-      const i: DbTableColumnInfo = {
-        column_name: c.COLUMN_NAME,
-        column_default:
-          c.COLUMN_DEFAULT === null
-            ? null
-            : c.DATA_TYPE === 'varchar'
-              ? `'${c.COLUMN_DEFAULT}'`
-              : c.COLUMN_DEFAULT,
-        data_type: c.DATA_TYPE,
-        precision: c.NUMERIC_PRECISION,
-        character_maximum_length: c.CHARACTER_MAXIMUM_LENGTH,
-        udt_name: '',
-        is_nullable: c.IS_NULLABLE === 'NO' ? 'NO' : 'YES',
-        is_key: c.COLUMN_KEY === 'PRI',
-      }
-      return i
-    })
+        let character_maximum_length = 0
+        // To manage "varchar](40"
+        const s = c.type.split('](')
+        if (s.length > 1) {
+          c.type = s[0]
+          character_maximum_length = parseInt(s[1])
+        }
+
+        // To manage "varchar(100)"
+        const typeRegex = /^(\w+)\((\d+)\)$/
+        const typeMatch = c.type.match(typeRegex)
+        const data_type = typeMatch ? typeMatch[1] : c.type
+        character_maximum_length = typeMatch ? parseInt(typeMatch[2]) : 0
+
+        const i: DbTableColumnInfo = {
+          column_name: c.name,
+          column_default: c.dflt_value,
+          data_type,
+          precision: 0, // I don't know
+          character_maximum_length,
+          udt_name: '',
+          is_nullable: c.notnull === 0 ? 'YES' : 'NO',
+          is_key: c.pk === 1,
+        }
+        return i
+      },
+    )
   }
 
   // eslint-disable-next-line

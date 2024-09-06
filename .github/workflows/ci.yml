@@ -33,8 +33,17 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --memory=2g --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P pASSWORD!@#123
-          -Q 'SELECT 1'" --health-interval 30s --health-timeout 10s --health-retries 10
+          --memory=2g
+
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: example_password
+          MYSQL_DATABASE: example_db
+          MYSQL_USER: example_user
+          MYSQL_PASSWORD: example_user_password
+        ports:
+          - '3306:3306'
 
     steps:
       - name: 🌐 Checkout Repository
@@ -50,9 +59,6 @@ jobs:
       - name: 📦 install things
         run: npm i
 
-      - name: 🧹 Lint Check
-        run: npm run lint
-
       - name: 🛠️ Build
         run: npm run build
 
@@ -63,3 +69,6 @@ jobs:
           MSSQL_PASSWORD: pASSWORD!@#123
           MSSQL_DATABASE: master
           SQL_SERVER_URL: 'Server=localhost,1433;User Id=sa;Password=Your_password123;'
+
+      - name: 🧹 Lint Check
+        run: npm run lint

@@ -25,12 +25,12 @@ export const databases = {
       },
     },
     npm: ['pg'],
-    getCode: args => `import { createPostgresDataProvider } from "remult/postgres"
+    getCode: (args) => `import { createPostgresDataProvider } from "remult/postgres"
 
 const dataProvider = createPostgresDataProvider({
   connectionString: ${args['database url']}
 })`,
-    connect: async args => {
+    connect: async (args) => {
       const { createPostgresDataProvider } = await import('remult/postgres')
       const { DbPostgres } = await import('./DbPostgres')
       return new DbPostgres(
@@ -49,7 +49,7 @@ const dataProvider = createPostgresDataProvider({
       database: { envName: 'MYSQL_DATABASE' },
     },
     npm: ['mysql2', 'knex'],
-    getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
+    getCode: (args) => `import { createKnexDataProvider } from "remult/remult-knex"
 
 const dataProvider = createKnexDataProvider({
   client: "mysql2",
@@ -61,7 +61,7 @@ const dataProvider = createKnexDataProvider({
     port: ${args.port},
   },
 })`,
-    connect: async args => {
+    connect: async (args) => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
       const { DbMySQL } = await import('./DbMySQL')
       const db = await createKnexDataProvider({
@@ -88,7 +88,7 @@ const dataProvider = createKnexDataProvider({
       instanceName: { envName: 'MSSQL_INSTANCE' },
     },
     npm: ['tedious', 'knex'],
-    getCode: args => `import { createKnexDataProvider } from "remult/remult-knex"
+    getCode: (args) => `import { createKnexDataProvider } from "remult/remult-knex"
 
 const dataProvider = createKnexDataProvider({
   client: "mssql",
@@ -104,10 +104,10 @@ const dataProvider = createKnexDataProvider({
     },
   }
 })`,
-    connect: async args => {
+    connect: async (args) => {
       const { createKnexDataProvider } = await import('remult/remult-knex')
-      const { DbMySQL } = await import('./DbMySQL')
-      return new DbMySQL(
+      const { DbMsSQL } = await import('./DbMsSQL')
+      return new DbMsSQL(
         await createKnexDataProvider({
           // Knex client configuration for MSSQL
           client: 'mssql',
@@ -125,6 +125,31 @@ const dataProvider = createKnexDataProvider({
         }),
         'dbo',
       )
+    },
+  }),
+  sqlite: build({
+    args: {
+      database_path: { envName: 'DB_DATABASE' },
+    },
+    npm: ['better-sqlite3'],
+    getCode: (args) => `import { SqlDatabase } from 'remult'
+import Database from 'better-sqlite3'
+import { BetterSqlite3DataProvider } from 'remult/remult-better-sqlite3'
+
+const dataProvider = new SqlDatabase( 
+  new BetterSqlite3DataProvider(new Database(${args.database_path}))
+)`,
+    connect: async (args) => {
+      const { createKnexDataProvider } = await import('remult/remult-knex')
+      const { DbSQLite } = await import('./DbSQLite')
+      const db = await createKnexDataProvider({
+        client: 'sqlite3',
+        connection: {
+          filename: args.database_path,
+        },
+      })
+      // const schema = await db.knex.raw('PRAGMA database_list;')
+      return new DbSQLite(db)
     },
   }),
 }

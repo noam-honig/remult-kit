@@ -13,27 +13,28 @@ type CliColumnInfo = {
   decorator_import: string | null
 }
 
+// TODO: ColMetaData vs FieldInfo??? should be ONE
 type ColMetaData = {
+  type: string | null
   decorator: string
+  defaultVal: string | null
   decoratorArgsValueType: string
   decoratorArgsOptions?: string[]
-  columnNameTweak?: string
   columnName: string
+  columnNameTweak?: string
   isNullable: 'YES' | 'NO'
-  type: string | null
-  defaultVal: string | null
   foreignField?: string | null
 }
 
 export function buildColumn({
+  type,
   decorator,
+  defaultVal,
   decoratorArgsValueType,
   decoratorArgsOptions = [],
   columnNameTweak,
   columnName,
   isNullable,
-  type,
-  defaultVal,
   foreignField,
 }: ColMetaData): CliColumnInfo {
   if (foreignField) {
@@ -109,17 +110,17 @@ export type EntityMetaData = {
     columnNameTweak: string
   }[]
 }
-export async function getEntitiesTypescriptPostgres(
+export async function getEntitiesTypescriptFromDb(
   db: IDatabase,
   outputDir: string,
   tableProps: string,
-  orderBy?: (string | number)[],
+  orderBy?: string[],
   customDecorators: Record<string, string> = {},
   withEnums: boolean = true,
-  schemas: (string | number)[] = [],
+  schemas: (string | undefined)[] = [],
   schemasPrefix: 'NEVER' | 'ALWAYS' | 'SMART' = 'SMART',
-  exclude: (string | number)[] = [],
-  include: (string | number)[] = [],
+  exclude: string[] = [],
+  include: string[] = [],
 ) {
   const tableInfo = await db.getTablesInfo()
 
@@ -129,23 +130,8 @@ export async function getEntitiesTypescriptPostgres(
 
   const foreignKeys = await db.getForeignKeys()
 
-  const entities_path = `${outputDir}/entities/`
-  const enums_path = `${outputDir}/enums/`
-
-  // if (withEnums) {
-  //   rmSync(outputDir, { recursive: true, force: true })
-  //   mkdirSync(outputDir, { recursive: true })
-  //   mkdirSync(entities_path)
-  //   mkdirSync(enums_path)
-  // } else {
-  //   rmSync(entities_path, { recursive: true, force: true })
-  //   mkdirSync(outputDir, { recursive: true })
-  //   mkdirSync(entities_path)
-  // }
-
-  const allTables = tableInfo.map(table => {
+  const allTables = tableInfo.map((table) => {
     const tableForeignKeys = foreignKeys.filter(({ table_name }) => table.table_name === table_name)
-
     return new DbTable(table.table_name, table.table_schema, schemasPrefix, tableForeignKeys)
   })
 
@@ -153,12 +139,12 @@ export async function getEntitiesTypescriptPostgres(
   await Promise.all(
     allTables
       // let's generate schema by schema
-      .filter(c =>
+      .filter((c) =>
         (schemas.length === 1 && schemas[0] === '*') || schemas.length == 0
           ? true
           : schemas.includes(c.schema),
       )
-      .map(async table => {
+      .map(async (table) => {
         try {
           if (
             !exclude.includes(table.dbName) &&
@@ -189,7 +175,7 @@ export async function getEntitiesTypescriptPostgres(
       }),
   )
 
-  const allToManys = getEntities.flatMap(e => e.toManys)
+  const allToManys = getEntities.flatMap((e) => e.toManys)
 
   const toRet: { entities: { fileContent: string; meta: EntityMetaData }[] } = {
     entities: [],
@@ -200,16 +186,16 @@ export async function getEntitiesTypescriptPostgres(
   )
 
   const enums: string[] = []
-  sortedTablesO.forEach(ent => {
+  sortedTablesO.forEach((ent) => {
     const entitiesImports: string[] = []
     const additionnalImports = []
 
     const toManys = allToManys
-      .filter(tm => tm.addOn === ent.table.dbName)
+      .filter((tm) => tm.addOn === ent.table.dbName)
       .sort((a, b) => a.table_key.localeCompare(b.table_key))
-      .map(tm => {
+      .map((tm) => {
         const number_of_ref = allToManys.filter(
-          c => c.addOn === ent.table.dbName && c.ref === tm.ref,
+          (c) => c.addOn === ent.table.dbName && c.ref === tm.ref,
         ).length
 
         const currentCol = buildColumn({
@@ -272,7 +258,7 @@ export async function getEntitiesTypescriptPostgres(
   }
 
   const sortedTables = getEntities
-    .map(e => e.table)
+    .map((e) => e.table)
     .slice()
     .sort((a, b) => a.className.localeCompare(b.className))
 
@@ -317,7 +303,7 @@ export async function getEntitiesTypescriptPostgres(
 async function getEntityTypescript(
   allTables: DbTable[],
   db: IDatabase,
-  schema: string,
+  schema: string | undefined,
   table: DbTable,
   tableProps: string,
   customDecorators: Record<string, string>,
@@ -331,84 +317,59 @@ async function getEntityTypescript(
   const props = []
   const toManys = []
   if (tableProps) props.push(tableProps)
-  if (table.dbName !== table.className) {
-    if (table.schema === 'public' && table.dbName === 'user') {
-      // user is a reserved keyword, we need to speak about public.user
-      props.push(`dbName: 'public.${table.dbName}'`)
-    } else if (table.schema === 'public' || table.schema === 'dbo') {
-      if (table.dbName !== table.key) {
-        props.push(`dbName: '${table.dbName}'`)
-      }
-    } else {
-      props.push(`dbName: '${table.schema}.${table.dbName}'`)
-    }
+
+  const dbNameToUse = db.getRemultEntityDbName(table)
+  if (dbNameToUse) {
+    props.push(`dbName: '${dbNameToUse}'`)
   }
+
   let usesValidators = false
   let defaultOrderBy: string | null = null
   const columnWithId: string[] = []
+
   const uniqueInfo = await db.getUniqueInfo(schema)
-  for (const {
-    column_name: columnName,
-    column_default: columnDefault,
-    data_type: dataType,
-    datetime_precision: datetimePrecision,
-    character_maximum_length: characterMaximumLength,
-    udt_name: udtName,
-    is_nullable: isNullable,
-  } of await db.getTableColumnInfo(schema, table.dbName)) {
-    const {
-      decorator: decoratorInfered,
-      defaultVal,
-      type,
-      decoratorArgsValueType,
-      decoratorArgsOptions,
-      enumAdditionalName,
-    } = processColumnType({
-      columnName,
-      columnDefault,
-      dataType,
-      datetimePrecision,
-      characterMaximumLength,
-      udtName,
+  for (const dbCol2 of await db.getTableColumnInfo(schema, table.dbName)) {
+    const fieldInfo = processColumnType({
+      ...dbCol2,
       enums,
       db,
       table,
     })
-    if (columnName.toLowerCase().includes('id')) {
-      columnWithId.push(columnName)
+    if (fieldInfo.db.is_key) {
+      columnWithId.push(fieldInfo.db.column_name)
     }
     if (
       uniqueInfo.find(
-        u =>
+        (u) =>
           u.table_schema === schema &&
           u.table_name === table.dbName &&
-          u.column_name === columnName,
+          u.column_name === fieldInfo.db.column_name,
       )
     ) {
       usesValidators = true
-      decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
+      fieldInfo.decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
     }
 
-    const decorator = customDecorators[decoratorInfered] ?? decoratorInfered
+    const decorator = customDecorators[fieldInfo.decorator] ?? fieldInfo.decorator
 
     // TODO: extract this logic from the process column
-    if (enumAdditionalName) {
-      await handleEnums(enums, 'USER-DEFINED', db, enumAdditionalName)
+    if (fieldInfo.enumAdditionalName) {
+      await handleEnums(enums, 'USER-DEFINED', db, fieldInfo.enumAdditionalName)
     }
-    await handleEnums(enums, dataType, db, udtName)
+    await handleEnums(enums, fieldInfo.db.data_type, db, fieldInfo.db.udt_name)
 
-    if (!defaultOrderBy && orderBy?.includes(columnName)) {
-      defaultOrderBy = columnName
+    if (!defaultOrderBy && orderBy?.includes(fieldInfo.db.column_name)) {
+      defaultOrderBy = fieldInfo.db.column_name
     }
 
     const colMeta: ColMetaData = {
       decorator,
-      decoratorArgsValueType,
-      decoratorArgsOptions,
-      columnName,
-      isNullable,
-      type,
-      defaultVal,
+      decoratorArgsValueType: fieldInfo.decoratorArgsValueType,
+      decoratorArgsOptions: fieldInfo.decoratorArgsOptions,
+      columnName: fieldInfo.db.column_name,
+      isNullable: fieldInfo.db.is_nullable,
+      type: fieldInfo.type,
+      defaultVal: fieldInfo.defaultVal,
     }
     const currentCol = buildColumn(colMeta)
     if (currentCol.decorator_import) {
@@ -417,21 +378,21 @@ async function getEntityTypescript(
     cols.push(currentCol.col + `\n`)
     colsMeta.push(colMeta)
 
-    const foreignKey = table.foreignKeys.find(f => f.columnName === columnName)
+    const foreignKey = table.foreignKeys.find((f) => f.columnName === fieldInfo.db.column_name)
     if (foreignKey) {
       const { columnNameTweak } = handleForeignKeyCol(
         allTables,
         foreignKey,
-        columnName,
+        fieldInfo.db.column_name,
         additionnalImports,
         cols,
-        isNullable,
+        fieldInfo.db.is_nullable,
       )
 
       const toMany = {
         addOn: foreignKey.foreignDbName,
         ref: table.className,
-        refField: columnName,
+        refField: fieldInfo.db.column_name,
         table_key: table.key,
         columnNameTweak,
         // columnName:
@@ -447,8 +408,14 @@ async function getEntityTypescript(
     props.push(`defaultOrderBy: { ${defaultOrderBy}: 'asc' }`)
   }
 
-  if (!columnWithId.includes('id')) {
-    props.push(`id: { ${columnWithId.map(c => `${c}: true`).join(', ')} }`)
+  if (!columnWithId.includes('id') && columnWithId.length > 0) {
+    if (columnWithId.length === 1) {
+      if (colsMeta.length > 0 && colsMeta[0].columnName !== columnWithId[0]) {
+        props.push(`id: '${columnWithId[0]}'`)
+      }
+    } else {
+      props.push(`id: [${columnWithId.map((c) => `'${c}'`).join(', ')} ]`)
+    }
   }
 
   return {
@@ -485,7 +452,7 @@ const handleForeignKeyCol = (
 ) => {
   let columnNameTweak = columnName.replace(/_id$/, '').replace(/Id$/, '')
 
-  const f = allTables.find(t => t.dbName === foreignKey.foreignDbName)!
+  const f = allTables.find((t) => t.dbName === foreignKey.foreignDbName)!
 
   // If after the light tweak, the column name is the same as before,
   // let's go to another strategy, className + columnName (let's be very explicit to avoid colision)
@@ -523,7 +490,7 @@ const handleEnums = async (
 ) => {
   if ('USER-DEFINED' === dataType) {
     const enumDef = await db.getEnumDef(udtName)
-    enums[toPascalCase(udtName)] = enumDef.map(e => e.enumlabel)
+    enums[toPascalCase(udtName)] = enumDef.map((e) => e.enumlabel)
   }
 }
 
@@ -541,10 +508,10 @@ const generateEntityString = (
 
   const foreignClassNamesToImport = [
     ...table.foreignKeys.map(
-      ({ foreignDbName }) => allTables.find(t => t.dbName === foreignDbName)!.className,
+      ({ foreignDbName }) => allTables.find((t) => t.dbName === foreignDbName)!.className,
     ),
     ...entitiesImports,
-  ].filter(c => c !== table.className)
+  ].filter((c) => c !== table.className)
 
   const enumsKeys = Object.keys(enums)
 
@@ -553,8 +520,8 @@ const generateEntityString = (
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
     `${addLineIfNeeded([...new Set(additionnalImports)])}` +
-    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], c => `import { ${c} } from '.'`)}` +
-    `${addLineIfNeeded(enumsKeys, c => `import { ${c} } from '../enums'`)}
+    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from '.'`)}` +
+    `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 
 @Entity<${table.className}>('${table.key}', {\n\t${props.join(',\n\t')}\n})
 export class ${table.className} {
@@ -576,7 +543,7 @@ const generateEnumsStrings = (enums: Record<string, string[]>) => {
 @ValueListFieldType()
 export class ${enumName} {
   ${enumValues
-    ?.map(e => `static ${kababToConstantCase(e)} = new ${enumName}('${e}', '${toTitleCase(e)}')`)
+    ?.map((e) => `static ${kababToConstantCase(e)} = new ${enumName}('${e}', '${toTitleCase(e)}')`)
     .join('\n  ')}
 
   constructor(public id: string, public caption: string) {}

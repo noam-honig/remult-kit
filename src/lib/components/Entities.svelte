@@ -1,13 +1,16 @@
 <script lang="ts">
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
+  import { onMount } from 'svelte'
+  import { slide } from 'svelte/transition'
+
+  import { remult } from 'remult'
+
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { ActionsController } from '$shared/contollers/ActionsController'
   import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, Icon, TextField } from '$ui'
-  import { remult } from 'remult'
-  import { onMount } from 'svelte'
-  import { slide } from 'svelte/transition'
+
   import Code from './Code.svelte'
 
   let loading = false
@@ -25,7 +28,7 @@
   // const order = tableOrderStore({ initialBy: 'name', initialDirection: 'asc' })
 
   $: sortedData = [
-    ...($remultInfos.entities ?? []).filter(c =>
+    ...($remultInfos.entities ?? []).filter((c) =>
       c.meta.table.className.toLowerCase().includes((search ?? '').toLowerCase()),
     ),
   ]
@@ -36,7 +39,7 @@
 
   const updateSelection = (name: string) => {
     if (selectedItems.includes(name)) {
-      selectedItems = selectedItems.filter(i => i !== name)
+      selectedItems = selectedItems.filter((i) => i !== name)
     } else {
       selectedItems = [...selectedItems, name]
     }
@@ -70,11 +73,11 @@
           <Button
             disabled={selectedItems.length === 0}
             on:click={async () => {
-              const filtered = $remultInfos.entities.filter(e =>
+              const filtered = $remultInfos.entities.filter((e) =>
                 selectedItems.includes(e.meta.table.className),
               )
 
-              const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir)).value
+              const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))?.value
 
               for (const element of filtered) {
                 await ActionsController.writeFile(
@@ -85,7 +88,7 @@
             }}>Write Files</Button
           >
         </div>
-        <div class="flex gap-5 justify-between items-end">
+        <div class="flex items-end justify-between gap-5">
           <div class="w-full">
             <TextField
               label="filter"
@@ -93,7 +96,7 @@
               placeholder="looking for a specific entity?"
             ></TextField>
           </div>
-          <div class="grid gap-1 mx-2">
+          <div class="mx-2 grid gap-1">
             <Button
               class="btn-xs"
               disabled={selectedItems.length === 0}
@@ -107,7 +110,7 @@
               class="btn-xs"
               disabled={selectedItems.length === sortedData.length}
               on:click={() => {
-                selectedItems = sortedData.map(c => c.meta.table.className)
+                selectedItems = sortedData.map((c) => c.meta.table.className)
               }}
             >
               All
@@ -124,12 +127,12 @@
                   <div class="flex items-center">
                     <button
                       on:click={() => updateEntityOpen(row.meta.table.className)}
-                      class="card-title flex-1 grid grid-cols-2 place-items-start items-center"
+                      class="card-title grid flex-1 grid-cols-2 place-items-start items-center"
                     >
                       <p>
                         {row.meta.table.className}
                       </p>
-                      <i class="text-xs w-24 text-right">{row.meta.colsMeta.length + ' fields'}</i>
+                      <i class="w-24 text-right text-xs">{row.meta.colsMeta.length + ' fields'}</i>
                     </button>
 
                     <div class="flex justify-end">
@@ -149,7 +152,7 @@
                     <Button
                       on:click={async () => {
                         const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))
-                          .value
+                          ?.value
 
                         await ActionsController.writeFile(
                           `${outputDir}/${row.meta.table.className}.ts`,
