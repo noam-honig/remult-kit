@@ -3,12 +3,7 @@
 
   import '../../app.postcss'
 
-  import {
-    mdiCog,
-    mdiGithub,
-    mdiHome,
-    mdiTwitter,
-  } from '@mdi/js'
+  import { mdiCog, mdiGithub, mdiHome, mdiTwitter } from '@mdi/js'
 
   import logo from '$lib/assets/remult-kit.png'
   import remult_kit from '$lib/assets/remult-kit.png'
