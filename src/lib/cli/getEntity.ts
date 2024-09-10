@@ -347,7 +347,7 @@ async function getEntityTypescript(
       )
     ) {
       usesValidators = true
-      fieldInfo.decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
+      fieldInfo.decoratorArgsOptions.push('validate: [Validators.unique]')
     }
 
     const decorator = customDecorators[fieldInfo.decorator] ?? fieldInfo.decorator
