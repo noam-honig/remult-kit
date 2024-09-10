@@ -246,6 +246,67 @@ describe.sequential('db', () => {
         "
       `)
     })
+    it('test a products & orders', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists orders')
+      await x.execute('drop table if exists products')
+      await x.execute(
+        `CREATE TABLE products (
+          "id" SERIAL PRIMARY KEY,
+          "name" VARCHAR(40) NOT NULL,
+          "price" DECIMAL(19, 4) NOT NULL DEFAULT 0.0000
+        );`,
+      )
+
+      await x.execute(
+        `CREATE TABLE orders (
+          "id" SERIAL PRIMARY KEY,
+          "productId" INT NOT NULL,
+          "qte" INT NOT NULL DEFAULT 0,
+          CONSTRAINT fk_product FOREIGN KEY("productId") REFERENCES products("id")
+        );`,
+      )
+      const resultP = await getTypescript(new DbPostgres(x), 'products')
+      expect(resultP).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Product>("products", {})
+        export class Product {
+          @Fields.autoIncrement()
+          id = 0
+
+          @Fields.string()
+          name!: string
+
+          @Fields.number()
+          price!: number
+        }
+        "
+      `)
+
+      const resultO = await getTypescript(new DbPostgres(x), 'orders')
+      expect(resultO).toMatchInlineSnapshot(`
+        "import { Entity, Field, Fields } from "remult"
+        import { Relations } from "remult"
+        import { Product } from "."
+
+        @Entity<Order>("orders", {})
+        export class Order {
+          @Fields.autoIncrement()
+          id = 0
+
+          @Fields.integer()
+          productId!: number
+
+          @Relations.toOne(() => Product, { field: "productId" })
+          product!: Product
+
+          @Fields.integer()
+          qte = 0
+        }
+        "
+      `)
+    })
   })
 
   describe.skipIf(!process.env['MSSQL_DATABASE'])('mssql (env MSSQL_DATABASE needed)', async () => {
@@ -650,7 +711,6 @@ async function getTypescript(db: IDatabase, entity: string) {
     // console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
     return x.meta.table.dbName == entity
   })
-  console.log(`result`, result, r.entities)
 
   if (!result) return `NO DATA FOR ENTITY "${entity}"`
   const fileContent = result.fileContent
