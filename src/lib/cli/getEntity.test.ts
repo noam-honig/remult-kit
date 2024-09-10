@@ -269,6 +269,8 @@ describe.sequential('db', () => {
       const resultP = await getTypescript(new DbPostgres(x), 'products')
       expect(resultP).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
+        import { Relations } from "remult"
+        import { Order } from "./Order"
 
         @Entity<Product>("products", {})
         export class Product {
@@ -280,6 +282,10 @@ describe.sequential('db', () => {
 
           @Fields.number()
           price!: number
+
+          // Relations toMany
+          @Relations.toMany(() => Order)
+          orders?: Order[]
         }
         "
       `)
@@ -704,7 +710,7 @@ async function getTypescript(db: IDatabase, entity: string) {
     [db.schema],
     'NEVER',
     [],
-    [entity],
+    // [entity],
   )
 
   const result = r.entities.find((x) => {
