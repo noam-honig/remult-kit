@@ -313,6 +313,32 @@ describe.sequential('db', () => {
         "
       `)
     })
+    it('test uuid id & unique', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists test1')
+      await x.execute(
+        `CREATE TABLE test1 (
+          "id" UUID PRIMARY KEY,
+          "name" VARCHAR(40) NOT NULL UNIQUE
+        );`,
+      )
+      const result = await getTypescript(new DbPostgres(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields, Validators } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.cuid()
+          id!: string
+
+          @Fields.string({ validate: [Validators.unique] })
+          name!: string
+        }
+        "
+      `)
+    })
   })
 
   describe.skipIf(!process.env['MSSQL_DATABASE'])('mssql (env MSSQL_DATABASE needed)', async () => {
