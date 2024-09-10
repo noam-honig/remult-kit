@@ -1,4 +1,4 @@
-import { Log } from '@kitql/helpers'
+import { cyan, gray, Log, stry, yellow } from '@kitql/helpers'
 
 import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
@@ -222,12 +222,20 @@ export const processColumnType = (
   const { data_type } = dbCol
   const field = dataTypeProcessors[data_type]?.(dbCol)
 
+  let comment: string | null = null
   if (!field) {
-    new Log('remult-kit').error(`Unmanaged data type: ${data_type}`, dbCol)
-    // throw new Error(`Unmanaged data type: ${data_type}`, { cause: input })
+    comment = `Unmanaged data type: "${data_type}"`
+
+    new Log('remult-kit').error(`Unmanaged data type: "${yellow(data_type)}"
+            🙏 help us and report it here: 
+            ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
+  
+            ${gray(`If it's not to private, please provide the following information :`)}
+${stry(dbCol)}
+  `)
   }
 
-  return {
+  const toRet = {
     decorator: field?.decorator ?? '@Fields.string',
     decoratorArgsValueType: field?.decoratorArgsValueType ?? '',
     decoratorArgsOptions: field?.decoratorArgsOptions ?? [],
@@ -235,6 +243,9 @@ export const processColumnType = (
     defaultVal: field?.defaultVal ?? null,
     enumAdditionalName: field?.enumAdditionalName ?? null,
 
+    comment,
+
     db: dbCol,
   }
+  return toRet
 }

@@ -23,11 +23,30 @@ describe('field generation', () => {
       isNullable: 'NO',
       type: 'string',
       defaultVal: null,
+      comment: null,
     })
     expect(info.col).toMatchInlineSnapshot(`
 			"	@Fields.string()
 				name!: string"
 		`)
+  })
+
+  test('Adding a comment', () => {
+    const info = buildColumn({
+      decorator: '@Fields.string',
+      decoratorArgsValueType: '',
+      decoratorArgsOptions: [],
+      columnName: 'name',
+      isNullable: 'NO',
+      type: 'string',
+      defaultVal: null,
+      comment: 'Very nice one!',
+    })
+    expect(info.col).toMatchInlineSnapshot(`
+      "	// Very nice one!
+      	@Fields.string()
+      	name!: string"
+    `)
   })
 
   test('string nullable wo default val', () => {
@@ -39,6 +58,7 @@ describe('field generation', () => {
       isNullable: 'YES',
       type: 'string',
       defaultVal: null,
+      comment: null,
     })
     expect(info.col).toMatchInlineSnapshot(`
 			"	@Fields.string({ allowNull: true })
@@ -55,6 +75,7 @@ describe('field generation', () => {
       isNullable: 'YES',
       type: 'string',
       defaultVal: "'Hello World'",
+      comment: null,
     })
     expect(info.col).toMatchInlineSnapshot(`
 			"	@Fields.string({ allowNull: true })
@@ -71,6 +92,7 @@ describe('field generation', () => {
       isNullable: 'NO',
       type: 'string',
       defaultVal: null,
+      comment: null,
     })
     expect(info.col).toMatchInlineSnapshot(`
 			"	@Fields.string({ includeInApi: false, inputType: 'password' })
@@ -87,6 +109,7 @@ describe('field generation', () => {
       isNullable: 'YES',
       type: 'string',
       defaultVal: null,
+      comment: null,
     })
     expect(info.col).toMatchInlineSnapshot(`
 			"	@Fields.string({ allowNull: true, inputType: 'email' })
@@ -103,6 +126,7 @@ describe('field generation', () => {
       isNullable: 'YES',
       type: 'string',
       defaultVal: null,
+      comment: null,
     })
     expect(info.decorator_import).toMatchInlineSnapshot('"import { Relations } from \'remult\'"')
   })
@@ -144,6 +168,7 @@ describe.sequential('db', () => {
           "SupplierID" INT NOT NULL DEFAULT 0,
           "CategoryID" INT NOT NULL DEFAULT 0,
           "QuantityPerUnit" VARCHAR(20) NOT NULL DEFAULT '',
+          "ProductColor" VARCHAR(20) NOT NULL DEFAULT '',
           "UnitPrice" DECIMAL(19, 4) NOT NULL DEFAULT 0.0000,
           "UnitsInStock" SMALLINT NOT NULL DEFAULT 0,
           "UnitsOnOrder" SMALLINT NOT NULL DEFAULT 0,
@@ -173,6 +198,9 @@ describe.sequential('db', () => {
 
           @Fields.string()
           QuantityPerUnit = ""
+
+          @Fields.string({ inputType: "color" })
+          ProductColor = ""
 
           @Fields.number()
           UnitPrice!: number
@@ -622,6 +650,8 @@ async function getTypescript(db: IDatabase, entity: string) {
     // console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
     return x.meta.table.dbName == entity
   })
+  console.log(`result`, result, r.entities)
+
   if (!result) return `NO DATA FOR ENTITY "${entity}"`
   const fileContent = result.fileContent
   return fileContent
