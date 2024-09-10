@@ -528,7 +528,7 @@ const generateEntityString = (
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
     `${addLineIfNeeded([...new Set(additionnalImports)])}` +
-    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from '.'`)}` +
+    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}'`)}` +
     `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 
 @Entity<${table.className}>('${table.key}', {\n\t${props.join(',\n\t')}\n})

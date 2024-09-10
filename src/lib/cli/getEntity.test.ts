@@ -288,7 +288,7 @@ describe.sequential('db', () => {
       expect(resultO).toMatchInlineSnapshot(`
         "import { Entity, Field, Fields } from "remult"
         import { Relations } from "remult"
-        import { Product } from "."
+        import { Product } from "./Product"
 
         @Entity<Order>("orders", {})
         export class Order {
