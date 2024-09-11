@@ -13,6 +13,7 @@ const def: ConnectionInfo = {
 
 function load() {
   const x = sessionStorage.getItem('connectionInfo')
+
   if (x) return JSON.parse(x) as ConnectionInfo
   return def
 }
@@ -23,6 +24,26 @@ function save(x: ConnectionInfo) {
 function createStore() {
   const { subscribe, set: localSet, update } = writable<ConnectionInfo>(load())
 
+  const check = async (input: ConnectionInfo) => {
+    update((y) => ({ ...y, ...{ status: 'checking' }, ...{ error: '' } }))
+
+    try {
+      if (await ActionsController.checkConnection(input)) {
+        input = { ...input, status: 'good', error: '' }
+        remultInfos.set(await ActionsController.getDbEntitiesMetadata(input))
+      }
+    } catch (err: any) {
+      input = { ...input, status: 'bad', error: err.message }
+      remultInfos.set({ entities: [] })
+    }
+
+    save(input)
+    localSet(input)
+    return input
+  }
+
+  check(load())
+
   return {
     subscribe,
 
@@ -31,22 +52,7 @@ function createStore() {
       localSet(x)
     },
 
-    check: async (input: ConnectionInfo) => {
-      update((y) => ({ ...y, ...{ status: '???' } }))
-
-      try {
-        if (await ActionsController.checkConnection(input)) {
-          input = { ...input, status: 'good', error: '' }
-          remultInfos.set(await ActionsController.getDbEntitiesMetadata(input))
-        }
-      } catch (err: any) {
-        input = { ...input, status: 'bad', error: err.message }
-        remultInfos.set({ entities: [] })
-      }
-
-      save(input)
-      localSet(input)
-    },
+    check,
 
     reset(db: ConnectionInfo['db']) {
       const x = { ...def, db }

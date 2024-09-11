@@ -6,8 +6,10 @@
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
+  import { confetti } from '@neoconfetti/svelte'
+  
 
-  import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
+import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { Button, Card, SelectField, TextField } from '$ui'
@@ -42,10 +44,28 @@
         return `${envName(arg)} = ${value}`
       })
   }
+
+  let showConfetti = false
+
+  let defaultCheched = false
+  let unSub = () => {}
+  unSub = connectionInfo.subscribe((v) => {
+    if (v.status === 'bad') {
+      defaultCheched = true
+      if (unSub) {
+        unSub()
+      }
+    } else if (v.status === 'good') {
+      defaultCheched = false
+      if (unSub) {
+        unSub()
+      }
+    }
+  })
 </script>
 
 <div class="collapse bg-base-300">
-  <input type="checkbox" />
+  <input type="checkbox" checked={defaultCheched} />
   <div class="collapse-title text-xl font-medium">
     <div class="flex items-center gap-4">
       <Icon path={getIcon($connectionInfo.status)}></Icon> Connection
@@ -63,7 +83,13 @@
       />
 
       <form
-        on:submit|preventDefault={() => connectionInfo.check($connectionInfo)}
+        on:submit|preventDefault={async () => {
+          showConfetti = false
+          const res = await connectionInfo.check($connectionInfo)
+          if (res.status === 'good') {
+            showConfetti = true
+          }
+        }}
         class="grid gap-4"
       >
         {#each Object.keys(databases[$connectionInfo.db].args) as arg}
@@ -74,6 +100,11 @@
           ></TextField>
         {/each}
 
+        {#if showConfetti}
+          <center>
+            <div use:confetti={{ stageWidth: 600, stageHeight: 400, force: 1 }} />
+          </center>
+        {/if}
         <Button
           type="submit"
           icon={mdiRocketLaunchOutline}

@@ -13,7 +13,9 @@ export const databases = {
     npm: [],
     getCode: () => ``,
     connect: async (args: any) => {
-      throw new Error('Could not determine database based on environment variables')
+      throw new Error(
+        'Could not determine database based on environment variables. Select a Data Provider.',
+      )
     },
   }),
   postgres: build({
