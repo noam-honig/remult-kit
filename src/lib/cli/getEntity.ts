@@ -24,6 +24,7 @@ type ColMetaData = {
   columnNameTweak?: string
   isNullable: 'YES' | 'NO'
   foreignField?: string | null
+  comment: string | null
 }
 
 export function buildColumn({
@@ -36,6 +37,7 @@ export function buildColumn({
   columnName,
   isNullable,
   foreignField,
+  comment,
 }: ColMetaData): CliColumnInfo {
   if (foreignField) {
     if (foreignField !== 'NO_NEED_TO_SPECIFY_FIELD') {
@@ -57,12 +59,13 @@ export function buildColumn({
   }
 
   // by default, let's not publish a field "password"
-  if (columnName.includes('password')) {
+  if (columnName.toLowerCase().includes('password')) {
     decoratorArgsOptions.push(`includeInApi: false`)
     decoratorArgsOptions.push(`inputType: 'password'`)
-  }
-  if (columnName.toLocaleLowerCase() === 'email') {
+  } else if (columnName.toLowerCase().includes('email')) {
     decoratorArgsOptions.push(`inputType: 'email'`)
+  } else if (columnName.toLowerCase().includes('color')) {
+    decoratorArgsOptions.push(`inputType: 'color'`)
   }
 
   if (decoratorArgsOptions.length > 0) {
@@ -71,7 +74,9 @@ export function buildColumn({
 
   const { str_fn: decorator_fn, str_import: decorator_import } = toFnAndImport(decorator)
 
-  let current_col = `\t${decorator_fn}(${decoratorArgs.join(', ')})\n\t${
+  const commentToUse = comment ? `\t// ${comment}\n` : ''
+
+  let current_col = `${commentToUse}\t${decorator_fn}(${decoratorArgs.join(', ')})\n\t${
     columnNameTweak ? columnNameTweak : columnName
   }`
 
@@ -206,6 +211,7 @@ export async function getEntitiesTypescriptFromDb(
           type: `${tm.ref}[]`,
           columnName: number_of_ref === 1 ? tm.table_key : `${tm.table_key}Of${tm.columnNameTweak}`,
           foreignField: number_of_ref === 1 ? 'NO_NEED_TO_SPECIFY_FIELD' : tm.refField,
+          comment: null,
         })
 
         entitiesImports.push(tm.ref)
@@ -347,7 +353,7 @@ async function getEntityTypescript(
       )
     ) {
       usesValidators = true
-      fieldInfo.decoratorArgsOptions.push('validate: [Validators.uniqueOnBackend]')
+      fieldInfo.decoratorArgsOptions.push('validate: [Validators.unique]')
     }
 
     const decorator = customDecorators[fieldInfo.decorator] ?? fieldInfo.decorator
@@ -370,6 +376,7 @@ async function getEntityTypescript(
       isNullable: fieldInfo.db.is_nullable,
       type: fieldInfo.type,
       defaultVal: fieldInfo.defaultVal,
+      comment: fieldInfo.comment,
     }
     const currentCol = buildColumn(colMeta)
     if (currentCol.decorator_import) {
@@ -469,6 +476,7 @@ const handleForeignKeyCol = (
     type: f.className,
     defaultVal: null,
     foreignField: columnName,
+    comment: null,
   })
 
   if (currentColFk.decorator_import) {
@@ -520,7 +528,7 @@ const generateEntityString = (
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
     `${addLineIfNeeded([...new Set(additionnalImports)])}` +
-    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from '.'`)}` +
+    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}'`)}` +
     `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 
 @Entity<${table.className}>('${table.key}', {\n\t${props.join(',\n\t')}\n})

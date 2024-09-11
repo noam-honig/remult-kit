@@ -56,6 +56,8 @@ export interface FieldInfo {
   decoratorArgsOptions: string[]
   enumAdditionalName: string | null
 
+  comment: string | null
+
   db: DbTableColumnInfo
 }
 
