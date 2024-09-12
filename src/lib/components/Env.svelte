@@ -7,9 +7,8 @@
     mdiRocketLaunchOutline,
   } from '@mdi/js'
   import { confetti } from '@neoconfetti/svelte'
-  
 
-import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
+  import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { Button, Card, SelectField, TextField } from '$ui'
@@ -105,6 +104,13 @@ import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
             <div use:confetti={{ stageWidth: 600, stageHeight: 400, force: 1 }} />
           </center>
         {/if}
+
+        {#if $connectionInfo.error && $connectionInfo.db === 'auto (from environment variables)'}
+          <Card title="Info" class="border border-primary">
+            <pre class="text-base-content">{$connectionInfo.error}</pre>
+          </Card>
+        {/if}
+
         <Button
           type="submit"
           icon={mdiRocketLaunchOutline}
@@ -113,7 +119,7 @@ import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
           Check Connection!
         </Button>
 
-        {#if $connectionInfo.error}
+        {#if $connectionInfo.error && $connectionInfo.db !== 'auto (from environment variables)'}
           <Card title="Error" class="border border-error">
             <pre class="text-error">{$connectionInfo.error}</pre>
           </Card>
@@ -121,7 +127,7 @@ import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
       </form>
 
       <div class="grid gap-2 p-4 text-sm">
-        {#if $connectionInfo.db !== 'auto'}
+        {#if $connectionInfo.db !== 'auto (from environment variables)'}
           <h2 class="text-lg font-medium">You can setup this now:</h2>
 
           <Card title=".env" subheading="env file">

@@ -6,7 +6,7 @@ import { ActionsController } from '$shared/contollers/ActionsController'
 import { remultInfos } from './remultInfos'
 
 const def: ConnectionInfo = {
-  db: 'auto',
+  db: 'auto (from environment variables)',
   args: {},
   status: '???',
 }
