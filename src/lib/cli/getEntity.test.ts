@@ -343,7 +343,8 @@ describe.sequential('db', () => {
       const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
       await x.execute('drop table if exists test1')
       await x.execute(
-        `CREATE TABLE test1 (
+        `CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+        CREATE TABLE test1 (
           "id" UUID PRIMARY KEY DEFAULT gen_random_uuid()
         );`,
       )
