@@ -330,11 +330,34 @@ describe.sequential('db', () => {
           dbName: "test1",
         })
         export class Test1 {
-          @Fields.cuid()
+          @Fields.uuid()
           id!: string
 
           @Fields.string({ validate: [Validators.unique] })
           name!: string
+        }
+        "
+      `)
+    })
+    it('test function as default value', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists test1')
+      await x.execute(
+        `CREATE TABLE test1 (
+          "id" UUID PRIMARY KEY DEFAULT gen_random_uuid()
+        );`,
+      )
+
+      const result = await getTypescript(new DbPostgres(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1s", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.uuid()
+          id = ""
         }
         "
       `)

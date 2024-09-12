@@ -4,6 +4,7 @@ import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbSQLite implements IDatabase {
+  name = 'sqlite'
   constructor(private knex: KnexDataProvider) {}
   async test() {
     await this.knex.knex.raw('select 1')

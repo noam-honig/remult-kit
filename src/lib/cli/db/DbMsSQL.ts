@@ -4,6 +4,7 @@ import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbMsSQL implements IDatabase {
+  name = 'mssql'
   constructor(
     private knex: KnexDataProvider,
     public schema: string = 'dbo',

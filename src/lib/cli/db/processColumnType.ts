@@ -4,12 +4,32 @@ import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
 import type { DataTypeProcessorFunction, DbTableColumnInfo, FieldInfo, IDatabase } from './types'
 
-const stringProcessor: DataTypeProcessorFunction = ({ column_name, column_default }) => {
+const stringProcessor: DataTypeProcessorFunction = ({ column_name, column_default, data_type }) => {
   let defaultVal = column_default !== null ? column_default : undefined
   if (defaultVal) {
     const index = defaultVal?.indexOf("'::")
     if (index > 0) defaultVal = defaultVal?.substring(0, index + 1)
-    if (defaultVal == `(' ')`) defaultVal = '""'
+    if (defaultVal == `(' ')`) defaultVal = `''`
+  }
+
+  if (defaultVal?.endsWith('()')) {
+    defaultVal = `''`
+    // defaultVal = `'' // ${defaultVal}`
+  }
+
+  if (data_type === 'uuid') {
+    return {
+      type: 'string',
+      decorator: '@Fields.uuid',
+      defaultVal,
+    }
+  }
+  if (data_type === 'cuid') {
+    return {
+      type: 'string',
+      decorator: '@Fields.cuid',
+      defaultVal,
+    }
   }
   if (column_name === 'id') {
     return {
@@ -190,6 +210,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   TEXT: stringProcessor,
 
   uuid: stringProcessor,
+  cuid: stringProcessor,
 
   CHAR: charProcessor,
   char: charProcessor,
@@ -224,9 +245,10 @@ export const processColumnType = (
 
   let comment: string | null = null
   if (!field) {
-    comment = `Unmanaged data type: "${data_type}"`
+    comment = `Unhandled data type: "${data_type}" for db "${dbCol.db.name}"`
 
-    new Log('remult-kit').error(`Unmanaged data type: "${yellow(data_type)}"
+    new Log('remult-kit')
+      .error(`Unhandled data type: "${yellow(data_type)}" for db "${dbCol.db.name}"
             🙏 help us and report it here: 
             ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
   
