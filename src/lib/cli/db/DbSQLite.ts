@@ -79,7 +79,6 @@ export class DbSQLite implements IDatabase {
     )
   }
 
-  // eslint-disable-next-line
   async getUniqueInfo(schema: string) {
     // TODO
     return []
@@ -128,7 +127,6 @@ export class DbSQLite implements IDatabase {
     // return foreignKeys.rows;
   }
 
-  // eslint-disable-next-line
   async getEnumDef(udt_name: string) {
     // TODO
     return []

@@ -64,7 +64,6 @@ export class DbMySQL implements IDatabase {
     })
   }
 
-  // eslint-disable-next-line
   async getUniqueInfo(schema: string) {
     // TODO
     return []
@@ -113,7 +112,6 @@ export class DbMySQL implements IDatabase {
     // return foreignKeys.rows;
   }
 
-  // eslint-disable-next-line
   async getEnumDef(udt_name: string) {
     // TODO
     return []
