@@ -22,6 +22,9 @@ import { Setting, SettingKey } from '$shared/entities/Setting'
 
 export const handleRemult = remultSveltekit({
   dataProvider: async () => new JsonDataProvider(new JsonEntityFileStorage('.remult-kit')),
+  error: async (e) => {
+    console.log(e)
+  },
   logApiEndPoints: false,
   entities: [
     Setting,
