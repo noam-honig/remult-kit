@@ -80,10 +80,9 @@
               const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))?.value
 
               for (const element of filtered) {
-                await ActionsController.writeFile(
-                  `${outputDir}/${element.meta.table.className}.ts`,
-                  [element.fileContent],
-                )
+                await ActionsController.writeFile(outputDir ?? '', element.meta.table.className, [
+                  element.fileContent,
+                ])
               }
             }}>Write Files</Button
           >
@@ -155,7 +154,8 @@
                           ?.value
 
                         await ActionsController.writeFile(
-                          `${outputDir}/${row.meta.table.className}.ts`,
+                          outputDir ?? '',
+                          row.meta.table.className,
                           [row.fileContent],
                         )
                       }}>Write File</Button

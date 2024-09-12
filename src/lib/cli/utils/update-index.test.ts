@@ -11,7 +11,7 @@ async function myTest(entity: string, before: string) {
   await updateIndex({
     targetTSFile: '/tmp/test.ts',
     entityClassName: entity,
-    entityFileName: `../shared/entities/${entity}.js`,
+    entityFileName: `/shared/entities/${entity}.js`,
   })
   return fs.readFileSync('/tmp/test.ts', 'utf8')
 }
@@ -20,7 +20,6 @@ describe('#unit-test toFnAndImport', () => {
   test('does everything if file is empty', async () => {
     expect(await myTest('User', '')).toMatchInlineSnapshot(`
       "import { User } from '../shared/entities/User.js';
-
 
       export const entities = [User];"
     `)
@@ -32,11 +31,10 @@ describe('#unit-test toFnAndImport', () => {
   test('repeat calls don"t break anything', async () => {
     const result = await myTest('User', '')
     expect(await myTest('Roles', result)).toMatchInlineSnapshot(`
-      "import { Roles } from '../shared/entities/Roles.js';
-      import { User } from '../shared/entities/User.js';
+      "import { User } from '../shared/entities/User.js';
+      import { Roles } from '../shared/entities/Roles.js';
 
-
-      export const entities = [User, Roles];"
+      export const entities = [Roles, User];"
     `)
   })
 
