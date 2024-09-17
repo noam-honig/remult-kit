@@ -3,6 +3,7 @@ import { read, write } from '@kitql/internals'
 
 import { type ConnectionInfo } from '$lib/cli/db/databases'
 import { getEntitiesTypescriptFromDb, type EntityMetaData } from '$lib/cli/getEntity'
+import { updateIndex } from '$lib/cli/utils/update-index'
 import { Setting, SettingKey } from '$shared/entities/Setting'
 
 import { getDbFromConnectionInfo } from './helper'
@@ -49,7 +50,13 @@ export class ActionsController {
   }
 
   @BackendMethod({ allowed: true })
-  static async writeFile(pathFile: string, data: string[]) {
+  static async writeFile(outdir: string, className: string, data: string[]) {
+    const pathFile = `${outdir}/${className}.ts`
+    await updateIndex({
+      targetTSFile: `${outdir}/index.ts`,
+      entityClassName: className,
+      entityFileName: pathFile,
+    })
     return write(pathFile, data)
   }
 

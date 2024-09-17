@@ -4,6 +4,7 @@ import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
+  name = 'postgres'
   constructor(private sqlDatabase: SqlDatabase) {}
   async test() {
     await this.sqlDatabase!.execute('select 1')
@@ -48,7 +49,8 @@ export class DbPostgres implements IDatabase {
           CASE 
             WHEN kc.column_name IS NOT NULL THEN 'YES' 
             ELSE 'NO' 
-          END AS is_key
+            END AS is_key,
+          cols.*
         FROM 
           INFORMATION_SCHEMA.COLUMNS cols
         LEFT JOIN 

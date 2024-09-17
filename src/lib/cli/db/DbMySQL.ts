@@ -4,6 +4,7 @@ import type { DbTable } from './DbTable.js'
 import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbMySQL implements IDatabase {
+  name = 'mysql'
   constructor(
     private knex: KnexDataProvider,
     public schema: string,
@@ -63,7 +64,6 @@ export class DbMySQL implements IDatabase {
     })
   }
 
-  // eslint-disable-next-line
   async getUniqueInfo(schema: string) {
     // TODO
     return []
@@ -112,7 +112,6 @@ export class DbMySQL implements IDatabase {
     // return foreignKeys.rows;
   }
 
-  // eslint-disable-next-line
   async getEnumDef(udt_name: string) {
     // TODO
     return []

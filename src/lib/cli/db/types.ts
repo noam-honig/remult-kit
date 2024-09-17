@@ -1,6 +1,7 @@
 import type { DbTable } from './DbTable'
 
 export interface IDatabase {
+  name: string
   schema?: string
   test(): Promise<void>
   getTablesInfo(): Promise<DbTableInfo[]>
