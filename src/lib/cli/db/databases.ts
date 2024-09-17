@@ -8,7 +8,7 @@ export type ConnectionInfo = {
 }
 
 export const databases = {
-  auto: build({
+  ['auto (from environment variables)']: build({
     args: {},
     npm: [],
     getCode: () => ``,
