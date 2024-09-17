@@ -11,7 +11,7 @@ async function myTest(entity: string, before: string) {
   await updateIndex({
     targetTSFile: '/tmp/test.ts',
     entityClassName: entity,
-    entityFileName: `/shared/entities/${entity}.js`,
+    entityFileName: `/shared/entities/${entity}`,
   })
   return fs.readFileSync('/tmp/test.ts', 'utf8')
 }
@@ -40,3 +40,10 @@ describe('#unit-test toFnAndImport', () => {
 
   test('adds an entity', async () => {})
 })
+
+// todo - fix ensure schema false by default
+// todo - fix forward slash + js
+// todo - fix lower first char (DEPTMNT=>that was dEMPTMNT)
+// todo - remove console logs on errors
+// todo - remult-admin - -f there is an error when loading a table - show the error in the table place
+// todo - remult - fix auto caption in case of all capital letters

@@ -25,10 +25,8 @@ export async function updateIndex({
   const targetDir = path.dirname(targetFilePath)
   const entityFilePath = path.resolve(process.cwd(), entityFileName)
   const relativePath = path.relative(targetDir, entityFilePath)
-  const importPath = (relativePath.startsWith('.') ? relativePath : './' + relativePath).replace(
-    /\.ts$/,
-    '',
-  )
+  const importPath =
+    (relativePath.startsWith('.') ? relativePath : './' + relativePath).replace(/\.ts$/, '') + '.js'
 
   // Update regular expressions
   const entityInArrayRegex = new RegExp(
