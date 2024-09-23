@@ -1,7 +1,5 @@
 import pluralize from 'pluralize'
 
-import { bold, cyan, gray, green, italic, red, strikethrough, yellow } from '@kitql/helpers'
-
 import { toCamelCase, toPascalCase } from '../utils/case.js'
 import type { DbForeignKey } from './types.js'
 

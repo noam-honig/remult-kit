@@ -1,8 +1,6 @@
 // import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import prettier from 'prettier'
 
-import { write } from '@kitql/internals'
-
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
 import type { IDatabase } from './db/types.js'
