@@ -1,6 +1,5 @@
 import { cyan, green, Log, yellow } from '@kitql/helpers'
 
-import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
 import type { DataTypeProcessorFunction, DbTableColumnInfo, FieldInfo, IDatabase } from './types'
 
