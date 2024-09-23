@@ -175,7 +175,7 @@ export async function getEntitiesTypescriptFromDb(
             )
           }
         } catch (error) {
-          console.error(error)
+          // console.error(error)
         }
       }),
   )

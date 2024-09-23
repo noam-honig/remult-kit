@@ -1,4 +1,4 @@
-import { cyan, gray, Log, stry, yellow } from '@kitql/helpers'
+import { cyan, green, Log, yellow } from '@kitql/helpers'
 
 import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
@@ -240,7 +240,7 @@ export const processColumnType = (
     table: DbTable
   },
 ): FieldInfo => {
-  const { data_type } = dbCol
+  const { data_type, enums, db, table, ...rest } = dbCol
   const field = dataTypeProcessors[data_type]?.(dbCol)
 
   let comment: string | null = null
@@ -248,13 +248,11 @@ export const processColumnType = (
     comment = `Unhandled data type: "${data_type}" for db "${dbCol.db.name}"`
 
     new Log('remult-kit')
-      .error(`Unhandled data type: "${yellow(data_type)}" for db "${dbCol.db.name}"
-            🙏 help us and report it here: 
-            ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
-  
-            ${gray(`If it's not to private, please provide the following information :`)}
-${stry(dbCol)}
-  `)
+      .info(`Unhandled data type: "${yellow(data_type)}" for db "${green(dbCol.db.name)}"
+🙏 Report it ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
+`)
+    //             ${gray(`If it's not to private, please provide the following information :`)}
+    // ${stry(rest)}
   }
 
   const toRet = {

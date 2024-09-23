@@ -78,12 +78,15 @@
               )
 
               const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))?.value
+              console.log(`filtered`, filtered)
 
               for (const element of filtered) {
                 await ActionsController.writeFile(outputDir ?? '', element.meta.table.className, [
                   element.fileContent,
                 ])
               }
+
+              selectedItems = []
             }}>Write Files</Button
           >
         </div>

@@ -41,9 +41,15 @@ describe('#unit-test toFnAndImport', () => {
   test('adds an entity', async () => {})
 })
 
-// todo - fix forward slash + js
+// remult-kit
+// done - fix forward slash + js
 // done - fix lower first char (DEPTMNT=>that was dEPTMNT)
 // As the bug of dEMPTMNT is fixed, maybe we don't need this? - fix ensure schema false by default
-// todo - remove console logs on errors
+// half done - remove console logs on errors
+//// removed a lot, but not all. (it's also a lot lighter)
+//// Need to be done: Have a global error per type of type not handle (not one by one)
+//// Need to send to the UI somewhere (and fully remove for console)
+// todo - relations. Setting: With? Without? Bring all relations of the selected entity?
+
 // todo - remult-admin - -f there is an error when loading a table - show the error in the table place
 // todo - remult - fix auto caption in case of all capital letters
