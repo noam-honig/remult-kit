@@ -8,7 +8,7 @@ async function myTest(entity: string, before: string) {
     fs.mkdirSync('/tmp')
   }
   fs.writeFileSync('/tmp/test.ts', before)
-  await updateIndex({
+  updateIndex({
     targetTSFile: '/tmp/test.ts',
     entityClassName: entity,
     entityFileName: `/shared/entities/${entity}`,
@@ -37,13 +37,29 @@ describe('#unit-test toFnAndImport', () => {
       export const entities = [Roles, User];"
     `)
   })
+  test('work with similar names', async () => {
+    const result = await myTest('UserManagement', '')
+    expect(await myTest('User', result)).toMatchInlineSnapshot(`
+      "import { UserManagement } from '../shared/entities/UserManagement.js';
+      import { User } from '../shared/entities/User.js';
+
+      export const entities = [User, UserManagement];"
+    `)
+  })
 
   test('adds an entity', async () => {})
 })
 
-// todo - fix ensure schema false by default
-// todo - fix forward slash + js
-// todo - fix lower first char (DEPTMNT=>that was dEMPTMNT)
-// todo - remove console logs on errors
+// remult-kit
+// done - fix forward slash + js
+// done - fix lower first char (DEPTMNT=>that was dEPTMNT)
+// As the bug of dEMPTMNT is fixed, maybe we don't need this? - fix ensure schema false by default
+// half done - remove console logs on errors
+//// removed a lot, but not all. (it's also a lot lighter)
+//// Need to be done: Have a global error per type of type not handle (not one by one)
+//// Need to send to the UI somewhere (and fully remove for console)
+// todo - relations. Setting: With? Without? Bring all relations of the selected entity?
+// todo - REFACTO !!! DTO db & DTO code & nice translator
+
 // todo - remult-admin - -f there is an error when loading a table - show the error in the table place
 // todo - remult - fix auto caption in case of all capital letters

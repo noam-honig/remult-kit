@@ -1,7 +1,5 @@
 import pluralize from 'pluralize'
 
-import { bold, cyan, gray, green, italic, red, strikethrough, yellow } from '@kitql/helpers'
-
 import { toCamelCase, toPascalCase } from '../utils/case.js'
 import type { DbForeignKey } from './types.js'
 
@@ -51,27 +49,13 @@ export class DbTable {
         this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
       }
     }
-    this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
-  }
 
-  checkNamingConvention() {
-    if (this.key === toCamelCase(this.className)) {
-      const ccClassName = toCamelCase(this.className)
-      const newKey = `${this.key}s`
-
-      const str =
-        `Your table "${green(this.dbName)}"` +
-        ` generates` +
-        ` ${cyan(
-          `{ className: "${yellow(this.className)}"` +
-            ` ${italic(gray(`(camelCase: "${yellow(ccClassName)}")`))},` +
-            ` key: "${red(strikethrough(this.key))}${green(bold(newKey))}" }`,
-        )}.`
-
-      this.key = newKey
-
-      return str
+    // if db name has invalid chars, let's create a cool key
+    const invalidDbNameChars = [' ']
+    if (invalidDbNameChars.some((c) => this.dbName.includes(c))) {
+      this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
+    } else {
+      this.key = this.dbName
     }
-    return null
   }
 }

@@ -3,7 +3,7 @@ import path from 'path'
 
 import { read, write } from '@kitql/internals'
 
-export async function updateIndex({
+export function updateIndex({
   targetTSFile = 'index.ts',
   entityClassName,
   entityFileName,
@@ -30,7 +30,7 @@ export async function updateIndex({
 
   // Update regular expressions
   const entityInArrayRegex = new RegExp(
-    `entities\\s*=\\s*\\[([^\\]]*${entityClassName}[^\\]]*)]`,
+    `entities\\s*=\\s*\\[([^\\]]*\\b${entityClassName}\\b[^\\]]*)]`,
     's',
   )
   const entityImportRegex = new RegExp(

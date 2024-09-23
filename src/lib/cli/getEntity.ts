@@ -16,6 +16,7 @@ type CliColumnInfo = {
 // TODO: ColMetaData vs FieldInfo??? should be ONE
 type ColMetaData = {
   type: string | null
+  forceTypeToBePresent?: boolean
   decorator: string
   defaultVal: string | null
   decoratorArgsValueType: string
@@ -29,6 +30,7 @@ type ColMetaData = {
 
 export function buildColumn({
   type,
+  forceTypeToBePresent,
   decorator,
   defaultVal,
   decoratorArgsValueType,
@@ -88,7 +90,7 @@ export function buildColumn({
   }
 
   // let's add the type only if we have it and if we don't have a default value
-  if (!defaultVal && type) {
+  if ((!defaultVal && type) || forceTypeToBePresent) {
     current_col += ': '
     current_col += type
   }
@@ -155,11 +157,6 @@ export async function getEntitiesTypescriptFromDb(
             !exclude.includes(table.dbName) &&
             (include.length === 0 || include.includes(table.dbName))
           ) {
-            const str = table.checkNamingConvention()
-            if (str) {
-              // report.sAdded.push(str);
-            }
-
             getEntities.push(
               await getEntityTypescript(
                 allTables,
@@ -175,7 +172,7 @@ export async function getEntitiesTypescriptFromDb(
             )
           }
         } catch (error) {
-          console.error(error)
+          // console.error(error)
         }
       }),
   )
@@ -268,41 +265,6 @@ export async function getEntitiesTypescriptFromDb(
     .slice()
     .sort((a, b) => a.className.localeCompare(b.className))
 
-  // write entities "index.ts"
-  //   writeFileSync(
-  //     `${entities_path}index.ts`,
-  //     `${sortedTables
-  //       .map(e => {
-  //         return `import { ${e.className} } from './${e.className}'`
-  //       })
-  //       .join('\n')}
-
-  // export const entities = [
-  // 	${sortedTables.map(c => c.className).join(',\n  ')}
-  // ]
-
-  // export {
-  // 	${sortedTables.map(c => c.className).join(',\n  ')}
-  // }`,
-  //   )
-
-  //   if (enums.length > 0) {
-  //     const sortedEnums = [...new Set(enums.slice().sort((a, b) => a.localeCompare(b)))]
-  //     // write enums "index.ts"
-  //     writeFileSync(
-  //       `${enums_path}index.ts`,
-  //       `${sortedEnums
-  //         .map(e => {
-  //           return `import { ${e} } from './${e}'`
-  //         })
-  //         .join('\n')}
-
-  // export {
-  //   ${sortedEnums.map(c => c).join(',\n  ')}
-  // }`,
-  //     )
-  //   }
-
   return toRet
 }
 
@@ -335,7 +297,7 @@ async function getEntityTypescript(
 
   const uniqueInfo = await db.getUniqueInfo(schema)
   for (const dbCol2 of await db.getTableColumnInfo(schema, table.dbName)) {
-    const fieldInfo = processColumnType({
+    const fieldInfo = await processColumnType({
       ...dbCol2,
       enums,
       db,
@@ -359,10 +321,10 @@ async function getEntityTypescript(
     const decorator = customDecorators[fieldInfo.decorator] ?? fieldInfo.decorator
 
     // TODO: extract this logic from the process column
-    if (fieldInfo.enumAdditionalName) {
-      await handleEnums(enums, 'USER-DEFINED', db, fieldInfo.enumAdditionalName)
-    }
-    await handleEnums(enums, fieldInfo.db.data_type, db, fieldInfo.db.udt_name)
+    // if (fieldInfo.enumAdditionalName) {
+    //   await handleEnums(enums, 'USER-DEFINED', db, fieldInfo.enumAdditionalName)
+    // }
+    // await handleEnums(enums, fieldInfo.db.data_type, db, fieldInfo.db.udt_name)
 
     if (!defaultOrderBy && orderBy?.includes(fieldInfo.db.column_name)) {
       defaultOrderBy = fieldInfo.db.column_name
@@ -375,6 +337,7 @@ async function getEntityTypescript(
       columnName: fieldInfo.db.column_name,
       isNullable: fieldInfo.db.is_nullable,
       type: fieldInfo.type,
+      forceTypeToBePresent: fieldInfo.forceTypeToBePresent,
       defaultVal: fieldInfo.defaultVal,
       comment: fieldInfo.comment,
     }
@@ -490,18 +453,6 @@ const handleForeignKeyCol = (
   return { columnNameTweak }
 }
 
-const handleEnums = async (
-  enums: Record<string, string[]>,
-  dataType: string,
-  db: IDatabase,
-  udtName: string,
-) => {
-  if ('USER-DEFINED' === dataType) {
-    const enumDef = await db.getEnumDef(udtName)
-    enums[toPascalCase(udtName)] = enumDef.map((e) => e.enumlabel)
-  }
-}
-
 const generateEntityString = (
   allTables: DbTable[],
   table: DbTable,
@@ -528,7 +479,7 @@ const generateEntityString = (
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
     `${addLineIfNeeded([...new Set(additionnalImports)])}` +
-    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}'`)}` +
+    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}.js'`)}` +
     `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 
 @Entity<${table.className}>('${table.key}', {\n\t${props.join(',\n\t')}\n})

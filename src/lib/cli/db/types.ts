@@ -51,6 +51,7 @@ export interface EnumDef {
 
 export interface FieldInfo {
   type: string | null
+  forceTypeToBePresent?: boolean
   decorator: string
   defaultVal: string | null
   decoratorArgsValueType: string
@@ -65,5 +66,6 @@ export interface FieldInfo {
 export type DataTypeProcessorFunction = (
   input: DbTableColumnInfo & {
     table: DbTable
+    db: IDatabase
   },
-) => Partial<FieldInfo>
+) => Promise<Partial<FieldInfo>> | Partial<FieldInfo>

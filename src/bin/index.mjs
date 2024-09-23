@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import { config } from 'dotenv'
 import open from 'open'
 
-import { green, Log, red, yellow } from '@kitql/helpers'
+import { cyan, green, Log, red, yellow } from '@kitql/helpers'
 
 const metaUrl = fileURLToPath(import.meta.url)
 const cwd = process.cwd()
@@ -17,8 +17,6 @@ const rootPath = path.join(metaUrl, '../../..')
 const log = new Log('remult-kit')
 
 const { version } = JSON.parse(readFileSync(path.join(rootPath, 'package.json'), 'utf-8'))
-
-log.info(`v${green(`${version}`)} - Starting`)
 
 const runMe = path.join(rootPath, 'remult-kit-app', 'index.js')
 
@@ -31,9 +29,11 @@ function runServer(env) {
     // Capture standard output and error
     npx.stdout.on('data', (data) => {
       if (data.includes('Listening on')) {
-        log.info(`Listening on ${url}`)
+        log.info(`v${green(`${version}`)} - Listening on ${cyan(url)}`)
         open(url)
-      } else log.info(`${data}`)
+      } else {
+        //log.info(`${data}`)
+      }
     })
 
     npx.stderr.on('data', (data) => {
@@ -41,7 +41,7 @@ function runServer(env) {
         log.info(`Port ${red(env.PORT)} is already in use, trying ${yellow(env.PORT + 1)}...`)
         runServer({ ...env, PORT: env.PORT + 1 })
       } else {
-        log.error(`${data}`)
+        // log.error(`${data}`)
       }
     })
 

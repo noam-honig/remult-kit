@@ -79,13 +79,21 @@
 
               const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))?.value
 
-              for (const element of filtered) {
-                await ActionsController.writeFile(outputDir ?? '', element.meta.table.className, [
-                  element.fileContent,
-                ])
-              }
-            }}>Write Files</Button
+              await ActionsController.writeFiles(
+                filtered.map((c) => {
+                  return {
+                    outdir: outputDir ?? '',
+                    className: c.meta.table.className,
+                    data: [c.fileContent],
+                  }
+                }),
+              )
+
+              selectedItems = []
+            }}
           >
+            Write Files
+          </Button>
         </div>
         <div class="flex items-end justify-between gap-5">
           <div class="w-full">
@@ -153,11 +161,13 @@
                         const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))
                           ?.value
 
-                        await ActionsController.writeFile(
-                          outputDir ?? '',
-                          row.meta.table.className,
-                          [row.fileContent],
-                        )
+                        await ActionsController.writeFiles([
+                          {
+                            outdir: outputDir ?? '',
+                            className: row.meta.table.className,
+                            data: [row.fileContent],
+                          },
+                        ])
                       }}>Write File</Button
                     >
                   </div>

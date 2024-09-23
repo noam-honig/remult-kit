@@ -50,14 +50,17 @@ export class ActionsController {
   }
 
   @BackendMethod({ allowed: true })
-  static async writeFile(outdir: string, className: string, data: string[]) {
-    const pathFile = `${outdir}/${className}.ts`
-    await updateIndex({
-      targetTSFile: `${outdir}/index.ts`,
-      entityClassName: className,
-      entityFileName: pathFile,
-    })
-    return write(pathFile, data)
+  static async writeFiles(files: { outdir: string; className: string; data: string[] }[]) {
+    for (let i = 0; i < files.length; i++) {
+      const { outdir, className, data } = files[i]
+      const pathFile = `${outdir}/${className}.ts`
+      updateIndex({
+        targetTSFile: `${outdir}/index.ts`,
+        entityClassName: className,
+        entityFileName: pathFile,
+      })
+      write(pathFile, data)
+    }
   }
 
   @BackendMethod({ allowed: true })
