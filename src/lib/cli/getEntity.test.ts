@@ -431,9 +431,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.integer()
           id = 0
@@ -593,9 +591,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.integer()
           ProductID!: number
