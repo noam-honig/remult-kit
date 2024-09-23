@@ -158,6 +158,27 @@ describe.sequential('db', () => {
         "
       `)
     })
+    it('test a basic table with CAPITAL LETTERS', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists "TEST1"')
+      await x.execute(
+        `create table "TEST1" (id int default 0 not null, name varchar(100) default '' not null)`,
+      )
+      const result = await getTypescript(new DbPostgres(x), 'TEST1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<TEST1>("TEST1", {})
+        export class TEST1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+    })
     it('test a products', async () => {
       const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
       await x.execute('drop table if exists test1')

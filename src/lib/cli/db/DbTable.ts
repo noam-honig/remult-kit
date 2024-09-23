@@ -51,7 +51,14 @@ export class DbTable {
         this.className = schema ? `${toPascalCase(schema)}_${sing}` : sing
       }
     }
-    this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
+
+    // if db name has invalid chars, let's create a cool key
+    const invalidDbNameChars = [' ']
+    if (invalidDbNameChars.some((c) => this.dbName.includes(c))) {
+      this.key = toCamelCase(pluralize.plural(this.dbName)).replaceAll(' ', '-')
+    } else {
+      this.key = this.dbName
+    }
   }
 
   checkNamingConvention() {

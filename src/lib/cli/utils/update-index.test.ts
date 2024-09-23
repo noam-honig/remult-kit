@@ -41,9 +41,9 @@ describe('#unit-test toFnAndImport', () => {
   test('adds an entity', async () => {})
 })
 
-// todo - fix ensure schema false by default
 // todo - fix forward slash + js
-// todo - fix lower first char (DEPTMNT=>that was dEMPTMNT)
+// done - fix lower first char (DEPTMNT=>that was dEPTMNT)
+// As the bug of dEMPTMNT is fixed, maybe we don't need this? - fix ensure schema false by default
 // todo - remove console logs on errors
 // todo - remult-admin - -f there is an error when loading a table - show the error in the table place
 // todo - remult - fix auto caption in case of all capital letters
