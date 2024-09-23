@@ -59,6 +59,7 @@ describe('#unit-test toFnAndImport', () => {
 //// Need to be done: Have a global error per type of type not handle (not one by one)
 //// Need to send to the UI somewhere (and fully remove for console)
 // todo - relations. Setting: With? Without? Bring all relations of the selected entity?
+// todo - REFACTO !!! DTO db & DTO code & nice translator
 
 // todo - remult-admin - -f there is an error when loading a table - show the error in the table place
 // todo - remult - fix auto caption in case of all capital letters
