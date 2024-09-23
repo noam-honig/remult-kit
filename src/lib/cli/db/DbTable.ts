@@ -60,25 +60,4 @@ export class DbTable {
       this.key = this.dbName
     }
   }
-
-  checkNamingConvention() {
-    if (this.key === toCamelCase(this.className)) {
-      const ccClassName = toCamelCase(this.className)
-      const newKey = `${this.key}s`
-
-      const str =
-        `Your table "${green(this.dbName)}"` +
-        ` generates` +
-        ` ${cyan(
-          `{ className: "${yellow(this.className)}"` +
-            ` ${italic(gray(`(camelCase: "${yellow(ccClassName)}")`))},` +
-            ` key: "${red(strikethrough(this.key))}${green(bold(newKey))}" }`,
-        )}.`
-
-      this.key = newKey
-
-      return str
-    }
-    return null
-  }
 }

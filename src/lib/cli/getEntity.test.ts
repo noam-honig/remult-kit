@@ -145,10 +145,29 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+    })
+    it('test a basic table plural in db, singular in code', async () => {
+      const x = await createPostgresDataProvider({ connectionString: DATABASE_URL })
+      await x.execute('drop table if exists tests')
+      await x.execute(
+        `create table tests (id int default 0 not null, name varchar(100) default '' not null)`,
+      )
+      const result = await getTypescript(new DbPostgres(x), 'tests')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test>("tests", {})
+        export class Test {
           @Fields.integer()
           id = 0
 
@@ -201,9 +220,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.autoIncrement()
           ProductID = 0
@@ -291,7 +308,7 @@ describe.sequential('db', () => {
       expect(resultP).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
         import { Relations } from "remult"
-        import { Order } from "./Order"
+        import { Order } from "./Order.js"
 
         @Entity<Product>("products", {})
         export class Product {
@@ -315,7 +332,7 @@ describe.sequential('db', () => {
       expect(resultO).toMatchInlineSnapshot(`
         "import { Entity, Field, Fields } from "remult"
         import { Relations } from "remult"
-        import { Product } from "./Product"
+        import { Product } from "./Product.js"
 
         @Entity<Order>("orders", {})
         export class Order {
@@ -347,9 +364,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields, Validators } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.uuid()
           id!: string
@@ -374,9 +389,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.uuid()
           id = ""
@@ -452,9 +465,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.integer()
           ProductID!: number
@@ -549,9 +560,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
-          dbName: "test1",
-        })
+        @Entity<Test1>("test1", {})
         export class Test1 {
           @Fields.integer()
           id = 0
@@ -674,7 +683,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
+        @Entity<Test1>("test1", {
           dbName: "test1",
         })
         export class Test1 {
@@ -706,7 +715,7 @@ describe.sequential('db', () => {
       expect(result).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
 
-        @Entity<Test1>("test1s", {
+        @Entity<Test1>("test1", {
           dbName: "test1",
         })
         export class Test1 {

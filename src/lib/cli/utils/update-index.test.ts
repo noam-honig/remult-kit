@@ -8,7 +8,7 @@ async function myTest(entity: string, before: string) {
     fs.mkdirSync('/tmp')
   }
   fs.writeFileSync('/tmp/test.ts', before)
-  await updateIndex({
+  updateIndex({
     targetTSFile: '/tmp/test.ts',
     entityClassName: entity,
     entityFileName: `/shared/entities/${entity}`,
@@ -35,6 +35,15 @@ describe('#unit-test toFnAndImport', () => {
       import { Roles } from '../shared/entities/Roles.js';
 
       export const entities = [Roles, User];"
+    `)
+  })
+  test('work with similar names', async () => {
+    const result = await myTest('UserManagement', '')
+    expect(await myTest('User', result)).toMatchInlineSnapshot(`
+      "import { UserManagement } from '../shared/entities/UserManagement.js';
+      import { User } from '../shared/entities/User.js';
+
+      export const entities = [User, UserManagement];"
     `)
   })
 

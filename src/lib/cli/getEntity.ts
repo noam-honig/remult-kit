@@ -1,6 +1,8 @@
 // import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import prettier from 'prettier'
 
+import { write } from '@kitql/internals'
+
 import { DbTable, type DbTableForeignKey } from './db/DbTable.js'
 import { processColumnType } from './db/processColumnType.js'
 import type { IDatabase } from './db/types.js'
@@ -155,11 +157,6 @@ export async function getEntitiesTypescriptFromDb(
             !exclude.includes(table.dbName) &&
             (include.length === 0 || include.includes(table.dbName))
           ) {
-            const str = table.checkNamingConvention()
-            if (str) {
-              // report.sAdded.push(str);
-            }
-
             getEntities.push(
               await getEntityTypescript(
                 allTables,
@@ -528,7 +525,7 @@ const generateEntityString = (
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
     `${addLineIfNeeded([...new Set(additionnalImports)])}` +
-    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}'`)}` +
+    `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}.js'`)}` +
     `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 
 @Entity<${table.className}>('${table.key}', {\n\t${props.join(',\n\t')}\n})
