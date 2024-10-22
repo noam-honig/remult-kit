@@ -1,6 +1,5 @@
-import { cyan, gray, Log, stry, yellow } from '@kitql/helpers'
+import { cyan, green, Log, yellow } from '@kitql/helpers'
 
-import { kababToConstantCase, toPascalCase } from '../utils/case.js'
 import type { DbTable } from './DbTable'
 import type { DataTypeProcessorFunction, DbTableColumnInfo, FieldInfo, IDatabase } from './types'
 
@@ -87,22 +86,26 @@ const dateProcessor: DataTypeProcessorFunction = ({ column_name, column_default,
   return toRet
 }
 
-const enumProcessor: DataTypeProcessorFunction = ({ column_default, udt_name }) => {
-  const enumDefault = column_default?.split("'")[1]
+const enumProcessor: DataTypeProcessorFunction = async (input) => {
+  const enumDefault = input.column_default?.split("'")[1]
 
-  return {
-    decorator: `@Field`,
-    decoratorArgsValueType: `() => ${toPascalCase(udt_name)}`,
-    decoratorArgsOptions: ["inputType: 'selectEnum'"],
-    type: column_default === null ? toPascalCase(udt_name) : null,
-    defaultVal:
-      column_default !== null && enumDefault
-        ? `${toPascalCase(udt_name)}.${kababToConstantCase(enumDefault)}`
-        : undefined,
+  if ('USER-DEFINED' === input.data_type) {
+    const enumDef = await input.db.getEnumDef(input.udt_name)
+    const values = enumDef.map((e) => e.enumlabel)
+
+    return {
+      decorator: `@Fields.literal`,
+      decoratorArgsValueType: `() => [${values.map((v) => `'${v}'`).join(', ')}] as const`,
+      decoratorArgsOptions: [],
+      type: values.map((v) => `'${v}'`).join(' | '),
+      forceTypeToBePresent: true,
+      defaultVal: input.column_default !== null && enumDefault ? `'${enumDefault}'` : undefined,
+    }
   }
+  return await stringProcessor(input)
 }
 
-const arrayProcessor: DataTypeProcessorFunction = (input) => {
+const arrayProcessor: DataTypeProcessorFunction = async (input) => {
   // udtName will show "_numeric" or "_permission_enum" (USER-DEFINED)
   const cleanUdtName = input.udt_name.substring(1)
 
@@ -110,11 +113,11 @@ const arrayProcessor: DataTypeProcessorFunction = (input) => {
 
   // Check regular types
   if (dataTypeProcessors[cleanUdtName]) {
-    const field = dataTypeProcessors[cleanUdtName]?.(input)
+    const field = await dataTypeProcessors[cleanUdtName]?.(input)
     toRet = { ...field }
   } else {
     // It means that it's a custom type
-    const field = dataTypeProcessors['USER-DEFINED']?.({
+    const field = await dataTypeProcessors['USER-DEFINED']?.({
       ...input,
       data_type: cleanUdtName,
     })
@@ -233,28 +236,26 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   'USER-DEFINED': enumProcessor,
 }
 
-export const processColumnType = (
+export const processColumnType = async (
   dbCol: DbTableColumnInfo & {
     enums: Record<string, string[]>
     db: IDatabase
     table: DbTable
   },
-): FieldInfo => {
-  const { data_type } = dbCol
-  const field = dataTypeProcessors[data_type]?.(dbCol)
+): Promise<FieldInfo> => {
+  const { data_type, enums, db, table, ...rest } = dbCol
+  const field = await dataTypeProcessors[data_type]?.(dbCol)
 
   let comment: string | null = null
   if (!field) {
     comment = `Unhandled data type: "${data_type}" for db "${dbCol.db.name}"`
 
     new Log('remult-kit')
-      .error(`Unhandled data type: "${yellow(data_type)}" for db "${dbCol.db.name}"
-            🙏 help us and report it here: 
-            ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
-  
-            ${gray(`If it's not to private, please provide the following information :`)}
-${stry(dbCol)}
-  `)
+      .info(`Unhandled data type: "${yellow(data_type)}" for db "${green(dbCol.db.name)}"
+🙏 Report it ${cyan(`https://github.com/noam-honig/remult-kit/issues/new?title=${encodeURI(comment)}`)}
+`)
+    //             ${gray(`If it's not to private, please provide the following information :`)}
+    // ${stry(rest)}
   }
 
   const toRet = {
@@ -262,6 +263,7 @@ ${stry(dbCol)}
     decoratorArgsValueType: field?.decoratorArgsValueType ?? '',
     decoratorArgsOptions: field?.decoratorArgsOptions ?? [],
     type: field?.type === undefined ? 'string' : field?.type,
+    forceTypeToBePresent: field?.forceTypeToBePresent ?? false,
     defaultVal: field?.defaultVal ?? null,
     enumAdditionalName: field?.enumAdditionalName ?? null,
 
