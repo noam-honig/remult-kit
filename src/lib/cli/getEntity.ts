@@ -107,7 +107,8 @@ export type EntityMetaData = {
   props: string[]
   cols: string[]
   colsMeta: ColMetaData[]
-  additionnalImports: string[]
+  additionalImports: string[]
+  entitiesImports: string[]
   usesValidators: boolean
   toManys: {
     addOn: string
@@ -157,8 +158,8 @@ export async function getEntitiesTypescriptFromDb(
             !exclude.includes(table.dbName) &&
             (include.length === 0 || include.includes(table.dbName))
           ) {
-            getEntities.push(
-              await getEntityTypescript(
+            getEntities.push({
+              ...(await getEntityTypescript(
                 allTables,
                 db,
                 table.schema,
@@ -168,8 +169,9 @@ export async function getEntitiesTypescriptFromDb(
 
                 // report,
                 orderBy,
-              ),
-            )
+              )),
+              entitiesImports: [],
+            })
           }
         } catch (error) {
           // console.error(error)
@@ -189,8 +191,7 @@ export async function getEntitiesTypescriptFromDb(
 
   const enums: string[] = []
   sortedTablesO.forEach((ent) => {
-    const entitiesImports: string[] = []
-    const additionnalImports = []
+    const additionalImports = []
 
     const toManys = allToManys
       .filter((tm) => tm.addOn === ent.table.dbName)
@@ -211,9 +212,9 @@ export async function getEntitiesTypescriptFromDb(
           comment: null,
         })
 
-        entitiesImports.push(tm.ref)
+        ent.entitiesImports.push(tm.ref)
         if (currentCol.decorator_import) {
-          additionnalImports.push(currentCol.decorator_import)
+          additionalImports.push(currentCol.decorator_import)
         }
 
         return currentCol.col + '\n'
@@ -223,16 +224,23 @@ export async function getEntitiesTypescriptFromDb(
     if (toManys.length > 0) {
       cols.push('    // Relations toMany', ...toManys)
     }
-    additionnalImports.push(...ent.additionnalImports)
+    additionalImports.push(...ent.additionalImports)
 
+    ent.entitiesImports.push(
+      ...[
+        ...ent.table.foreignKeys.map(
+          ({ foreignDbName }) => allTables.find((t) => t.dbName === foreignDbName)!.className,
+        ),
+      ].filter((c) => c !== ent.table.className),
+    )
     const entityString = generateEntityString(
       allTables,
       ent.table,
       ent.enums,
       ent.props,
       cols,
-      additionnalImports,
-      entitiesImports,
+      additionalImports,
+      ent.entitiesImports,
       ent.usesValidators,
     )
 
@@ -278,7 +286,7 @@ async function getEntityTypescript(
   orderBy?: (string | number)[],
 ) {
   const enums: Record<string, string[]> = {}
-  const additionnalImports: string[] = []
+  const additionalImports: string[] = []
 
   const cols: string[] = []
   const colsMeta: ColMetaData[] = []
@@ -343,7 +351,7 @@ async function getEntityTypescript(
     }
     const currentCol = buildColumn(colMeta)
     if (currentCol.decorator_import) {
-      additionnalImports.push(currentCol.decorator_import)
+      additionalImports.push(currentCol.decorator_import)
     }
     cols.push(currentCol.col + `\n`)
     colsMeta.push(colMeta)
@@ -354,7 +362,7 @@ async function getEntityTypescript(
         allTables,
         foreignKey,
         fieldInfo.db.column_name,
-        additionnalImports,
+        additionalImports,
         cols,
         fieldInfo.db.is_nullable,
       )
@@ -394,7 +402,7 @@ async function getEntityTypescript(
     props,
     cols,
     colsMeta,
-    additionnalImports,
+    additionalImports,
     usesValidators,
     toManys,
   } as const
@@ -416,7 +424,7 @@ const handleForeignKeyCol = (
   allTables: DbTable[],
   foreignKey: DbTableForeignKey,
   columnName: string,
-  additionnalImports: string[],
+  additionalImports: string[],
   cols: string[],
   isNullable: 'YES' | 'NO',
 ) => {
@@ -443,7 +451,7 @@ const handleForeignKeyCol = (
   })
 
   if (currentColFk.decorator_import) {
-    additionnalImports.push(currentColFk.decorator_import)
+    additionalImports.push(currentColFk.decorator_import)
   }
 
   if (currentColFk) {
@@ -459,18 +467,12 @@ const generateEntityString = (
   enums: Record<string, string[]>,
   props: string[],
   cols: string[],
-  additionnalImports: string[],
+  additionalImports: string[],
   entitiesImports: string[],
   usesValidators: boolean,
 ) => {
   const isContainsForeignKeys = table.foreignKeys.length > 0
-
-  const foreignClassNamesToImport = [
-    ...table.foreignKeys.map(
-      ({ foreignDbName }) => allTables.find((t) => t.dbName === foreignDbName)!.className,
-    ),
-    ...entitiesImports,
-  ].filter((c) => c !== table.className)
+  const foreignClassNamesToImport = entitiesImports
 
   const enumsKeys = Object.keys(enums)
 
@@ -478,7 +480,7 @@ const generateEntityString = (
     `import { Entity, ${isContainsForeignKeys || enumsKeys.length > 0 ? 'Field, ' : ''}Fields${
       usesValidators ? ', Validators' : ''
     } } from 'remult'` +
-    `${addLineIfNeeded([...new Set(additionnalImports)])}` +
+    `${addLineIfNeeded([...new Set(additionalImports)])}` +
     `${addLineIfNeeded([...new Set(foreignClassNamesToImport)], (c) => `import { ${c} } from './${c}.js'`)}` +
     `${addLineIfNeeded(enumsKeys, (c) => `import { ${c} } from '../enums'`)}
 

@@ -7,6 +7,7 @@
     mdiRocketLaunchOutline,
   } from '@mdi/js'
   import { confetti } from '@neoconfetti/svelte'
+  import { writable } from 'svelte/store'
 
   import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
@@ -33,7 +34,7 @@
         ? mdiCheckboxBlankCircleOutline
         : status === 'good'
           ? mdiCheckboxMarkedOutline
-          : mdiCheckboxBlankOutline
+          : ''
   }
 
   const getCodeEnv = (con: ConnectionInfo) => {
@@ -46,25 +47,28 @@
 
   let showConfetti = false
 
-  let defaultCheched = false
+  let defaultChecked = false
+
   let unSub = () => {}
   unSub = connectionInfo.subscribe((v) => {
     if (v.status === 'bad') {
-      defaultCheched = true
+      defaultChecked = true
       if (unSub) {
         unSub()
       }
     } else if (v.status === 'good') {
-      defaultCheched = false
+      defaultChecked = false
       if (unSub) {
         unSub()
       }
     }
   })
+
+  //TODO JYC - please fix the collapsable so if when I connect the connection is not good - to be open, all next times to be closed
 </script>
 
 <div class="collapse bg-base-300">
-  <input type="checkbox" checked={defaultCheched} />
+  <input type="checkbox" checked={defaultChecked} />
   <div class="collapse-title text-xl font-medium">
     <div class="flex items-center gap-4">
       <Icon path={getIcon($connectionInfo.status)}></Icon> Connection
@@ -105,21 +109,16 @@
           </center>
         {/if}
 
-        {#if $connectionInfo.error && $connectionInfo.db === 'auto (from environment variables)'}
-          <Card title="Info" class="border border-primary">
-            <pre class="text-base-content">{$connectionInfo.error}</pre>
-          </Card>
+        {#if !databases[$connectionInfo.db].isSelect}
+          <Button
+            type="submit"
+            icon={mdiRocketLaunchOutline}
+            loading={$connectionInfo.status === 'checking'}
+          >
+            Check Connection!
+          </Button>
         {/if}
-
-        <Button
-          type="submit"
-          icon={mdiRocketLaunchOutline}
-          loading={$connectionInfo.status === 'checking'}
-        >
-          Check Connection!
-        </Button>
-
-        {#if $connectionInfo.error && $connectionInfo.db !== 'auto (from environment variables)'}
+        {#if $connectionInfo.error && !databases[$connectionInfo.db].isSelect}
           <Card title="Error" class="border border-error">
             <pre class="text-error">{$connectionInfo.error}</pre>
           </Card>
@@ -127,7 +126,7 @@
       </form>
 
       <div class="grid gap-2 p-4 text-sm">
-        {#if $connectionInfo.db !== 'auto (from environment variables)'}
+        {#if !databases[$connectionInfo.db].isSelect}
           <h2 class="text-lg font-medium">You can setup this now:</h2>
 
           <Card title=".env" subheading="env file">

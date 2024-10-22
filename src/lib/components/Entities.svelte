@@ -1,13 +1,14 @@
 <script lang="ts">
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { onMount } from 'svelte'
+  import { r } from 'svelte-highlight/languages'
   import { slide } from 'svelte/transition'
 
   import { remult } from 'remult'
 
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
-  import { ActionsController } from '$shared/contollers/ActionsController'
+  import { ActionsController } from '$shared/controllers/ActionsController'
   import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, Icon, TextField } from '$ui'
 
@@ -20,10 +21,16 @@
   })
 
   const refresh = async () => {
+    if (loading) return
     loading = true
-    $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)
-    loading = false
+    try {
+      if ($connectionInfo.status === 'good')
+        $remultInfos = await ActionsController.getDbEntitiesMetadata($connectionInfo)
+    } finally {
+      loading = false
+    }
   }
+  connectionInfo.subscribe((v) => refresh())
 
   // const order = tableOrderStore({ initialBy: 'name', initialDirection: 'asc' })
 
@@ -33,17 +40,8 @@
     ),
   ]
 
-  let selectedItems: string[] = []
-
   let search = ''
 
-  const updateSelection = (name: string) => {
-    if (selectedItems.includes(name)) {
-      selectedItems = selectedItems.filter((i) => i !== name)
-    } else {
-      selectedItems = [...selectedItems, name]
-    }
-  }
   let entityOpen = ''
   const updateEntityOpen = (name: string) => {
     if (entityOpen === name) {
@@ -52,9 +50,29 @@
       entityOpen = name
     }
   }
+  async function saveTable(row: (typeof $remultInfos.entities)[0]) {
+    const rowToSave = [row]
+    const handled = new Set<string>(row.meta.table.className)
+    function iterateRelations(row: (typeof $remultInfos.entities)[0]) {
+      row.meta.entitiesImports.forEach((x) => {
+        if (!handled.has(x)) {
+          handled.add(x)
+          const r = $remultInfos.entities.find((r) => r.meta.table.className === x)
+          if (r) {
+            rowToSave.push(r)
+            iterateRelations(r)
+          }
+        }
+      })
+    }
+    iterateRelations(row)
+    await ActionsController.writeFiles(
+      rowToSave.map((c) => ({ className: c.meta.table.className, data: [c.fileContent] })),
+    )
+  }
 </script>
 
-{#if ($remultInfos.entities ?? []).length > 0}
+{#if $connectionInfo.status === 'good'}
   <div class="collapse bg-base-300">
     <input type="checkbox" checked />
     <div class="collapse-title text-xl font-medium">
@@ -63,120 +81,81 @@
       </div>
     </div>
     <div class="collapse-content">
-      <div class="grid gap-4">
-        <div class="flex justify-between">
-          <h2>
-            <Button icon={mdiRefresh} on:click={refresh} disabled={loading} class="btn-ghost"
-              >Refresh</Button
-            >
-          </h2>
-          <Button
-            disabled={selectedItems.length === 0}
-            on:click={async () => {
-              const filtered = $remultInfos.entities.filter((e) =>
-                selectedItems.includes(e.meta.table.className),
-              )
-
-              const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))?.value
-
-              await ActionsController.writeFiles(
-                filtered.map((c) => {
-                  return {
-                    outdir: outputDir ?? '',
-                    className: c.meta.table.className,
-                    data: [c.fileContent],
-                  }
-                }),
-              )
-
-              selectedItems = []
-            }}
-          >
-            Write Files
-          </Button>
-        </div>
-        <div class="flex items-end justify-between gap-5">
-          <div class="w-full">
-            <TextField
-              label="filter"
-              bind:value={search}
-              placeholder="looking for a specific entity?"
-            ></TextField>
-          </div>
-          <div class="mx-2 grid gap-1">
+      {#if loading}
+        Loading...
+      {:else}
+        <div class="grid gap-4">
+          <div class="flex justify-between">
+            <h2>
+              <Button icon={mdiRefresh} on:click={refresh} disabled={loading} class="btn-ghost"
+                >Refresh</Button
+              >
+            </h2>
             <Button
-              class="btn-xs"
-              disabled={selectedItems.length === 0}
-              on:click={() => {
-                selectedItems = []
+              on:click={async () => {
+                const filtered = sortedData
+
+                await ActionsController.writeFiles(
+                  filtered.map((c) => {
+                    return {
+                      className: c.meta.table.className,
+                      data: [c.fileContent],
+                    }
+                  }),
+                )
               }}
             >
-              Nothing
-            </Button>
-            <Button
-              class="btn-xs"
-              disabled={selectedItems.length === sortedData.length}
-              on:click={() => {
-                selectedItems = sortedData.map((c) => c.meta.table.className)
-              }}
-            >
-              All
+              Create Entity files for all {sortedData.length} entities
             </Button>
           </div>
-        </div>
-        <!-- </div>
-      <ul class="menu bg-base-200 rounded-box"> -->
-        <div class="grid gap-2">
-          {#each sortedData as row}
-            <div transition:slide>
-              <Card>
-                <svelte:fragment slot="title">
-                  <div class="flex items-center">
-                    <button
-                      on:click={() => updateEntityOpen(row.meta.table.className)}
-                      class="card-title grid flex-1 grid-cols-2 place-items-start items-center"
-                    >
-                      <p>
-                        {row.meta.table.className}
-                      </p>
-                      <i class="w-24 text-right text-xs">{row.meta.colsMeta.length + ' fields'}</i>
-                    </button>
-
-                    <div class="flex justify-end">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(row.meta.table.className)}
-                        on:change={() => updateSelection(row.meta.table.className)}
-                        class="checkbox"
-                      />
-                    </div>
-                  </div>
-                </svelte:fragment>
-
-                {#if entityOpen === row.meta.table.className}
-                  <div class="p-2">
-                    <Code code={row.fileContent}></Code>
-                    <Button
-                      on:click={async () => {
-                        const outputDir = (await remult.repo(Setting).findId(SettingKey.outputDir))
-                          ?.value
-
-                        await ActionsController.writeFiles([
-                          {
-                            outdir: outputDir ?? '',
-                            className: row.meta.table.className,
-                            data: [row.fileContent],
-                          },
-                        ])
-                      }}>Write File</Button
-                    >
-                  </div>
-                {/if}
-              </Card>
+          <div class="flex items-end justify-between gap-5">
+            <div class="w-full">
+              <TextField
+                label="filter"
+                bind:value={search}
+                placeholder="looking for a specific entity?"
+              ></TextField>
             </div>
-          {/each}
+          </div>
+          <!-- </div>
+      <ul class="menu bg-base-200 rounded-box"> -->
+          <div class="grid gap-2">
+            {#each sortedData as row}
+              <div>
+                <Card>
+                  <svelte:fragment slot="title">
+                    <div class="flex items-center">
+                      <button
+                        on:click={() => updateEntityOpen(row.meta.table.className)}
+                        class="card-title grid flex-1 grid-cols-2 place-items-start items-center"
+                      >
+                        <p>
+                          {row.meta.table.className}
+                        </p>
+                        <i class="w-24 text-right text-xs">{row.meta.colsMeta.length + ' fields'}</i
+                        >
+                      </button>
+
+                      <div class="flex justify-end">
+                        <Button on:click={async () => saveTable(row)}>Write File</Button>
+                      </div>
+                    </div>
+                  </svelte:fragment>
+
+                  {#if entityOpen === row.meta.table.className}
+                    <div class="p-2">
+                      <Code code={row.fileContent}></Code>
+                      <pre>
+                        {JSON.stringify(row.meta, undefined, 2)}
+                      </pre>
+                    </div>
+                  {/if}
+                </Card>
+              </div>
+            {/each}
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
   </div>
 {/if}

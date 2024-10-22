@@ -5,13 +5,15 @@ export type ConnectionInfo = {
   args: any
   status: 'good' | 'bad' | '???' | 'checking'
   error?: string
+  isSelect?: boolean
 }
 
 export const databases = {
-  ['auto (from environment variables)']: build({
+  ['Select a Data Provider']: build({
     args: {},
     npm: [],
     getCode: () => ``,
+    isSelect: true,
     connect: async (args: any) => {
       throw new Error(
         'Could not determine database based on environment variables. Select a Data Provider.',
@@ -85,7 +87,7 @@ const dataProvider = createKnexDataProvider({
     args: {
       server: { envName: 'MSSQL_SERVER' },
       database: { envName: 'MSSQL_DATABASE' },
-      user: { envName: 'MSSQL_USER' },
+      user: { envName: 'MSSQL_USERNAME' },
       password: { envName: 'MSSQL_PASSWORD' },
       instanceName: { envName: 'MSSQL_INSTANCE' },
     },
@@ -160,12 +162,14 @@ function build<argsType>(options: {
   args: argsType
   npm: string[]
   getCode: (args: { [K in keyof argsType]: string }) => string
+  isSelect?: boolean
   connect: (args: {
     [K in keyof argsType]: string
   }) => Promise<IDatabase>
 }) {
   return {
     ...options,
+
     getCode: (args: { [K in keyof argsType]: string }) => {
       const reducedArgs = Object.keys(options.args as any).reduce((acc, key) => {
         //@ts-ignore

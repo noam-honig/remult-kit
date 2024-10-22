@@ -2,7 +2,7 @@ import { JsonDataProvider, repo } from 'remult'
 import { remultSveltekit } from 'remult/remult-sveltekit'
 import { JsonEntityFileStorage } from 'remult/server'
 
-import { ActionsController } from '$shared/contollers/ActionsController'
+import { ActionsController } from '$shared/controllers/ActionsController'
 import { Setting, SettingKey } from '$shared/entities/Setting'
 
 // One day maybe!

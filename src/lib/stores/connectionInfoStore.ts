@@ -1,12 +1,12 @@
 import { writable } from 'svelte/store'
 
-import type { ConnectionInfo } from '$lib/cli/db/databases'
-import { ActionsController } from '$shared/contollers/ActionsController'
+import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
+import { ActionsController } from '$shared/controllers/ActionsController'
 
 import { remultInfos } from './remultInfos'
 
 const def: ConnectionInfo = {
-  db: 'auto (from environment variables)',
+  db: 'Select a Data Provider',
   args: {},
   status: '???',
 }
@@ -18,7 +18,7 @@ function load() {
   return def
 }
 function save(x: ConnectionInfo) {
-  sessionStorage.setItem('connectionInfo', JSON.stringify(x))
+  if (x.status === 'good') sessionStorage.setItem('connectionInfo', JSON.stringify(x))
 }
 
 function createStore() {
@@ -28,15 +28,17 @@ function createStore() {
     update((y) => ({ ...y, ...{ status: 'checking' }, ...{ error: '' } }))
 
     try {
-      if (await ActionsController.checkConnection(input)) {
-        input = { ...input, status: 'good', error: '' }
-        remultInfos.set(await ActionsController.getDbEntitiesMetadata(input))
+      const c = await ActionsController.checkConnection(input)
+      if (databases[c.db].isSelect) {
+        input = { ...def }
+      } else if (c.error) {
+        input = { ...input, status: 'bad', error: c.error, db: c.db }
+      } else {
+        input = { ...input, status: 'good', error: '', db: c.db }
       }
     } catch (err: any) {
-      input = { ...input, status: 'bad', error: err.message }
       remultInfos.set({ entities: [] })
     }
-
     save(input)
     localSet(input)
     return input
@@ -55,7 +57,7 @@ function createStore() {
     check,
 
     reset(db: ConnectionInfo['db']) {
-      const x = { ...def, db }
+      const x = { ...def, db } as const
       save(x)
       localSet(x)
     },

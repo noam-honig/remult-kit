@@ -221,6 +221,8 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   date: dateProcessor,
   DATE: dateProcessor,
   datetime: dateProcessor,
+  time: dateProcessor, // reconsider (comes from sql server)
+  image: stringProcessor, // reconsider (comes from sql server)
   DATETIME: dateProcessor,
   datetime2: dateProcessor,
   'timestamp without time zone': dateProcessor,

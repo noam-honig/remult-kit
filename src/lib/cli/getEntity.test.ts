@@ -298,14 +298,19 @@ describe.sequential('db', () => {
 
       await x.execute(
         `CREATE TABLE orders (
-          "id" SERIAL PRIMARY KEY,
+          "id" SERIAL PRIMARY KEY, 
           "productId" INT NOT NULL,
           "qte" INT NOT NULL DEFAULT 0,
           CONSTRAINT fk_product FOREIGN KEY("productId") REFERENCES products("id")
         );`,
       )
-      const resultP = await getTypescript(new DbPostgres(x), 'products')
-      expect(resultP).toMatchInlineSnapshot(`
+      const resultP = await getEntityInfo(new DbPostgres(x), 'products')
+      expect(resultP?.meta.entitiesImports).toMatchInlineSnapshot(`
+        [
+          "Order",
+        ]
+      `)
+      expect(resultP?.fileContent).toMatchInlineSnapshot(`
         "import { Entity, Fields } from "remult"
         import { Relations } from "remult"
         import { Order } from "./Order.js"
@@ -328,8 +333,13 @@ describe.sequential('db', () => {
         "
       `)
 
-      const resultO = await getTypescript(new DbPostgres(x), 'orders')
-      expect(resultO).toMatchInlineSnapshot(`
+      const resultO = await getEntityInfo(new DbPostgres(x), 'orders')
+      expect(resultO?.meta.entitiesImports).toMatchInlineSnapshot(`
+        [
+          "Product",
+        ]
+      `)
+      expect(resultO?.fileContent).toMatchInlineSnapshot(`
         "import { Entity, Field, Fields } from "remult"
         import { Relations } from "remult"
         import { Product } from "./Product.js"
@@ -797,25 +807,18 @@ describe.sequential('db', () => {
 })
 
 async function getTypescript(db: IDatabase, entity: string) {
-  const r = await getEntitiesTypescriptFromDb(
-    db,
-    '',
-    '',
-    [],
-    {},
-    false,
-    [db.schema],
-    'NEVER',
-    [],
-    // [entity],
-  )
+  const result = await getEntityInfo(db, entity)
+
+  if (!result) return `NO DATA FOR ENTITY "${entity}"`
+  const fileContent = result.fileContent
+  return fileContent
+}
+async function getEntityInfo(db: IDatabase, entity: string) {
+  const r = await getEntitiesTypescriptFromDb(db, '', '', [], {}, false, [db.schema], 'NEVER', [])
 
   const result = r.entities.find((x) => {
     // console.log(`x.meta.table.dbName`, x.meta.table.dbName, entity)
     return x.meta.table.dbName == entity
   })
-
-  if (!result) return `NO DATA FOR ENTITY "${entity}"`
-  const fileContent = result.fileContent
-  return fileContent
+  return result
 }
