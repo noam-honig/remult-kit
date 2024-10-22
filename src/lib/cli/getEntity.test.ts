@@ -442,6 +442,27 @@ describe.sequential('db', () => {
         "
       `)
     })
+    it('test a case sensitive table table', async () => {
+      await x.knex.raw('DROP TABLE IF EXISTS EMPLOYEE')
+      await x.knex.raw(
+        "CREATE TABLE EMPLOYEE (id INT DEFAULT 0 NOT NULL, name VARCHAR(100) DEFAULT '' NOT NULL)",
+      )
+      const result = await getTypescript(new DbMsSQL(x, 'dbo'), 'EMPLOYEE')
+
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<EMPLOYEE>("EMPLOYEE", {})
+        export class EMPLOYEE {
+          @Fields.integer()
+          id = 0
+
+          @Fields.string()
+          name = ""
+        }
+        "
+      `)
+    })
 
     it('test a products table', async () => {
       await x.knex.raw(

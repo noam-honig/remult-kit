@@ -24,7 +24,7 @@ export function updateIndex({
   // Calculate the relative path for the import
   const targetDir = path.dirname(targetFilePath)
   const entityFilePath = path.resolve(process.cwd(), entityFileName)
-  const relativePath = path.relative(targetDir, entityFilePath)
+  const relativePath = path.relative(targetDir, entityFilePath).replaceAll('\\', '/')
   const importPath =
     (relativePath.startsWith('.') ? relativePath : './' + relativePath).replace(/\.ts$/, '') + '.js'
 
