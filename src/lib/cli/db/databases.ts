@@ -87,7 +87,7 @@ const dataProvider = createKnexDataProvider({
     args: {
       server: { envName: 'MSSQL_SERVER' },
       database: { envName: 'MSSQL_DATABASE' },
-      user: { envName: 'MSSQL_USERNAME' },
+      user: { envName: 'MSSQL_USER' },
       password: { envName: 'MSSQL_PASSWORD' },
       instanceName: { envName: 'MSSQL_INSTANCE' },
     },
