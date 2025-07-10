@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { onMount } from 'svelte'
-  
 
 import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
@@ -116,7 +115,7 @@ import { connectionInfo } from '$lib/stores/connectionInfoStore'
           <!-- </div>
       <ul class="menu bg-base-200 rounded-box"> -->
           <div class="grid gap-2">
-            {#each sortedData as row}
+            {#each sortedData as row (row.fileContent)}
               <div>
                 <Card>
                   <svelte:fragment slot="title">

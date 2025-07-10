@@ -8,7 +8,7 @@
 
 <FieldContainer {label} forId="">
   <select class="select select-bordered w-full" bind:value on:change>
-    {#each options as options}
+    {#each options as options (options.value)}
       <option value={options.value}>{options.label}</option>
     {/each}
   </select>
