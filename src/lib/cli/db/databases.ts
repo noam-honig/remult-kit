@@ -151,6 +151,7 @@ const dataProvider = new SqlDatabase(
         connection: {
           filename: args.database_path,
         },
+        useNullAsDefault: true,
       })
       // const schema = await db.knex.raw('PRAGMA database_list;')
       return new DbSQLite(db)

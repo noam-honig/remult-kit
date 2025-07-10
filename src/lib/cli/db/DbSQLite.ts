@@ -37,14 +37,15 @@ export class DbSQLite implements IDatabase {
   }
 
   async getTableColumnInfo(schemaName: string, tableName: string) {
-    const tablesColumnInfo = await this.knex!.knex.raw(`PRAGMA table_info('${tableName}')`)
+    const tablesColumnInfo = await this.knex!.knex.raw(`SELECT * FROM pragma_table_info('${tableName}')`)
+    const autoIncrement = await this.knex!.knex.raw(`SELECT * FROM sqlite_sequence WHERE name='${tableName}'`);
     return tablesColumnInfo.map(
       (c: {
         cid: number
         name: string
         type: string
         notnull: number
-        dflt_value: string
+        dflt_value: string | null
         pk: number
       }) => {
         if (c.dflt_value?.startsWith('(') && c.dflt_value?.endsWith(')')) {
@@ -67,14 +68,14 @@ export class DbSQLite implements IDatabase {
 
         const i: DbTableColumnInfo = {
           column_name: c.name,
-          column_default: c.dflt_value,
+          column_default: (c.pk === 1 && autoIncrement.length > 0) ? 'nextval' : c.dflt_value,
           data_type,
           precision: 0, // I don't know
           character_maximum_length,
           udt_name: '',
           // SQLite uses 0 and 1 in notnull and pk but they are read as strings
-          is_nullable: parseInt(c.notnull) === 0 ? 'YES' : 'NO',
-          is_key: parseInt(c.pk) === 1
+          is_nullable: (c.pk === 0 && c.notnull === 0) ? 'YES' : 'NO',
+          is_key: c.pk === 1
         }
         return i
       },
@@ -82,38 +83,41 @@ export class DbSQLite implements IDatabase {
   }
 
   async getUniqueInfo(schema: string) {
-    const tablesColumnInfo = await this.knex!.knex.raw(`SELECT 
-    'main' as table_schema,
-    m.tbl_name as table_name,
-    ii.name as column_name
+    const sql = `
+SELECT 
+    'main' AS table_schema,
+    m.tbl_name AS table_name,
+    ii.name AS column_name
 FROM sqlite_master AS m,
     pragma_index_list(m.name) AS il,
     pragma_index_info(il.name) AS ii
 WHERE 
     m.type = 'table'
-	and il.[unique] = 1
+	  AND il.[unique] = 1
 GROUP BY
     m.tbl_name,
     il.name,
-    ii.name`);
+    ii.name`
+    const tablesColumnInfo = await this.knex!.knex.raw(sql);
     return tablesColumnInfo;
   }
 
   async getForeignKeys() {
-    const foreignKeys = await this.knex!.knex.raw(
-    `SELECT 
-      'main' AS table_schema,
-       m.name AS table_name,
-	     p."from" AS column_name,
-	     'main' AS foreign_table_schema,
-	     p."table" AS foreign_table_name,
-	     p."to" AS foreign_column_name
-     FROM
-      sqlite_master m
-      JOIN pragma_foreign_key_list(m.name) p ON m.name != p."table"
-     WHERE m.type = 'table'
-     ORDER BY m.name;`, );
-     return foreignKeys;
+    const sql = `
+SELECT 
+    'main' AS table_schema,
+    m.name AS table_name,
+    p."from" AS column_name,
+    'main' AS foreign_table_schema,
+    p."table" AS foreign_table_name,
+    p."to" AS foreign_column_name
+FROM
+    sqlite_master AS m INNER JOIN
+    pragma_foreign_key_list(m.name) AS p ON m.name != p."table"
+WHERE m.type = 'table'
+ORDER BY m.name;`
+    const foreignKeys = await this.knex!.knex.raw(sql);
+    return foreignKeys;
   }
 
   async getEnumDef(udt_name: string) {
