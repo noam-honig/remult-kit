@@ -5,7 +5,7 @@ import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbSQLite implements IDatabase {
   name = 'sqlite'
-  constructor(private knex: KnexDataProvider) {}
+  constructor(private knex: KnexDataProvider) { }
   async test() {
     await this.knex.knex.raw('select 1')
   }
@@ -26,6 +26,7 @@ export class DbSQLite implements IDatabase {
         r.map((x) => {
           return {
             table_name: x.name,
+            // table_schema: 'main',
           }
         }),
       )
@@ -71,8 +72,9 @@ export class DbSQLite implements IDatabase {
           precision: 0, // I don't know
           character_maximum_length,
           udt_name: '',
-          is_nullable: c.notnull === 0 ? 'YES' : 'NO',
-          is_key: c.pk === 1,
+          // SQLite uses 0 and 1 in notnull and pk but they are read as strings
+          is_nullable: parseInt(c.notnull) === 0 ? 'YES' : 'NO',
+          is_key: parseInt(c.pk) === 1
         }
         return i
       },
@@ -80,51 +82,38 @@ export class DbSQLite implements IDatabase {
   }
 
   async getUniqueInfo(schema: string) {
-    // TODO
-    return []
-    // const command = this.sqlDatabase!.createCommand();
-    // const tablesColumnInfo = await command.execute(
-    // 	`SELECT table_schema, table_name, column_name
-    // 	FROM information_schema.table_constraints AS c
-    // 		 JOIN information_schema.constraint_column_usage AS cc
-    // 				USING (table_schema, table_name, constraint_name)
-    // 	WHERE c.constraint_type = 'UNIQUE' ` +
-    // 		`AND table_schema = ${command.addParameterAndReturnSqlToken(schema)};`,
-    // );
-
-    // return tablesColumnInfo.rows.map((c) => {
-    // 	return {
-    // 		table_schema: c.table_schema,
-    // 		table_name: c.table_name,
-    // 		column_name: c.column_name,
-    // 	};
-    // });
+    const tablesColumnInfo = await this.knex!.knex.raw(`SELECT 
+    'main' as table_schema,
+    m.tbl_name as table_name,
+    ii.name as column_name
+FROM sqlite_master AS m,
+    pragma_index_list(m.name) AS il,
+    pragma_index_info(il.name) AS ii
+WHERE 
+    m.type = 'table'
+	and il.[unique] = 1
+GROUP BY
+    m.tbl_name,
+    il.name,
+    ii.name`);
+    return tablesColumnInfo;
   }
 
   async getForeignKeys() {
-    // TODO
-    return []
-    // const command = this.sqlDatabase!.createCommand();
-    // const foreignKeys = await command.execute(
-    // 	`SELECT
-    // 		tc.table_schema,
-    // 		tc.table_name,
-    // 		kcu.column_name,
-    // 		ccu.table_schema AS foreign_table_schema,
-    // 		ccu.table_name AS foreign_table_name,
-    // 		ccu.column_name AS foreign_column_name
-    // 	FROM
-    // 		information_schema.table_constraints AS tc
-    // 		JOIN information_schema.key_column_usage AS kcu
-    // 		ON tc.constraint_name = kcu.constraint_name
-    // 		AND tc.table_schema = kcu.table_schema
-    // 		JOIN information_schema.constraint_column_usage AS ccu
-    // 		ON ccu.constraint_name = tc.constraint_name
-    // 		AND ccu.table_schema = tc.table_schema
-    // 	WHERE tc.constraint_type = 'FOREIGN KEY';`,
-    // );
-
-    // return foreignKeys.rows;
+    const foreignKeys = await this.knex!.knex.raw(
+    `SELECT 
+      'main' AS table_schema,
+       m.name AS table_name,
+	     p."from" AS column_name,
+	     'main' AS foreign_table_schema,
+	     p."table" AS foreign_table_name,
+	     p."to" AS foreign_column_name
+     FROM
+      sqlite_master m
+      JOIN pragma_foreign_key_list(m.name) p ON m.name != p."table"
+     WHERE m.type = 'table'
+     ORDER BY m.name;`, );
+     return foreignKeys;
   }
 
   async getEnumDef(udt_name: string) {
