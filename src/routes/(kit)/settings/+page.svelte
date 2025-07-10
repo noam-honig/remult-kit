@@ -14,7 +14,7 @@
 </script>
 
 <Card title="Basics">
-  {#each settings as setting}
+  {#each settings as setting (setting.id)}
     <div>
       <TextField
         label={setting.id}
@@ -26,7 +26,7 @@
       {#if setting.id === SettingKey.tableProps}
         <div class="mt-2 flex items-center gap-2">
           <i class="text-xs">Presets:</i>
-          {#each ['allowApiCrud: false', 'allowApiCrud: true', 'allowApiCrud: Allow.authenticated', 'allowApiCrud: "admin"'] as preset}
+          {#each ['allowApiCrud: false', 'allowApiCrud: true', 'allowApiCrud: Allow.authenticated', 'allowApiCrud: "admin"'] as preset (preset)}
             <Button
               class="btn-outline"
               on:click={() => {

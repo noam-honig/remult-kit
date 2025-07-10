@@ -93,7 +93,7 @@
         }}
         class="grid gap-4"
       >
-        {#each Object.keys(databases[$connectionInfo.db].args) as arg}
+        {#each Object.keys(databases[$connectionInfo.db].args) as arg (arg)}
           <TextField
             label={arg}
             bind:value={$connectionInfo.args[arg]}
