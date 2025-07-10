@@ -41,8 +41,8 @@
     "format": "kitql-lint --format"
   },
   "devDependencies": {
-    "@kitql/eslint-config": "0.4.0-next.4",
-    "@kitql/internals": "^0.9.9",
+    "@kitql/eslint-config": "0.7.1",
+    "@kitql/internals": "0.10.5",
     "@mdi/js": "^7.4.47",
     "@neoconfetti/svelte": "^2.2.1",
     "@playwright/test": "^1.46.1",

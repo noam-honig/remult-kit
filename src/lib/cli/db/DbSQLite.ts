@@ -5,7 +5,7 @@ import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbSQLite implements IDatabase {
   name = 'sqlite'
-  constructor(private knex: KnexDataProvider) { }
+  constructor(private knex: KnexDataProvider) {}
   async test() {
     await this.knex.knex.raw('select 1')
   }
@@ -73,8 +73,8 @@ export class DbSQLite implements IDatabase {
           character_maximum_length,
           udt_name: '',
           // SQLite uses 0 and 1 in notnull and pk but they are read as strings
-          is_nullable: parseInt(c.notnull) === 0 ? 'YES' : 'NO',
-          is_key: parseInt(c.pk) === 1
+          is_nullable: parseInt(String(c.notnull)) === 0 ? 'YES' : 'NO',
+          is_key: parseInt(String(c.pk)) === 1,
         }
         return i
       },
@@ -95,13 +95,13 @@ WHERE
 GROUP BY
     m.tbl_name,
     il.name,
-    ii.name`);
-    return tablesColumnInfo;
+    ii.name`)
+    return tablesColumnInfo
   }
 
   async getForeignKeys() {
     const foreignKeys = await this.knex!.knex.raw(
-    `SELECT 
+      `SELECT 
       'main' AS table_schema,
        m.name AS table_name,
 	     p."from" AS column_name,
@@ -112,8 +112,9 @@ GROUP BY
       sqlite_master m
       JOIN pragma_foreign_key_list(m.name) p ON m.name != p."table"
      WHERE m.type = 'table'
-     ORDER BY m.name;`, );
-     return foreignKeys;
+     ORDER BY m.name;`,
+    )
+    return foreignKeys
   }
 
   async getEnumDef(udt_name: string) {

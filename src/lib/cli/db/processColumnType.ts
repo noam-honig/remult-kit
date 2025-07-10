@@ -199,7 +199,7 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   NUMBER: intOrNumberProcessor,
   'double precision': intOrNumberProcessor,
   // SQLITE uses REAL
-  REAL : intOrNumberProcessor,
+  REAL: intOrNumberProcessor,
 
   money: numberProcessor,
   decimal: numberProcessor,

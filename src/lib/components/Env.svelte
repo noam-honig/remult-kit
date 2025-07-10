@@ -2,12 +2,10 @@
   import {
     mdiCheckboxBlankBadgeOutline,
     mdiCheckboxBlankCircleOutline,
-    mdiCheckboxBlankOutline,
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
   import { confetti } from '@neoconfetti/svelte'
-  import { writable } from 'svelte/store'
 
   import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
