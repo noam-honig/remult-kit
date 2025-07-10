@@ -68,7 +68,7 @@ export class DbSQLite implements IDatabase {
 
         const i: DbTableColumnInfo = {
           column_name: c.name,
-          column_default: (c.pk === 1 && autoIncrement.length > 0) ? 'nextval' : c.dflt_value,
+          column_default: (c.pk === 1 && autoIncrement.length > 0) ? 'nextval' : ((c.dflt_value === null || (typeof c.dflt_value === 'string' && c.dflt_value.toLowerCase() === 'null')) ? null : c.dflt_value) ,
           data_type,
           precision: 0, // I don't know
           character_maximum_length,
