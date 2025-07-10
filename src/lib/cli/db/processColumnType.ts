@@ -186,6 +186,8 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   real: intOrAutoIncrementProcessor,
   int: intOrAutoIncrementProcessor,
   INT: intOrAutoIncrementProcessor,
+  // SQLITE uses INTEGER for PRIMARY KEY AUTOINCREMENT
+  INTEGER: intOrAutoIncrementProcessor,
   integer: intOrAutoIncrementProcessor,
   smallint: intOrAutoIncrementProcessor,
   tinyint: intOrAutoIncrementProcessor,
@@ -196,6 +198,8 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   numeric: intOrNumberProcessor,
   NUMBER: intOrNumberProcessor,
   'double precision': intOrNumberProcessor,
+  // SQLITE uses REAL
+  REAL : intOrNumberProcessor,
 
   money: numberProcessor,
   decimal: numberProcessor,
