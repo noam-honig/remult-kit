@@ -14,7 +14,7 @@ const config: PlaywrightTestConfig = {
   reporter,
   use: {
     screenshot: 'only-on-failure',
-    baseURL: `http://127.0.0.1:${webServer_port}`
+    baseURL: `http://127.0.0.1:${webServer_port}`,
   },
   webServer: {
     // command: `npm run build && npm run preview --port ${webServer_port}`,
@@ -25,7 +25,7 @@ const config: PlaywrightTestConfig = {
   },
   timeout: 60_000,
   expect: {
-    timeout: 6 * 1000, 
+    timeout: 6 * 1000,
     toMatchSnapshot: {
       threshold: 0.4,
     },

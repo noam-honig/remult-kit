@@ -429,7 +429,7 @@ describe.sequential('db', () => {
     beforeEach(async () => {
       try {
         await x.knex.raw('DROP TABLE IF EXISTS test1')
-      } catch (e) { }
+      } catch (e) {}
     })
 
     it('test a basic table', async () => {
@@ -533,7 +533,7 @@ describe.sequential('db', () => {
     it('test a name with space', async () => {
       try {
         await x.knex.raw('DROP TABLE IF EXISTS [test it1]')
-      } catch (e) { }
+      } catch (e) {}
       await x.knex.raw(
         `CREATE TABLE [test it1] (
             id INT DEFAULT 0 NOT NULL,
@@ -575,7 +575,7 @@ describe.sequential('db', () => {
     beforeEach(async () => {
       try {
         await x.knex.raw('drop table test1')
-      } catch (e) { }
+      } catch (e) {}
     })
 
     it('test a basic table', async () => {
@@ -660,7 +660,7 @@ describe.sequential('db', () => {
     it('test a name with space', async () => {
       try {
         await x.knex.raw(`DROP TABLE IF EXISTS \`test it1\`;`)
-      } catch (e) { }
+      } catch (e) {}
       await x.knex.raw(
         `CREATE TABLE \`test it1\` (
           id INT NOT NULL DEFAULT 0,
@@ -700,7 +700,7 @@ describe.sequential('db', () => {
     beforeEach(async () => {
       try {
         await x.knex.raw('drop table test1')
-      } catch (e) { }
+      } catch (e) {}
     })
 
     it('test a basic table', async () => {
@@ -783,7 +783,7 @@ describe.sequential('db', () => {
     it('test a name with space', async () => {
       try {
         await x.knex.raw('drop table [test it1]')
-      } catch (e) { }
+      } catch (e) {}
       await x.knex.raw(
         "create table [test it1] (id int default 0 not null, name varchar(100) default '' not null)",
       )

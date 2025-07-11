@@ -2,7 +2,7 @@
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { onMount } from 'svelte'
 
-import { connectionInfo } from '$lib/stores/connectionInfoStore'
+  import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { ActionsController } from '$shared/controllers/ActionsController'
   import { Button, Card, Icon, TextField } from '$ui'

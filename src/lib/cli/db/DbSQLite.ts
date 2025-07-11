@@ -37,8 +37,12 @@ export class DbSQLite implements IDatabase {
   }
 
   async getTableColumnInfo(schemaName: string, tableName: string) {
-    const tablesColumnInfo = await this.knex!.knex.raw(`SELECT * FROM pragma_table_info('${tableName}')`)
-    const autoIncrement = await this.knex!.knex.raw(`SELECT * FROM sqlite_sequence WHERE name='${tableName}'`);
+    const tablesColumnInfo = await this.knex!.knex.raw(
+      `SELECT * FROM pragma_table_info('${tableName}')`,
+    )
+    const autoIncrement = await this.knex!.knex.raw(
+      `SELECT * FROM sqlite_sequence WHERE name='${tableName}'`,
+    )
     return tablesColumnInfo.map(
       (c: {
         cid: number
@@ -68,14 +72,20 @@ export class DbSQLite implements IDatabase {
 
         const i: DbTableColumnInfo = {
           column_name: c.name,
-          column_default: (c.pk === 1 && autoIncrement.length > 0) ? 'nextval' : ((c.dflt_value === null || (typeof c.dflt_value === 'string' && c.dflt_value.toLowerCase() === 'null')) ? null : c.dflt_value) ,
+          column_default:
+            c.pk === 1 && autoIncrement.length > 0
+              ? 'nextval'
+              : c.dflt_value === null ||
+                  (typeof c.dflt_value === 'string' && c.dflt_value.toLowerCase() === 'null')
+                ? null
+                : c.dflt_value,
           data_type,
           precision: 0, // I don't know
           character_maximum_length,
           udt_name: '',
           // SQLite uses 0 and 1 in notnull and pk but they are read as strings
-          is_nullable: (c.pk === 0 && c.notnull === 0) ? 'YES' : 'NO',
-          is_key: c.pk === 1
+          is_nullable: c.pk === 0 && c.notnull === 0 ? 'YES' : 'NO',
+          is_key: c.pk === 1,
         }
         return i
       },
@@ -98,8 +108,8 @@ GROUP BY
     m.tbl_name,
     il.name,
     ii.name`
-    const tablesColumnInfo = await this.knex!.knex.raw(sql);
-    return tablesColumnInfo;
+    const tablesColumnInfo = await this.knex!.knex.raw(sql)
+    return tablesColumnInfo
   }
 
   async getForeignKeys() {
@@ -116,8 +126,8 @@ FROM
     pragma_foreign_key_list(m.name) AS p ON m.name != p."table"
 WHERE m.type = 'table'
 ORDER BY m.name;`
-    const foreignKeys = await this.knex!.knex.raw(sql);
-    return foreignKeys;
+    const foreignKeys = await this.knex!.knex.raw(sql)
+    return foreignKeys
   }
 
   async getEnumDef(udt_name: string) {
