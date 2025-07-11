@@ -40,7 +40,12 @@ export class DbSQLite implements IDatabase {
     const tablesColumnInfo = await this.knex!.knex.raw(
       `SELECT * FROM pragma_table_info('${tableName}')`,
     )
-    const autoIncrement = await this.knex!.knex.raw(
+    // check if database has auto sqlite_sequence
+    const hasSqliteSequence = await this.knex!.knex.raw(`
+SELECT COUNT(*) AS has_sqlite_sequence
+FROM sqlite_master
+WHERE name = 'sqlite_sequence'`);
+    const autoIncrement = hasSqliteSequence[0].has_sqlite_sequence < 1 ? 0 : await this.knex!.knex.raw(
       `SELECT * FROM sqlite_sequence WHERE name='${tableName}'`,
     )
     return tablesColumnInfo.map(
