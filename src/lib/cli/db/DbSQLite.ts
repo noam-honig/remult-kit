@@ -44,10 +44,11 @@ export class DbSQLite implements IDatabase {
     const hasSqliteSequence = await this.knex!.knex.raw(`
 SELECT COUNT(*) AS has_sqlite_sequence
 FROM sqlite_master
-WHERE name = 'sqlite_sequence'`);
-    const autoIncrement = hasSqliteSequence[0].has_sqlite_sequence < 1 ? 0 : await this.knex!.knex.raw(
-      `SELECT * FROM sqlite_sequence WHERE name='${tableName}'`,
-    )
+WHERE name = 'sqlite_sequence'`)
+    const autoIncrement =
+      hasSqliteSequence[0].has_sqlite_sequence < 1
+        ? 0
+        : await this.knex!.knex.raw(`SELECT * FROM sqlite_sequence WHERE name='${tableName}'`)
     return tablesColumnInfo.map(
       (c: {
         cid: number
