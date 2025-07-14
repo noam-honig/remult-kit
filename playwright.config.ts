@@ -7,25 +7,19 @@ if (process.env.CI) {
 }
 
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
-  retries: 2, // default
+  // retries: 0, // default
   // workers: 50%, // default
-  testMatch: '*/**/e2e/*.ts',
+  testMatch: '*/**/e2e.ts',
   reporter,
-  use: {
-    screenshot: 'only-on-failure',
-    baseURL: `http://127.0.0.1:${webServer_port}`,
-  },
+  use: { screenshot: 'only-on-failure' },
   webServer: {
-    // command: `npm run build && npm run preview --port ${webServer_port}`,
-    command: `npm run preview`,
+    command: `npm run build && npm run preview --port ${webServer_port}`,
     port: webServer_port,
-    timeout: 180_000, // time for build and run preview!
+    // timeout: 180_000, // time for build and run preview!
     stdout: 'pipe',
   },
-  timeout: 60_000,
+  timeout: 10_000,
   expect: {
-    timeout: 6 * 1000,
     toMatchSnapshot: {
       threshold: 0.4,
     },
