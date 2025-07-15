@@ -694,7 +694,8 @@ describe.sequential('db', () => {
       client: 'sqlite3',
       connection: {
         filename: 'src/lib/cli/db/sqlite3/dev.db',
-      }, //,debug: true
+      },
+      useNullAsDefault: true, //,debug: true
     })
     beforeEach(async () => {
       try {
@@ -802,6 +803,162 @@ describe.sequential('db', () => {
         }
         "
       `)
+    })
+    // Types
+    it('test INTEGER type', async () => {
+      await x.knex.raw('create table test1 (id integer)')
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer({ allowNull: true })
+          id?: number
+        }
+        "
+      `)
+    })
+    it('test REAL type', async () => {
+      await x.knex.raw('create table test1 (float_value real not null)')
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          float_value!: number
+        }
+        "
+      `)
+    })
+    // AUTOINCREMENT is recognized if the table is not empty
+    it('verify that an entry for the table exists in sqlite_sequence, indicating the use of AUTOINCREMENT in its schema.', async () => {
+      await x.knex.raw('create table test1 (id INTEGER PRIMARY KEY AUTOINCREMENT, an integer)')
+      await x.knex.raw('insert into test1 (an) values (1)')
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.autoIncrement()
+          id = 0
+
+          @Fields.integer({ allowNull: true })
+          an?: number
+        }
+        "
+      `)
+    })
+    it('test NOT NULL for primary keys.', async () => {
+      await x.knex.raw('create table test1 (id INTEGER PRIMARY KEY)')
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          id!: number
+        }
+        "
+      `)
+    })
+    it('test NOT NULL', async () => {
+      await x.knex.raw(
+        'create table test1 (id INTEGER NOT NULL, name TEXT not null, value REAL not null)',
+      )
+      const result = await getTypescript(new DbSQLite(x), 'test1')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+
+        @Entity<Test1>("test1", {
+          dbName: "test1",
+        })
+        export class Test1 {
+          @Fields.integer()
+          id!: number
+
+          @Fields.string()
+          name!: string
+
+          @Fields.integer()
+          value!: number
+        }
+        "
+      `)
+    })
+    it('test to-one relationship', async () => {
+      await x.knex.raw('create table if not exists one (id INTEGER PRIMARY KEY, name TEXT)')
+      await x.knex.raw(
+        'create table if not exists many (id INTEGER PRIMARY KEY, name TEXT, fk INTEGER not null, FOREIGN KEY (fk) REFERENCES one(id))',
+      )
+      const result = await getTypescript(new DbSQLite(x), 'many')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Field, Fields } from "remult"
+        import { Relations } from "remult"
+        import { One } from "./One.js"
+
+        @Entity<Many>("many", {
+          dbName: "many",
+        })
+        export class Many {
+          @Fields.integer()
+          id!: number
+
+          @Fields.string({ allowNull: true })
+          name?: string
+
+          @Fields.integer()
+          fk!: number
+
+          @Relations.toOne(() => One, { field: "fk" })
+          oneFk!: One
+        }
+        "
+      `)
+      await x.execute('drop table if exists one')
+      await x.execute('drop table if exists many')
+    })
+    it('test to-one relationship', async () => {
+      await x.knex.raw('create table if not exists one (id INTEGER PRIMARY KEY, name TEXT)')
+      await x.knex.raw(
+        'create table if not exists many (id INTEGER PRIMARY KEY, name TEXT, fk INTEGER not null, FOREIGN KEY (fk) REFERENCES one(id))',
+      )
+      const result = await getTypescript(new DbSQLite(x), 'one')
+      expect(result).toMatchInlineSnapshot(`
+        "import { Entity, Fields } from "remult"
+        import { Relations } from "remult"
+        import { Many } from "./Many.js"
+
+        @Entity<One>("one", {
+          dbName: "one",
+        })
+        export class One {
+          @Fields.integer()
+          id!: number
+
+          @Fields.string({ allowNull: true })
+          name?: string
+
+          // Relations toMany
+          @Relations.toMany(() => Many)
+          many?: Many[]
+        }
+        "
+      `)
+      await x.execute('drop table if exists one')
+      await x.execute('drop table if exists many')
     })
   })
 })

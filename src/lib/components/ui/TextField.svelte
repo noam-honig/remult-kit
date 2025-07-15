@@ -3,6 +3,7 @@
 
   import FieldContainer from './FieldContainer.svelte'
 
+  // eslint-disable-next-line svelte/require-event-dispatcher-types
   const dispatch = createEventDispatcher()
 
   export let label: string = 'label'

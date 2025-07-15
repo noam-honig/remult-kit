@@ -7,6 +7,8 @@ node_modules
 .env.*
 !.env.example
 
+src/lib/ROUTE.ts
+
 # Ignore files for PNPM, NPM and YARN
 package.json
 pnpm-lock.yaml
@@ -16,3 +18,5 @@ yarn.lock
 src/shared
 remult-kit-app
 .remult-kit
+
+playwright-report

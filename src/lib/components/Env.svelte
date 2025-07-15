@@ -2,12 +2,10 @@
   import {
     mdiCheckboxBlankBadgeOutline,
     mdiCheckboxBlankCircleOutline,
-    mdiCheckboxBlankOutline,
     mdiCheckboxMarkedOutline,
     mdiRocketLaunchOutline,
   } from '@mdi/js'
   import { confetti } from '@neoconfetti/svelte'
-  import { writable } from 'svelte/store'
 
   import { databases, type ConnectionInfo } from '$lib/cli/db/databases'
   import Icon from '$lib/components/ui/Icon.svelte'
@@ -95,7 +93,7 @@
         }}
         class="grid gap-4"
       >
-        {#each Object.keys(databases[$connectionInfo.db].args) as arg}
+        {#each Object.keys(databases[$connectionInfo.db].args) as arg (arg)}
           <TextField
             label={arg}
             bind:value={$connectionInfo.args[arg]}

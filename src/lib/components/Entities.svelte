@@ -1,15 +1,10 @@
 <script lang="ts">
   import { mdiLayersTripleOutline, mdiRefresh } from '@mdi/js'
   import { onMount } from 'svelte'
-  import { r } from 'svelte-highlight/languages'
-  import { slide } from 'svelte/transition'
-
-  import { remult } from 'remult'
 
   import { connectionInfo } from '$lib/stores/connectionInfoStore'
   import { remultInfos } from '$lib/stores/remultInfos'
   import { ActionsController } from '$shared/controllers/ActionsController'
-  import { Setting, SettingKey } from '$shared/entities/Setting'
   import { Button, Card, Icon, TextField } from '$ui'
 
   import Code from './Code.svelte'
@@ -120,7 +115,7 @@
           <!-- </div>
       <ul class="menu bg-base-200 rounded-box"> -->
           <div class="grid gap-2">
-            {#each sortedData as row}
+            {#each sortedData as row (row.fileContent)}
               <div>
                 <Card>
                   <svelte:fragment slot="title">

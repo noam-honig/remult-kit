@@ -74,7 +74,7 @@
         <div class="text-primary">Remult Kit</div>
       </div>
       <ul class="menu">
-        {#each links as link}
+        {#each links as link (link.path)}
           <li>
             <a
               class="flex items-center gap-2 rounded-md p-2 hover:bg-base-200"
