@@ -18,3 +18,5 @@ yarn.lock
 src/shared
 remult-kit-app
 .remult-kit
+
+playwright-report
