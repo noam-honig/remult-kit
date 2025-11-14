@@ -13,7 +13,7 @@
   })
 </script>
 
-<Card title="Basics">
+<Card title="Basics" class="collapse-open">
   {#each settings as setting (setting.id)}
     <div>
       <TextField

@@ -12,7 +12,9 @@
   {#if icon}
     <Icon path={icon} class={loading ? 'animate-pulse' : ''}></Icon>
   {/if}
-  <span class={loading ? 'animate-pulse' : ''}>
-    <slot />
-  </span>
+  {#if $$slots.default}
+    <span class={loading ? 'animate-pulse' : ''}>
+      <slot />
+    </span>
+  {/if}
 </button>
