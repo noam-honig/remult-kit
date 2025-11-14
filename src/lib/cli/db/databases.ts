@@ -41,6 +41,7 @@ const dataProvider = createPostgresDataProvider({
         await createPostgresDataProvider({
           connectionString: args['database url'],
         }),
+        { schema: 'public' },
       )
     },
   }),

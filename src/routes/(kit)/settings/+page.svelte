@@ -22,6 +22,7 @@
         on:change={() => {
           remult.repo(Setting).save(setting)
         }}
+        placeholder={setting.placeholder}
       ></TextField>
       {#if setting.id === SettingKey.tableProps}
         <div class="mt-2 flex items-center gap-2">

@@ -124,8 +124,13 @@
                         on:click={() => updateEntityOpen(row.meta.table.className)}
                         class="card-title grid flex-1 grid-cols-2 place-items-start items-center"
                       >
-                        <p>
-                          {row.meta.table.className}
+                        <p class="flex flex-col items-start gap-1">
+                          {#if row.meta.table.schema !== 'public'}
+                            <span class="text-xs text-base-content/60">
+                              {row.meta.table.schema}.
+                            </span>
+                          {/if}
+                          <span class="text-md font-medium">{row.meta.table.className}</span>
                         </p>
                         <i class="w-24 text-right text-xs">{row.meta.colsMeta.length + ' fields'}</i
                         >
@@ -146,6 +151,12 @@
                     </div>
                   {/if}
                 </Card>
+              </div>
+            {:else}
+              <div class="my-8 text-center text-accent">
+                No entities found in <a class="link link-accent" href="/settings">Schema</a>
+                {#if search}
+                  with filter '{search}'{/if}
               </div>
             {/each}
           </div>
