@@ -13,7 +13,7 @@
   })
 </script>
 
-<Card title="Basics">
+<Card title="Basics" class="collapse-open">
   {#each settings as setting (setting.id)}
     <div>
       <TextField
@@ -22,6 +22,7 @@
         on:change={() => {
           remult.repo(Setting).save(setting)
         }}
+        placeholder={setting.placeholder}
       ></TextField>
       {#if setting.id === SettingKey.tableProps}
         <div class="mt-2 flex items-center gap-2">

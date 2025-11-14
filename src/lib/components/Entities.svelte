@@ -37,14 +37,6 @@
 
   let search = ''
 
-  let entityOpen = ''
-  const updateEntityOpen = (name: string) => {
-    if (entityOpen === name) {
-      entityOpen = ''
-    } else {
-      entityOpen = name
-    }
-  }
   async function saveTable(row: (typeof $remultInfos.entities)[0]) {
     const rowToSave = [row]
     const handled = new Set<string>(row.meta.table.className)
@@ -68,14 +60,14 @@
 </script>
 
 {#if $connectionInfo.status === 'good'}
-  <div class="collapse bg-base-300">
+  <div class="bg-base-100 collapse-arrow collapse">
     <input type="checkbox" checked />
     <div class="collapse-title text-xl font-medium">
       <div class="flex items-center gap-4">
         <Icon path={mdiLayersTripleOutline}></Icon> Entities
       </div>
     </div>
-    <div class="collapse-content">
+    <div class="collapse-content bg-base-100">
       {#if loading}
         Loading...
       {:else}
@@ -120,16 +112,20 @@
                 <Card>
                   <svelte:fragment slot="title">
                     <div class="flex items-center">
-                      <button
-                        on:click={() => updateEntityOpen(row.meta.table.className)}
+                      <div
                         class="card-title grid flex-1 grid-cols-2 place-items-start items-center"
                       >
-                        <p>
-                          {row.meta.table.className}
+                        <p class="flex flex-col items-start gap-1">
+                          {#if row.meta.table.schema !== 'public'}
+                            <span class="text-base-content/60 text-xs">
+                              {row.meta.table.schema}.
+                            </span>
+                          {/if}
+                          <span class="text-md font-medium">{row.meta.table.className}</span>
                         </p>
                         <i class="w-24 text-right text-xs">{row.meta.colsMeta.length + ' fields'}</i
                         >
-                      </button>
+                      </div>
 
                       <div class="flex justify-end">
                         <Button on:click={async () => saveTable(row)}>Write File</Button>
@@ -137,15 +133,19 @@
                     </div>
                   </svelte:fragment>
 
-                  {#if entityOpen === row.meta.table.className}
-                    <div class="p-2">
-                      <Code code={row.fileContent}></Code>
-                      <pre>
+                  <div class="p-2">
+                    <Code code={row.fileContent}></Code>
+                    <!-- <pre>
                         {JSON.stringify(row.meta, undefined, 2)}
-                      </pre>
-                    </div>
-                  {/if}
+                      </pre> -->
+                  </div>
                 </Card>
+              </div>
+            {:else}
+              <div class="my-8 text-center text-accent">
+                No entities found in <a class="link link-accent" href="/settings">Schema</a>
+                {#if search}
+                  with filter '{search}'{/if}
               </div>
             {/each}
           </div>

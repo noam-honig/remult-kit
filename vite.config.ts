@@ -1,4 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 import { kitRoutes } from 'vite-plugin-kit-routes'
 import { stripper } from 'vite-plugin-stripper'
@@ -15,6 +16,7 @@ export default defineConfig(({ mode }) => {
     testTimeout: 600000,
 
     plugins: [
+      tailwindcss(),
       kitRoutes<KIT_ROUTES>({
         post_update_run: 'npm exec prettier ./src/lib/ROUTES.ts -- -w',
         logs: {
