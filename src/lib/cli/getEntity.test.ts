@@ -376,7 +376,7 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1", {})
         export class Test1 {
-          @Fields.uuid()
+          @Fields.id()
           id!: string
 
           @Fields.string({ validate: [Validators.unique] })
@@ -401,7 +401,7 @@ describe.sequential('db', () => {
 
         @Entity<Test1>("test1", {})
         export class Test1 {
-          @Fields.uuid()
+          @Fields.id()
           id = ""
         }
         "

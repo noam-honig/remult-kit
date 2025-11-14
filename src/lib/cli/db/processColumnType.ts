@@ -19,14 +19,14 @@ const stringProcessor: DataTypeProcessorFunction = ({ column_name, column_defaul
   if (data_type === 'uuid') {
     return {
       type: 'string',
-      decorator: '@Fields.uuid',
+      decorator: '@Fields.id',
       defaultVal,
     }
   }
   if (data_type === 'cuid') {
     return {
       type: 'string',
-      decorator: '@Fields.cuid',
+      decorator: '@Fields.id',
       defaultVal,
     }
   }
