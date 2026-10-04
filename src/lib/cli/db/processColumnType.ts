@@ -219,8 +219,24 @@ const dataTypeProcessors: Record<string, DataTypeProcessorFunction> = {
   uuid: stringProcessor,
   cuid: stringProcessor,
 
+  // special postgres types (to silently ignore for now)
+  name: stringProcessor,
+  oid: stringProcessor,
+  pg_lsn: numberProcessor,
+  bytea: stringProcessor,
+  xid: stringProcessor,
+  interval: stringProcessor,
+  anyarray: stringProcessor,
+  pg_dependencies: stringProcessor,
+  pg_ndistinct: stringProcessor,
+  regtype: stringProcessor,
+  regproc: stringProcessor,
+  pg_node_tree: stringProcessor,
+  pg_mcv_list: stringProcessor,
+
   CHAR: charProcessor,
   char: charProcessor,
+  '"char"': charProcessor,
 
   date: dateProcessor,
   DATE: dateProcessor,

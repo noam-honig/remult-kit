@@ -65,14 +65,14 @@
   //TODO JYC - please fix the collapsable so if when I connect the connection is not good - to be open, all next times to be closed
 </script>
 
-<div class="collapse bg-base-300">
+<div class="bg-base-100 collapse-arrow collapse">
   <input type="checkbox" checked={defaultChecked} />
   <div class="collapse-title text-xl font-medium">
     <div class="flex items-center gap-4">
       <Icon path={getIcon($connectionInfo.status)}></Icon> Connection
     </div>
   </div>
-  <div class="collapse-content">
+  <div class="collapse-content bg-base-100">
     <div class="grid gap-4 p-3">
       <SelectField
         label="Data Provider"
@@ -117,7 +117,7 @@
           </Button>
         {/if}
         {#if $connectionInfo.error && !databases[$connectionInfo.db].isSelect}
-          <Card title="Error" class="border border-error">
+          <Card title="Error" class="border-error border">
             <pre class="text-error">{$connectionInfo.error}</pre>
           </Card>
         {/if}
@@ -131,7 +131,7 @@
             {#if getCodeEnv($connectionInfo).length > 0}
               <Code code={getCodeEnv($connectionInfo).join('\n')} />
             {:else}
-              <i class="text-secondary">No environement variables yet!</i>
+              <i class="text-base-content/60">No environement variables yet!</i>
             {/if}
           </Card>
 

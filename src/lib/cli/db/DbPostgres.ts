@@ -5,11 +5,16 @@ import type { DbTableColumnInfo, IDatabase } from './types.js'
 
 export class DbPostgres implements IDatabase {
   name = 'postgres'
-  constructor(private sqlDatabase: SqlDatabase) {}
+  schema = 'public'
+  constructor(
+    private sqlDatabase: SqlDatabase,
+    { schema }: { schema?: string } = {},
+  ) {
+    if (schema) this.schema = schema
+  }
   async test() {
     await this.sqlDatabase!.execute('select 1')
   }
-  schema = 'public'
 
   async getTablesInfo() {
     const command = this.sqlDatabase!.createCommand()
@@ -92,8 +97,7 @@ export class DbPostgres implements IDatabase {
 			FROM information_schema.table_constraints AS c
 				 JOIN information_schema.constraint_column_usage AS cc
 						USING (table_schema, table_name, constraint_name)
-			WHERE c.constraint_type = 'UNIQUE' ` +
-        `AND table_schema = ${command.addParameterAndReturnSqlToken(schema)};`,
+			WHERE c.constraint_type = 'UNIQUE' ` + `AND table_schema = ${command.param(schema)};`,
     )
 
     return tablesColumnInfo.rows.map((c) => {

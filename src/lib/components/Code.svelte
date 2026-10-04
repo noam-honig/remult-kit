@@ -20,16 +20,16 @@
   {@html atomOneDark}
 </svelte:head>
 
-<div class="m-5 border border-accent">
+<div class="border-accent m-5 border">
   <div class="indicator w-full">
     <span class="indicator-item">
       <Button
-        class="btn-circle  btn-secondary cursor-copy"
+        class="btn-circle btn-accent cursor-copy"
         on:click={() => clip(code)}
         icon={mdiContentCopy}
       ></Button>
     </span>
-    <div class="grid w-full bg-base-300">
+    <div class="bg-base-300 grid w-full">
       <Highlight language={typescript} code={code ?? ''} class="overflow-x-auto" />
     </div>
   </div>

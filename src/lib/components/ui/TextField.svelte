@@ -17,6 +17,6 @@
     type="text"
     {placeholder}
     bind:value
-    class="input input-bordered w-full placeholder:text-base-content/30"
+    class="input input-bordered placeholder:text-base-content/30 w-full"
   />
 </FieldContainer>

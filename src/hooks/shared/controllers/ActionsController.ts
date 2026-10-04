@@ -21,6 +21,7 @@ export class ActionsController {
 
       const repo = remult.repo(Setting)
       const all = await repo.find()
+      const schema = all.find((c) => c.id === SettingKey.schema)?.value ?? db.schema
       const outputDir =
         all.find((c) => c.id === SettingKey.outputDir)?.value ?? 'src/shared/entities'
       const tableProps =
@@ -33,7 +34,7 @@ export class ActionsController {
         ['order', 'name'],
         {},
         true,
-        [db.schema],
+        [schema],
         'NEVER',
         ['pg_stat_statements', 'pg_stat_statements_info'],
       )
